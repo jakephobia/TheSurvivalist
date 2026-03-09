@@ -1,0 +1,1464 @@
+/**
+ * MOBILE VERSION - The Survivalist
+ * All styles scoped to body.mobile-view - desktop version is NOT modified.
+ * Loaded on all pages; applies only when mobile viewport (≤768px) is detected.
+ */
+
+/* Hamburger hidden on desktop */
+.mobile-menu-btn { display: none; }
+.mobile-menu-backdrop { display: none; }
+
+/* ========== HAMBURGER MENU & SIDEBAR ACCESS ========== */
+body.mobile-view .mobile-menu-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 37px;
+  height: 37px;
+  padding: 0;
+  border: none;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 1.5rem;
+  color: var(--accent-color);
+  flex-shrink: 0;
+  margin-right: var(--space-md);
+}
+
+body.mobile-view .mobile-menu-btn:hover {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+body.mobile-view .mobile-menu-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 45;
+  backdrop-filter: blur(2px);
+}
+
+body.mobile-view.mobile-menu-open .mobile-menu-backdrop {
+  display: block;
+}
+
+html[data-theme="dark"] body.mobile-view .mobile-menu-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--accent-color);
+}
+
+html[data-theme="dark"] body.mobile-view .mobile-menu-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+body.mobile-view .sidebar-theme-wrap .sidebar-theme-btn {
+  width: auto;
+  min-width: 120px;
+  height: 40px;
+  padding: 0 1rem;
+  border-radius: 999px;
+  border: 2px solid #1e3646;
+  background: transparent;
+  color: #1e3646;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+html[data-theme="dark"] body.mobile-view .sidebar-theme-wrap .sidebar-theme-btn {
+  color: #b0c4d4;
+  border-color: #b0c4d4;
+}
+
+body.mobile-view .sidebar {
+  position: fixed;
+  transform: translateX(-100%);
+  transition: transform 0.25s ease;
+  width: min(280px, 85vw);
+  z-index: 60;
+  box-shadow: 12px 0 24px -8px rgba(0, 20, 40, 0.2);
+  top: 0;
+  left: 0;
+  height: 100vh;
+}
+
+body.mobile-view.mobile-menu-open .sidebar {
+  transform: translateX(0);
+}
+
+body.mobile-view .main-content {
+  margin-left: 0 !important;
+  width: 100% !important;
+}
+
+/* ========== HEADER - No deformation, flexible layout ========== */
+body.mobile-view .main-header {
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  min-height: auto;
+}
+
+body.mobile-view .header-left {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+body.mobile-view .header-title {
+  font-size: 1.25rem;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+body.mobile-view .header-subtitle {
+  font-size: 0.85rem;
+  margin-top: 0.15rem;
+}
+
+body.mobile-view .header-right {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  align-items: center;
+  flex-shrink: 0;
+}
+
+body.mobile-view .header-right .btn-secondary,
+body.mobile-view .header-right .btn-danger {
+  padding: var(--space-sm) var(--space-md);
+  font-size: 0.75rem;
+  min-height: 37px;
+  height: 37px;
+}
+
+/* Header: stack title+subtitle above buttons on very narrow screens */
+body.mobile-view .main-header {
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+body.mobile-view .header-right {
+  order: 2;
+  width: 100%;
+  justify-content: flex-end;
+}
+
+body.mobile-view .header-right .mobile-menu-btn {
+  margin-right: auto;
+}
+
+body.mobile-view .header-left {
+  order: 1;
+  width: 100%;
+}
+
+/* ========== CARDS & BOXES - Wider, readable, no cramped scrollbars ========== */
+body.mobile-view .dashboard-container {
+  padding: var(--space-lg) var(--space-lg) var(--space-2xl);
+}
+
+body.mobile-view .dashboard {
+  padding: 0;
+}
+
+body.mobile-view .card,
+body.mobile-view .section {
+  width: 100%;
+  max-width: 100%;
+  padding: var(--space-xl) var(--space-lg);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+body.mobile-view .card .section-title,
+body.mobile-view .section .section-title {
+  font-size: 1.1rem;
+  margin-bottom: var(--space-md);
+}
+
+body.mobile-view .card p,
+body.mobile-view .section p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+body.mobile-view textarea {
+  min-height: 120px !important;
+  font-size: 1rem !important;
+  padding: var(--space-md) !important;
+  line-height: 1.5;
+}
+
+/* ========== HOMEPAGE (index) ========== */
+body.mobile-view .index-welcome-box {
+  padding: var(--space-xl) var(--space-lg);
+  margin-bottom: var(--space-xl);
+}
+
+body.mobile-view .index-welcome-title {
+  font-size: 1.35rem;
+}
+
+body.mobile-view .index-welcome-text {
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+body.mobile-view .index-card,
+body.mobile-view .index-recent-card {
+  padding: var(--space-xl) var(--space-lg);
+  width: 100%;
+}
+
+body.mobile-view .index-card-sub,
+body.mobile-view .index-empty-msg {
+  font-size: 0.95rem;
+}
+
+body.mobile-view .index-grid-3 {
+  grid-template-columns: 1fr;
+  gap: var(--space-xl);
+}
+
+body.mobile-view .index-box-content p {
+  font-size: 0.95rem;
+  margin-bottom: var(--space-md);
+}
+
+body.mobile-view .index-recent-list-h {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+body.mobile-view .index-recent-item {
+  padding: var(--space-md) var(--space-lg);
+  font-size: 0.95rem;
+}
+
+body.mobile-view .index-instagram-embed {
+  min-height: 320px;
+}
+
+body.mobile-view .index-changelog-item p {
+  font-size: 0.95rem;
+}
+
+/* ========== SUTRAL ========== */
+body.mobile-view .sutral-batch-import {
+  padding: var(--space-xl) var(--space-lg);
+}
+
+body.mobile-view .sutral-batch-import .section-header {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-md);
+}
+
+body.mobile-view .sutral-batch-import .section-header .btn-primary {
+  width: 100%;
+  min-height: 48px;
+}
+
+body.mobile-view .sutral-btn-group {
+  flex-direction: column !important;
+  align-items: stretch !important;
+}
+
+body.mobile-view .sutral-btn-group .btn-primary {
+  width: 100%;
+  min-width: 0;
+}
+
+body.mobile-view .sutral-batch-import textarea {
+  min-height: 140px !important;
+  width: 100% !important;
+}
+
+body.mobile-view .sutral-batch-import > div[style*="display: flex"] {
+  flex-direction: column !important;
+  gap: var(--space-md) !important;
+}
+
+body.mobile-view .sutral-batch-import .btn-secondary {
+  width: 100%;
+}
+
+body.mobile-view .sutral-episode {
+  padding: var(--space-lg);
+}
+
+body.mobile-view .sutral-episode-header {
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+body.mobile-view .sutral-table {
+  font-size: 0.85rem;
+}
+
+body.mobile-view .sutral-table th,
+body.mobile-view .sutral-table td {
+  padding: var(--space-sm) var(--space-xs);
+}
+
+body.mobile-view .sutral-winner-analysis {
+  padding: var(--space-lg);
+}
+
+body.mobile-view .sutral-chart-container {
+  min-height: 200px;
+}
+
+/* ========== SIMOA ========== */
+body.mobile-view .simoa-toolbar {
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+body.mobile-view .simoa-toolbar-secondary {
+  flex-direction: column;
+}
+
+body.mobile-view .simoa-input-group {
+  flex: 1 1 100%;
+  min-width: 0;
+}
+
+body.mobile-view .simoa-input-group-season {
+  flex: 1 1 100%;
+}
+
+body.mobile-view .simoa-tribe-config-wrap .tribe-config-row,
+body.mobile-view .simoa-tribe-config-wrap .simoa-tribe-config-row {
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+body.mobile-view .simoa-tribe-config-wrap .tribe-config-row input[type="color"],
+body.mobile-view .simoa-tribe-config-wrap .simoa-tribe-config-row input[type="color"] {
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+body.mobile-view .simoa-tribe-config-wrap .tribe-config-row input[type="text"],
+body.mobile-view .simoa-tribe-config-wrap .simoa-tribe-config-row input[type="text"] {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ========== EDGER ========== */
+body.mobile-view .edger-toolbar {
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+body.mobile-view .edger-input-group {
+  flex: 1 1 100%;
+  min-width: 0;
+}
+
+body.mobile-view .edger-input-group-season {
+  flex: 1 1 100%;
+}
+
+body.mobile-view .edger-batch-row {
+  flex-direction: column;
+}
+
+body.mobile-view .edger-batch-input {
+  width: 100%;
+}
+
+body.mobile-view .edger-action-group {
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+body.mobile-view .edger-action-group .btn-primary,
+body.mobile-view .edger-action-group .btn-secondary {
+  flex: 1 1 calc(50% - var(--space-sm));
+  min-width: 120px;
+}
+
+body.mobile-view .edger-generate-btn {
+  margin-left: 0;
+  flex: 1 1 100%;
+}
+
+body.mobile-view .edger-grid-wrap {
+  max-height: 50vh;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+body.mobile-view .edger-col-player,
+body.mobile-view .edger-sticky-player {
+  min-width: 5rem;
+  width: 5rem;
+}
+
+body.mobile-view .edger-table th,
+body.mobile-view .edger-table td {
+  font-size: 0.8rem;
+  padding: var(--space-sm);
+}
+
+/* ========== OUTLIST ========== */
+body.mobile-view .outlist-top-row {
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+body.mobile-view .outlist-stats {
+  flex-direction: column;
+  width: 100%;
+}
+
+body.mobile-view .outlist-stat-card {
+  width: 100%;
+}
+
+body.mobile-view .outlist-season-card {
+  flex-direction: column;
+}
+
+body.mobile-view .outlist-season-info {
+  border-right: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+body.mobile-view .outlist-settings-header h3 {
+  font-size: 1rem;
+}
+
+/* ========== SMUFFER ========== */
+body.mobile-view .smuffer-status-bar {
+  flex-direction: column;
+  gap: var(--space-md);
+  align-items: stretch;
+}
+
+body.mobile-view .smuffer-tabs-nav {
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+body.mobile-view .smuffer-tab-btn {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 0.85rem;
+  padding: var(--space-sm) var(--space-md);
+}
+
+body.mobile-view .smuffer-form-group .smuffer-flex-row {
+  flex-direction: column;
+}
+
+body.mobile-view .smuffer-form-group input,
+body.mobile-view .smuffer-form-group textarea {
+  width: 100%;
+}
+
+body.mobile-view .smuffer-flex-row.smuffer-gap-10 {
+  flex-direction: column;
+}
+
+body.mobile-view .smuffer-tribe-box {
+  min-width: 0;
+}
+
+body.mobile-view .smuffer-dnd-container {
+  flex-direction: column;
+}
+
+body.mobile-view .smuffer-edgic-table,
+body.mobile-view .smuffer-conf-table {
+  font-size: 0.85rem;
+}
+
+body.mobile-view .smuffer-edgic-table th,
+body.mobile-view .smuffer-edgic-table td,
+body.mobile-view .smuffer-conf-table th,
+body.mobile-view .smuffer-conf-table td {
+  padding: var(--space-sm);
+}
+
+body.mobile-view .smuffer-tribal-grid {
+  font-size: 0.85rem;
+}
+
+body.mobile-view .smuffer-tribal-grid th,
+body.mobile-view .smuffer-tribal-grid td {
+  padding: var(--space-sm);
+}
+
+body.mobile-view .smuffer-rank-two-cols {
+  grid-template-columns: 1fr;
+}
+
+/* ========== TALLY ========== */
+body.mobile-view .tally-grid-2 {
+  grid-template-columns: 1fr;
+}
+
+body.mobile-view .tally-flex-between {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+body.mobile-view .tally-tabs {
+  flex-wrap: wrap;
+}
+
+body.mobile-view .tally-tab {
+  flex: 1 1 auto;
+  font-size: 0.85rem;
+  padding: var(--space-sm) var(--space-md);
+}
+
+body.mobile-view .tally-form-group textarea {
+  min-height: 100px;
+}
+
+body.mobile-view .tally-scoreboard {
+  grid-template-columns: 1fr;
+}
+
+body.mobile-view .tally-key-row {
+  grid-template-columns: 1fr;
+}
+
+body.mobile-view .tally-draft-row {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-sm);
+}
+
+body.mobile-view .tally-draft-row select {
+  min-width: 0;
+  width: 100%;
+}
+
+body.mobile-view .tally-castaway-row {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+body.mobile-view .tally-castaway-name {
+  min-width: 0;
+}
+
+body.mobile-view .tally-checkbox-grid {
+  grid-template-columns: repeat(2, 1fr);
+  max-height: none;
+}
+
+/* ========== BUTTONS - Touch-friendly ========== */
+body.mobile-view .btn-primary,
+body.mobile-view .btn-secondary {
+  min-height: 44px;
+  padding: var(--space-md) var(--space-lg);
+  font-size: 0.95rem;
+}
+
+body.mobile-view .btn-sm {
+  min-height: 40px;
+}
+
+body.mobile-view .btn-block {
+  width: 100%;
+  min-height: 48px;
+}
+
+/* ========== DASHBOARD overflow fix ========== */
+body.mobile-view.page-dashboard .main-content {
+  height: auto;
+  overflow: visible;
+}
+
+body.mobile-view.page-dashboard .dashboard-container {
+  overflow: visible;
+}
+
+body.mobile-view.page-dashboard .dashboard {
+  overflow: visible;
+}
+
+/* ========== INPUT INTERFACES - Touch-friendly ========== */
+body.mobile-view input[type="text"],
+body.mobile-view input[type="number"],
+body.mobile-view input[type="email"],
+body.mobile-view input[type="search"],
+body.mobile-view select {
+  min-height: 44px !important;
+  font-size: 1rem !important;
+  padding: var(--space-md) var(--space-lg) !important;
+}
+
+body.mobile-view input[type="checkbox"],
+body.mobile-view input[type="radio"] {
+  min-width: 22px;
+  min-height: 22px;
+  accent-color: var(--accent-color);
+}
+
+body.mobile-view input[type="color"] {
+  min-height: 44px;
+  padding: var(--space-xs) !important;
+  cursor: pointer;
+}
+
+body.mobile-view input[type="range"] {
+  min-height: 36px;
+  padding: var(--space-sm) 0;
+}
+
+body.mobile-view label {
+  font-size: 0.95rem;
+}
+
+/* ========== MODALS - All tools ========== */
+body.mobile-view .sutral-modal,
+body.mobile-view .smuffer-modal-overlay,
+body.mobile-view .tally-modal-overlay,
+body.mobile-view .outlist-modal-overlay,
+body.mobile-view .edger-modal-bg {
+  padding: var(--space-md);
+  align-items: flex-start;
+  overflow-y: auto;
+}
+
+body.mobile-view .sutral-modal-content,
+body.mobile-view .smuffer-modal,
+body.mobile-view .tally-modal-content,
+body.mobile-view .outlist-modal-content,
+body.mobile-view .edger-modal-box {
+  width: 100% !important;
+  max-width: 100% !important;
+  max-height: 90vh !important;
+  padding: var(--space-xl) var(--space-lg) !important;
+  margin: auto;
+}
+
+body.mobile-view .sutral-modal-close,
+body.mobile-view .smuffer-modal-close {
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+body.mobile-view .sutral-confirm-buttons {
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+body.mobile-view .sutral-confirm-buttons .btn-secondary,
+body.mobile-view .sutral-confirm-buttons .btn-danger {
+  width: 100%;
+  min-height: 48px;
+}
+
+/* Edger modal - EDGIC cell editor */
+body.mobile-view .edger-opt-grid {
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-md);
+}
+
+body.mobile-view .edger-opt-grid-tone {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+body.mobile-view .edger-opt-btn {
+  min-height: 48px;
+  padding: var(--space-md);
+  font-size: 0.9rem;
+}
+
+body.mobile-view .edger-action-row {
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+body.mobile-view .edger-action-row .edger-btn-act {
+  width: 100%;
+  min-height: 48px;
+}
+
+body.mobile-view .edger-vis-range {
+  min-height: 44px;
+}
+
+/* Tally event modal */
+body.mobile-view .tally-event-grid {
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-md);
+}
+
+body.mobile-view .tally-evt-btn {
+  min-height: 56px;
+  padding: var(--space-lg);
+  font-size: 0.9rem;
+}
+
+body.mobile-view .tally-modal-header {
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+body.mobile-view .tally-modal-header .btn-secondary {
+  min-height: 44px;
+}
+
+/* Outlist season modal */
+body.mobile-view .outlist-modal-search {
+  min-height: 48px;
+  font-size: 1rem;
+}
+
+body.mobile-view .outlist-season-options {
+  max-height: 50vh;
+}
+
+body.mobile-view .outlist-season-option {
+  min-height: 48px;
+  padding: var(--space-md);
+}
+
+body.mobile-view .outlist-modal-actions {
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+body.mobile-view .outlist-modal-actions .btn-primary,
+body.mobile-view .outlist-modal-actions .btn-secondary {
+  width: 100%;
+  min-height: 48px;
+}
+
+/* Smuffer modals */
+body.mobile-view .smuffer-modal .smuffer-input,
+body.mobile-view .smuffer-modal .smuffer-color-input,
+body.mobile-view .smuffer-modal .smuffer-swap-count {
+  min-height: 48px;
+  font-size: 1rem;
+}
+
+body.mobile-view .smuffer-modal .smuffer-checkbox-grid {
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-md);
+  max-height: none;
+}
+
+body.mobile-view .smuffer-modal .smuffer-checkbox-label {
+  font-size: 0.95rem;
+  padding: var(--space-sm) 0;
+}
+
+body.mobile-view .smuffer-modal .btn-primary,
+body.mobile-view .smuffer-modal .btn-secondary {
+  min-height: 48px;
+}
+
+/* ========== SIMOA - Setup vs Game phase ========== */
+body.mobile-view #cast-editor .section-header {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-md);
+}
+
+body.mobile-view #cast-editor .simoa-cast-editor-btns {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-sm);
+  width: 100%;
+}
+
+body.mobile-view #cast-editor .simoa-cast-editor-btns .btn-sm {
+  padding: 0.4rem 0.6rem;
+  font-size: 0.75rem;
+  min-height: 32px;
+  height: auto;
+}
+
+body.mobile-view #cast-editor .simoa-cast-editor-btns .simoa-btn-divider {
+  grid-column: 1 / -1;
+  width: 100%;
+  height: 1px;
+  margin: 0.15rem 0;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+body.mobile-view #cast-editor .simoa-flex-row.simoa-gap-5 {
+  flex-wrap: wrap;
+}
+
+body.mobile-view .simoa-cast-row,
+body.mobile-view .cast-row {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-md);
+}
+
+body.mobile-view .simoa-cast-basic-info,
+body.mobile-view .cast-basic-info {
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+body.mobile-view .simoa-cast-basic-info .p-name,
+body.mobile-view .cast-basic-info .p-name {
+  flex: 1 1 100%;
+}
+
+body.mobile-view .simoa-cast-basic-info .p-gender,
+body.mobile-view .simoa-cast-basic-info .p-tribe,
+body.mobile-view .cast-basic-info .p-gender,
+body.mobile-view .cast-basic-info .p-tribe {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+body.mobile-view .simoa-stats-row,
+body.mobile-view .stats-row-container {
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+body.mobile-view .simoa-stat-mini,
+body.mobile-view .stat-mini {
+  flex: 1 1 calc(50% - var(--space-sm));
+  min-width: 0;
+}
+
+body.mobile-view .simoa-stat-mini input,
+body.mobile-view .stat-mini input {
+  min-height: 40px;
+}
+
+/* Simoa game phase - tabs: compact, minimal gap to content */
+body.mobile-view .simoa-tabs {
+  flex-wrap: nowrap;
+  gap: var(--space-xs);
+  padding-bottom: var(--space-xs);
+  margin-bottom: 0.15rem;
+}
+
+body.mobile-view .simoa-tab {
+  flex: 0 0 auto;
+  min-width: 0;
+  padding: var(--space-sm) var(--space-md);
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+/* Simoa game header - riga 1: title sx, 18 Left dx | riga 2: [<] Ep [>] Quick Sim Ep */
+body.mobile-view .simoa-game-header .simoa-game-header-top {
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-sm);
+}
+
+body.mobile-view .simoa-game-header .simoa-game-header-title {
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+body.mobile-view .simoa-game-header .simoa-game-header-nav {
+  width: 100%;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: var(--space-sm);
+}
+
+body.mobile-view .simoa-game-header .simoa-nav-btn {
+  min-height: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+
+body.mobile-view .simoa-game-header #navEpisodePrev,
+body.mobile-view .simoa-game-header #navEpisodeNext {
+  min-width: 40px;
+  width: 40px;
+  padding: 0;
+}
+
+body.mobile-view .simoa-game-header .simoa-nav-btn-sim {
+  flex: 1;
+  min-width: 0;
+}
+
+body.mobile-view .simoa-game-header .simoa-ep-display {
+  margin: 0;
+  font-size: 0.9rem;
+  align-self: center;
+}
+
+body.mobile-view .simoa-game-header .simoa-remaining-box {
+  padding: 0.25rem 0.5rem;
+  flex-shrink: 0;
+  margin-left: 0;
+}
+
+body.mobile-view .simoa-game-header .simoa-remaining-number {
+  font-size: 1.1rem;
+}
+
+body.mobile-view .simoa-game-header .simoa-remaining-label {
+  font-size: 0.65rem;
+}
+
+body.mobile-view .simoa-game-header.card {
+  padding: var(--space-md) var(--space-lg);
+  margin-bottom: var(--space-sm);
+}
+
+body.mobile-view .simoa-game-header .simoa-season-title {
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Simoa game phase - box Events e tab a tutta larghezza schermo, padding minimo */
+body.mobile-view.page-simoa .dashboard-container {
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+}
+
+body.mobile-view.page-simoa .dashboard {
+  max-width: 100%;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+}
+
+body.mobile-view.page-simoa .dashboard-container:has(#game-phase:not(.hidden)),
+body.mobile-view.page-simoa .dashboard:has(#game-phase:not(.hidden)) {
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+}
+
+/* Simoa log - flex layout fills height, minimal left padding, scroll above fixed button */
+body.mobile-view.page-simoa #game-phase #tab-narrative {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0)); /* spazio per Next Event fissato in basso */
+}
+
+body.mobile-view.page-simoa #game-phase #tab-narrative > .simoa-log-card {
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.35rem 0.35rem 0.5rem 0.35rem;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+body.mobile-view.page-simoa #game-phase .simoa-event-item {
+  font-size: 0.78rem;
+  padding: 0.45rem 0.2rem 0.45rem 0.1rem;
+  gap: 0.25rem;
+}
+
+body.mobile-view.page-simoa #game-phase .simoa-event-icon {
+  width: 1.1rem;
+  font-size: 0.85rem;
+}
+
+/* Next Event fixed at bottom - out of flow */
+body.mobile-view.page-simoa #game-phase #btn-main-action {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: 0;
+  border-radius: 0;
+  z-index: 50;
+  padding: var(--space-md) var(--space-lg);
+  padding-bottom: calc(var(--space-md) + env(safe-area-inset-bottom, 0));
+  min-height: 52px;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
+}
+
+body.mobile-view .simoa-tribal-box {
+  padding: var(--space-lg);
+}
+
+body.mobile-view .simoa-tribal-controls {
+  flex-direction: column;
+}
+
+body.mobile-view .simoa-tribal-controls .btn-primary,
+body.mobile-view .simoa-tribal-controls .btn-secondary {
+  width: 100%;
+  min-height: 48px;
+}
+
+body.mobile-view .simoa-finale-container {
+  padding: var(--space-xl) var(--space-lg);
+}
+
+body.mobile-view .simoa-finale-title {
+  font-size: 1.25rem;
+}
+
+body.mobile-view .simoa-finalists-grid {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+body.mobile-view .simoa-finale-container .btn-primary {
+  width: 100%;
+  min-height: 48px;
+}
+
+/* Simoa Stats & Alliances tab */
+body.mobile-view .simoa-flex-row.section {
+  flex-direction: column;
+}
+
+body.mobile-view .simoa-flex-row.section .card {
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+body.mobile-view .simoa-data-table {
+  font-size: 0.85rem;
+}
+
+body.mobile-view .simoa-data-table th,
+body.mobile-view .simoa-data-table td {
+  padding: var(--space-sm);
+}
+
+body.mobile-view .simoa-data-table .simoa-flex-row {
+  flex-wrap: wrap;
+}
+
+body.mobile-view .card div[style*="overflow-y"] {
+  -webkit-overflow-scrolling: touch;
+}
+
+body.mobile-view #advantage-list.simoa-flex-row {
+  flex-direction: column;
+}
+
+/* Simoa voting table */
+body.mobile-view .simoa-voting-table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+body.mobile-view .simoa-voting-table th,
+body.mobile-view .simoa-voting-table td {
+  padding: var(--space-sm);
+  font-size: 0.85rem;
+}
+
+/* Simoa heatmap (relationships) */
+body.mobile-view #heatmap-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ========== SMUFFER - Setup vs App phase ========== */
+body.mobile-view .smuffer-setup-card .smuffer-form-group {
+  margin-bottom: var(--space-lg);
+}
+
+body.mobile-view .smuffer-player-tags {
+  gap: var(--space-sm);
+}
+
+body.mobile-view .smuffer-player-tag {
+  padding: var(--space-sm) var(--space-md);
+  font-size: 0.9rem;
+}
+
+body.mobile-view .smuffer-overview-header {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-md);
+}
+
+body.mobile-view .smuffer-overview-btns {
+  flex-direction: column;
+}
+
+body.mobile-view .smuffer-overview-btns .btn-primary,
+body.mobile-view .smuffer-overview-btns .btn-secondary {
+  width: 100%;
+  min-height: 48px;
+}
+
+/* Smuffer alliance tab - stack sidebar above canvas */
+body.mobile-view .smuffer-alliance-layout {
+  flex-direction: column;
+}
+
+body.mobile-view .smuffer-alliance-sidebar {
+  width: 100%;
+  min-width: 0;
+}
+
+body.mobile-view .smuffer-canvas-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+body.mobile-view .smuffer-canvas-container canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+body.mobile-view .smuffer-alliance-sidebar .smuffer-checkbox-grid {
+  grid-template-columns: repeat(2, 1fr);
+  max-height: none;
+}
+
+body.mobile-view .smuffer-alliance-sidebar .smuffer-input {
+  min-height: 48px;
+}
+
+body.mobile-view .smuffer-alliance-sidebar .btn-primary {
+  width: 100%;
+  min-height: 48px;
+}
+
+/* Smuffer advantage grid */
+body.mobile-view .smuffer-adv-grid {
+  grid-template-columns: 1fr;
+  gap: var(--space-lg);
+}
+
+body.mobile-view .smuffer-adv-card {
+  min-width: 0;
+}
+
+body.mobile-view .smuffer-adv-row {
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+/* Smuffer tribal - FTC */
+body.mobile-view .smuffer-ftc-container {
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+body.mobile-view .smuffer-finalists-row {
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+body.mobile-view .smuffer-finalist-box {
+  min-width: 0;
+}
+
+body.mobile-view .smuffer-jury-drop-zone {
+  min-height: 80px;
+}
+
+body.mobile-view .smuffer-juror-card {
+  min-width: 0;
+}
+
+body.mobile-view .smuffer-tribal-content .smuffer-flex-row {
+  flex-direction: column;
+}
+
+body.mobile-view .smuffer-tribal-content .btn-primary {
+  width: 100%;
+  min-height: 48px;
+}
+
+body.mobile-view .smuffer-overview-header.smuffer-mb-1 .smuffer-flex-row {
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+body.mobile-view #wizTribeInputsContainer .smuffer-flex-row,
+body.mobile-view #swapInputsContainer > div {
+  flex-direction: column;
+}
+
+body.mobile-view #swapInputsContainer input {
+  width: 100%;
+  min-height: 48px;
+}
+
+/* ========== TALLY - Setup, Draft, Game, Stats, Rules ========== */
+body.mobile-view #viewSetup {
+  padding-top: 0;
+}
+
+body.mobile-view #viewSetup .tally-flex-between:first-child {
+  margin-bottom: var(--space-lg);
+  padding: var(--space-md) 0;
+}
+
+body.mobile-view #viewSetup .tally-text-muted {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+body.mobile-view #viewSetup .tally-grid-2 {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: var(--space-xl) !important;
+}
+
+body.mobile-view #viewSetup .tally-grid-2 .tally-form-group:first-child {
+  order: 2;
+}
+
+body.mobile-view #viewSetup .tally-grid-2 .tally-form-group:last-child {
+  order: 1;
+}
+
+body.mobile-view #viewSetup .tally-form-group {
+  margin-bottom: var(--space-xl);
+  padding-bottom: var(--space-xl);
+  border-bottom: 1px solid rgba(100, 140, 180, 0.25);
+}
+
+body.mobile-view #viewSetup .tally-form-group:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+html[data-theme="dark"] body.mobile-view #viewSetup .tally-form-group {
+  border-bottom-color: rgba(255, 255, 255, 0.12);
+}
+
+body.mobile-view #viewSetup .tally-form-group label {
+  font-size: 0.95rem;
+  margin-bottom: var(--space-sm);
+}
+
+body.mobile-view #viewSetup .tally-form-group textarea {
+  min-height: 120px;
+}
+
+body.mobile-view #viewSetup .tally-flex-between.tally-margin-top {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-lg);
+  margin-top: var(--space-xl);
+}
+
+body.mobile-view #viewSetup .tally-flex-between.tally-margin-top > div {
+  flex-direction: column;
+}
+
+body.mobile-view #viewSetup .tally-flex-between.tally-margin-top .btn-primary,
+body.mobile-view #viewSetup .tally-flex-between.tally-margin-top .btn-secondary {
+  width: 100%;
+  min-height: 48px;
+}
+
+body.mobile-view #viewSetup div[style*="display: flex"] {
+  flex-direction: column !important;
+  gap: var(--space-md) !important;
+}
+
+body.mobile-view #viewSetup div[style*="display: flex"] input {
+  width: 100% !important;
+  min-height: 48px !important;
+}
+
+body.mobile-view #viewSetup div[style*="display: flex"] .btn-secondary {
+  width: 100%;
+  min-height: 48px;
+}
+
+body.mobile-view .tally-players-tags {
+  min-height: 100px;
+  padding: var(--space-lg);
+  font-size: 0.95rem;
+}
+
+body.mobile-view #viewDraft .tally-flex-between {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+body.mobile-view #viewDraft .btn-secondary {
+  width: 100%;
+}
+
+body.mobile-view #viewDraft #draftList {
+  padding: var(--space-lg);
+}
+
+body.mobile-view #viewDraft .btn-primary {
+  width: 100%;
+  min-height: 48px;
+}
+
+body.mobile-view #viewGame .tally-flex-between {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+body.mobile-view #viewGame .btn-primary {
+  width: 100%;
+}
+
+body.mobile-view .tally-episode {
+  padding: var(--space-lg);
+}
+
+body.mobile-view .tally-episode-header {
+  padding: var(--space-md) var(--space-lg);
+  flex-wrap: wrap;
+}
+
+body.mobile-view .tally-episode-body {
+  padding: var(--space-md) var(--space-lg);
+}
+
+body.mobile-view .tally-episode-actions {
+  padding: var(--space-md);
+}
+
+body.mobile-view .tally-episode-actions .btn-secondary {
+  min-height: 44px;
+}
+
+body.mobile-view .tally-stats-grid {
+  grid-template-columns: 1fr;
+}
+
+body.mobile-view .tally-player-card {
+  padding: var(--space-lg);
+}
+
+body.mobile-view #viewRules #rulesContainer {
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* ========== OUTLIST - Weights, export ========== */
+body.mobile-view .outlist-weights-grid {
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-md);
+}
+
+body.mobile-view .outlist-weight-item input {
+  min-height: 44px;
+}
+
+body.mobile-view .outlist-export-header {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-md);
+}
+
+body.mobile-view .outlist-export-textarea {
+  min-height: 150px;
+  font-size: 0.95rem;
+}
+
+body.mobile-view .outlist-export-btns .btn-primary,
+body.mobile-view .outlist-export-btns .btn-secondary {
+  width: 100%;
+  min-height: 48px;
+}
+
+body.mobile-view .outlist-season-controls {
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+body.mobile-view .outlist-rating-box {
+  flex: 1 1 calc(33.33% - var(--space-sm));
+  min-width: 0;
+}
+
+/* ========== SUTRAL - Config, ranking, winner ========== */
+body.mobile-view .sutral-config-section {
+  padding: var(--space-md);
+}
+
+body.mobile-view .sutral-ranking-collapsible {
+  padding: var(--space-md);
+}
+
+body.mobile-view .sutral-power-two-cols {
+  grid-template-columns: 1fr;
+}
+
+body.mobile-view .sutral-power-table th,
+body.mobile-view .sutral-power-table td {
+  padding: var(--space-sm);
+  font-size: 0.85rem;
+}
+
+body.mobile-view .sutral-winner-table th,
+body.mobile-view .sutral-winner-table td {
+  padding: var(--space-md);
+  font-size: 0.9rem;
+}
+
+body.mobile-view .sutral-winner-table .chart-col {
+  min-width: 4rem;
+}
+
+body.mobile-view .sutral-help-text p,
+body.mobile-view .sutral-help-text li {
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* ========== EDGER - Preview area ========== */
+body.mobile-view .edger-preview-area {
+  padding: var(--space-lg);
+}
+
+body.mobile-view .edger-preview-img {
+  max-width: 100%;
+  height: auto;
+}
+
+body.mobile-view .edger-preview-area .btn-secondary {
+  width: 100%;
+  min-height: 48px;
+}
+
+/* ========== SCROLLABLE TABLES ========== */
+body.mobile-view .smuffer-overflow-x,
+body.mobile-view .simoa-voting-table-container,
+body.mobile-view [style*="overflow"] table {
+  -webkit-overflow-scrolling: touch;
+  overflow-x: auto;
+}
+
+/* ========== HIDDEN overflow fix for all phases ========== */
+body.mobile-view .hidden + .card,
+body.mobile-view #setup-phase .card,
+body.mobile-view #game-phase .card,
+body.mobile-view #setupPhase .card,
+body.mobile-view #appContent .card {
+  overflow: visible;
+}
+
+body.mobile-view #game-phase,
+body.mobile-view #appContent,
+body.mobile-view #viewGame,
+body.mobile-view #viewDraft,
+body.mobile-view #viewStats,
+body.mobile-view #viewRules {
+  overflow: visible;
+}
