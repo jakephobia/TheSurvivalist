@@ -10,12 +10,13 @@
   const PACK_SIZE = 5;
   const PVP_PACK_REWARD_EVERY = 10;
   const PACKS_PER_CLAIM = 2;
-  const SEASONS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+  const SEASONS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26];
 
   const EXPANSIONS = [
     { id: 'road-to-all-stars', name: 'Road to All Stars', seasons: [1, 2, 3, 4, 5, 6, 7, 8] },
     { id: 'the-twists-era', name: 'The Twists Era', seasons: [9, 10, 11, 12, 13, 14] },
     { id: 'the-golden-age', name: 'The Golden Age', seasons: [15, 16, 17, 18, 19, 20] },
+    { id: 'the-strategy-era', name: 'The Strategy Era', seasons: [21, 22, 23, 24, 25, 26] },
   ];
 
   /** Contestants excluded from the card pool (by exact name match, case-insensitive). */
