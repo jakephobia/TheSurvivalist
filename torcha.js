@@ -22,7 +22,7 @@
   /** Contestants excluded from the card pool (by exact name match, case-insensitive). */
   const CARD_BLOCKLIST_NAMES = new Set(['dan spilo', 'michael skupin', 'jeff varner']);
 
-  const RARITY_PROBS = { common: 0.749, rare: 0.2, super_rare: 0.05, legend: 0.001 };
+  const RARITY_PROBS = { common: 0.639, rare: 0.206, super_rare: 0.086, legend: 0.069 };
   const RARITIES = ['common', 'rare', 'super_rare', 'legend'];
   const FIRE_TOKEN_COSTS = { common: 500, rare: 1000, super_rare: 5000, legend: 10000 };
 

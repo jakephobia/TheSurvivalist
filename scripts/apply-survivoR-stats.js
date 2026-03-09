@@ -15,6 +15,9 @@
  *   - total confessionals: sum(confessional_count) per season
  *   - overall score: score_overall
  *
+ * RARITY = base from placement (1=legend, 2=super_rare, 3=rare, else common) then:
+ *   common/rare: +1 level every 2 seasons played; super_rare: +1 level every 3 seasons; cap at legend.
+ *
  * Usage:
  *   node scripts/apply-survivoR-stats.js [options]
  * Options:
@@ -317,6 +320,40 @@ function powerFromPlacement(placement, total) {
   return Math.max(STAT_MIN, Math.min(STAT_MAX, Math.round(STAT_MIN + pct * (STAT_MAX - STAT_MIN))));
 }
 
+/** Rarity by placement only (base). */
+const RARITY_ORDER = ['common', 'rare', 'super_rare', 'legend'];
+function placementToRarity(placement) {
+  if (placement === 1) return 'legend';
+  if (placement === 2) return 'super_rare';
+  if (placement === 3) return 'rare';
+  return 'common';
+}
+/** Bump rarity by N levels. Caps at legend. */
+function bumpRarity(rarity, levels) {
+  const i = RARITY_ORDER.indexOf(rarity);
+  if (i === -1) return rarity;
+  const j = Math.min(RARITY_ORDER.length - 1, i + levels);
+  return RARITY_ORDER[j];
+}
+/** +1 level every 2 seasons for common/rare; +1 every 3 seasons for super_rare. */
+function rarityBumpLevels(baseRarity, appearances) {
+  if (baseRarity === 'super_rare') return Math.floor(appearances / 3);
+  return Math.floor(appearances / 2);
+}
+
+/** Count distinct seasons per castaway_id (appearances). */
+function buildAppearancesByCastawayId(lookup) {
+  const byId = new Map();
+  for (const [, v] of lookup) {
+    const id = v.castaway_id;
+    if (!byId.has(id)) byId.set(id, new Set());
+    byId.get(id).add(v.season);
+  }
+  const count = new Map();
+  for (const [id, seasons] of byId) count.set(id, seasons.size);
+  return count;
+}
+
 function computePower(v, bounds, ranges) {
   const placementPct = v.placementPct;
   const ro = ranges.powerRanges.get('outplay');
@@ -401,6 +438,7 @@ async function main() {
 
   const confessionalsByKey = aggregateConfessionals(confessionals);
   const lookup = buildLookup(castaways, castawayScores, confessionalsByKey);
+  const appearancesByCastawayId = buildAppearancesByCastawayId(lookup);
   const { bySurname, byFirstname } = buildFallbackLookups(lookup);
   const ranges = computeGlobalRanges(lookup);
   const bounds = computeGlobalBounds(lookup, ranges);
@@ -432,10 +470,14 @@ async function main() {
     card.social = social;
     const imageUrl = buildImageUrl(v.season, v.castaway_id);
     if (imageUrl) card.imageUrl = imageUrl;
+    const appearances = appearancesByCastawayId.get(v.castaway_id) || 1;
+    const baseRarity = placementToRarity(v.placement);
+    const bump = rarityBumpLevels(baseRarity, appearances);
+    card.rarity = bumpRarity(baseRarity, bump);
     updated++;
   }
 
-  process.stderr.write('Updated ' + updated + ' cards with survivoR stats (Power: 30% placement + challenges/boots/immunity; Social: 40% placement + adv/inf/vote/confessionals/overall).\n');
+  process.stderr.write('Updated ' + updated + ' cards with survivoR stats and rarity (common/rare: +1 per 2 seasons; super_rare: +1 per 3 seasons).\n');
   if (!opts.dryRun) {
     fs.writeFileSync(opts.out, JSON.stringify(cards, null, 2), 'utf8');
     process.stderr.write('Wrote ' + opts.out + '\n');
