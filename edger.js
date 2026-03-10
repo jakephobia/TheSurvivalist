@@ -23,7 +23,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const exportCastBtn = document.getElementById('exportCastBtn');
     const exportBtn = document.getElementById('exportBtn');
     const loadBtn = document.getElementById('loadBtn');
-    const resetBtn = document.getElementById('resetBtn');
     const addBatchBtn = document.getElementById('addBatchBtn');
     const addEpBtn = document.getElementById('addEpBtn');
     const generateBtn = document.getElementById('generateBtn');
@@ -36,17 +35,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const hdTableInner = document.getElementById('hd-table-inner');
 
     // ------------------- EVENT LISTENERS ----------------------
+    var edgerResetBtn = document.getElementById('edger-reset');
+    if (edgerResetBtn) {
+        edgerResetBtn.addEventListener('click', function() {
+            if (!confirm('Reset everything? Tool will return to default state.')) return;
+            document.getElementById('headRow').innerHTML = '<th class="edger-sticky-player">PLAYER</th>';
+            document.getElementById('bodyRow').innerHTML = '';
+            document.getElementById('colGroup').innerHTML = '<col class="edger-col-player">';
+            ep = 0;
+            addEp();
+            addBatch('');
+        });
+    }
     exportBtn.addEventListener('click', exportData);
     loadBtn.addEventListener('click', () => fileInput.click());
-    resetBtn.addEventListener('click', function() {
-        if (!confirm('Reset everything? Current data will be lost.')) return;
-        document.getElementById('headRow').innerHTML = '<th class="edger-sticky-player">PLAYER</th>';
-        document.getElementById('bodyRow').innerHTML = '';
-        document.getElementById('colGroup').innerHTML = '<col class="edger-col-player">';
-        ep = 0;
-        addEp();
-        addBatch('');
-    });
     fileInput.addEventListener('change', importData);
     importCastBtn.addEventListener('click', () => castFileIn.click());
     castFileIn.addEventListener('change', function(e) {

@@ -22,8 +22,8 @@
     { id: 'the-pantheon', name: 'The Pantheon', seasons: [50] },
   ];
 
-  /** Expansion ids not yet released (hidden from carousel, pack select, filters). Visible: Dawn of the Legends through Relics of Power. */
-  const HIDDEN_EXPANSION_IDS = ['rise-of-a-new-era', 'a-million-dollar-frenzy', 'the-pantheon'];
+  /** Expansion ids not yet released (hidden from carousel, pack select, filters). Visible: Dawn of the Legends through A Million Dollar Frenzy; hidden: The Pantheon (S50). */
+  const HIDDEN_EXPANSION_IDS = ['the-pantheon'];
 
   function getVisibleExpansions() {
     return EXPANSIONS.filter(function (e) { return HIDDEN_EXPANSION_IDS.indexOf(e.id) === -1; });
@@ -453,12 +453,6 @@
     reader.readAsText(file);
   }
 
-  function resetSession() {
-    if (!confirm('Reset everything? Current session data will be lost.')) return;
-    Object.keys(STORAGE).forEach(function (k) { localStorage.removeItem(STORAGE[k]); });
-    refreshSessionUI();
-  }
-
   function refreshSessionUI() {
     inventory = loadInventory();
     packState = getPackState();
@@ -468,6 +462,7 @@
     renderInventoryPanel();
     renderPvpPanel();
     renderShredPanel();
+    renderDexPanel();
   }
 
   // --- Card data & draw ---
@@ -1377,9 +1372,29 @@
     });
     if (tabId === 'pack') { renderPackPanel(); renderDailyTasks(); }
     else if (tabId === 'inventory') renderInventoryPanel();
-    else if (tabId === 'dex') renderDexPanel();
+    else if (tabId === 'dex') { renderDexPanel(); updateDexBackTopVisibility(); }
     else if (tabId === 'challenge') { renderPvpPanel(); showChallengeSetup(); }
     else if (tabId === 'raids') { renderShredPanel(); renderBuyButtons(); }
+    if (tabId !== 'dex') updateDexBackTopVisibility();
+  }
+
+  function updateDexBackTopVisibility() {
+    const panel = el('torcha-panel-dex');
+    const btn = el('torcha-dex-back-top');
+    if (!panel || !btn) return;
+    const dexVisible = !panel.classList.contains('hidden');
+    toggleHidden(btn, !dexVisible);
+  }
+
+  function initDexBackTop() {
+    const btn = el('torcha-dex-back-top');
+    if (btn) {
+      btn.addEventListener('click', function () {
+        window.scrollTo({ top: 0, behavior: 'auto' });
+        updateDexBackTopVisibility();
+      });
+    }
+    window.addEventListener('scroll', function () { updateDexBackTopVisibility(); }, { passive: true });
   }
 
   function getReleasedCards() {
@@ -1494,6 +1509,7 @@
     track.querySelectorAll('.torcha-expansion-cover').forEach(function (node) {
       node.classList.toggle('torcha-cover-selected', node.getAttribute('data-expansion') === expansionId);
     });
+    updateCarouselDots();
   }
 
   function scrollSelectedCoverIntoView() {
@@ -1529,6 +1545,42 @@
     renderPackPanel();
   }
 
+  function renderCarouselDots() {
+    const container = el('torcha-carousel-dots');
+    const expansionSel = el('torcha-pack-expansion');
+    if (!container || !expansionSel) return;
+    const visible = getVisibleExpansions();
+    container.innerHTML = '';
+    visible.forEach(function (e, idx) {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'torcha-carousel-dot' + (e.id === expansionSel.value ? ' torcha-dot-active' : '');
+      dot.setAttribute('role', 'tab');
+      dot.setAttribute('aria-label', 'Expansion ' + (idx + 1) + ' of ' + visible.length);
+      dot.setAttribute('aria-selected', e.id === expansionSel.value ? 'true' : 'false');
+      dot.addEventListener('click', function () {
+        expansionSel.value = e.id;
+        updateExpansionCarouselSelected();
+        scrollSelectedCoverIntoView();
+        renderPackPanel();
+      });
+      container.appendChild(dot);
+    });
+  }
+
+  function updateCarouselDots() {
+    const container = el('torcha-carousel-dots');
+    const expansionSel = el('torcha-pack-expansion');
+    if (!container || !expansionSel) return;
+    const id = expansionSel.value || '';
+    container.querySelectorAll('.torcha-carousel-dot').forEach(function (dot, idx) {
+      const visible = getVisibleExpansions();
+      const isActive = visible[idx] && visible[idx].id === id;
+      dot.classList.toggle('torcha-dot-active', isActive);
+      dot.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    });
+  }
+
   function renderExpansionCarousel() {
     const track = el('torcha-carousel-track');
     const expansionSel = el('torcha-pack-expansion');
@@ -1549,6 +1601,7 @@
       track.appendChild(cover);
     });
     updateExpansionCarouselSelected();
+    renderCarouselDots();
   }
 
   function initCarouselNav() {
@@ -1572,6 +1625,8 @@
     if (visible.length && (!sel.value || HIDDEN_EXPANSION_IDS.indexOf(sel.value) !== -1)) sel.value = visible[0].id;
     renderExpansionCarousel();
     initCarouselNav();
+    var track = el('torcha-carousel-track');
+    if (track) track.scrollLeft = 0;
   }
 
   function syncFilterFromSelect(expansionSel, seasonSel, raritySel, sortSel) {
@@ -1693,6 +1748,7 @@
         toggleHidden(el('torcha-main-card'), false);
         toggleHidden(el('torcha-app'), false);
         initTabs();
+        initDexBackTop();
         initPackExpansion();
         renderExpansionFilter();
         renderRarityFilter();
@@ -1704,12 +1760,10 @@
         el('torcha-pack-expansion') && el('torcha-pack-expansion').addEventListener('change', renderPackPanel);
         var saveBtn = el('torcha-save-session');
         var loadBtn = el('torcha-load-session');
-        var resetBtn = el('torcha-reset-session');
         var importFileInput = el('torcha-import-session-file');
         if (saveBtn) saveBtn.addEventListener('click', exportSession);
         if (loadBtn) loadBtn.addEventListener('click', function () { if (importFileInput) importFileInput.click(); });
         if (importFileInput) importFileInput.addEventListener('change', function (e) { importSessionFile(e.target.files[0]); e.target.value = ''; });
-        if (resetBtn) resetBtn.addEventListener('click', resetSession);
         el('torcha-pvp-fight') && el('torcha-pvp-fight').addEventListener('click', doPvpFight);
         el('torcha-challenge-again') && el('torcha-challenge-again').addEventListener('click', showChallengeSetup);
         el('torcha-shred-btn') && el('torcha-shred-btn').addEventListener('click', doShred);
@@ -1719,6 +1773,31 @@
         var loading = el('torcha-loading');
         if (loading) loading.innerHTML = '<p class="section-title">Failed to load cards. Check that torcha-cards.json exists.</p>';
       });
+  }
+
+  function attachResetButton() {
+    var btn = document.getElementById('torcha-reset');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      if (!confirm('Reset everything? Tool will return to default state.')) return;
+      Object.keys(STORAGE).forEach(function (k) { localStorage.removeItem(STORAGE[k]); });
+      if (cards && cards.length > 0) {
+        inventory = loadInventory();
+        packState = getPackState();
+        renderTimer();
+        renderPackPanel();
+        renderDailyTasks();
+        renderInventoryPanel();
+        renderPvpPanel();
+        renderShredPanel();
+        renderDexPanel();
+      }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { attachResetButton(); });
+  } else {
+    attachResetButton();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

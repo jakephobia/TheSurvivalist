@@ -35,7 +35,6 @@ let playerColorMap = {};
 const helpBtn = document.getElementById('helpBtn');
 const exportBtn = document.getElementById('exportBtn');
 const importBtn = document.getElementById('importBtn');
-const resetBtn = document.getElementById('resetBtn');
 const importFile = document.getElementById('import-file');
 const importNamesBtn = document.getElementById('importNamesBtn');
 const importNames = document.getElementById('import-names');
@@ -1001,7 +1000,15 @@ importFile.addEventListener('change', (e) => {
     confirmModal.classList.add('open');
   }
 });
-resetBtn.addEventListener('click', triggerReset);
+function attachSutralReset() {
+  var sutralResetBtn = document.getElementById('sutral-reset');
+  if (sutralResetBtn) sutralResetBtn.addEventListener('click', triggerReset);
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', attachSutralReset);
+} else {
+  attachSutralReset();
+}
 confirmYesBtn.addEventListener('click', confirmAction);
 confirmNoBtn.addEventListener('click', closeConfirm);
 importNamesBtn.addEventListener('click', importPlayers);

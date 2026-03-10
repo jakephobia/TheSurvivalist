@@ -66,7 +66,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const exportJsonBtn = document.getElementById('exportJsonBtn');
     const importJsonBtn = document.getElementById('importJsonBtn');
     const jsonFile = document.getElementById('jsonFile');
-    const resetBtn = document.getElementById('resetBtn');
     const addSeasonBtn = document.getElementById('addSeasonBtn');
     const calculateRankingBtn = document.getElementById('calculateRankingBtn');
     const sortOrder = document.getElementById('sortOrder');
@@ -340,14 +339,17 @@ document.addEventListener('DOMContentLoaded', function() {
         e.target.value = '';
     });
 
-    resetBtn.addEventListener('click', function() {
-        if (confirm('Delete all data?')) {
-            localStorage.removeItem('outlist_v6');
-            localStorage.removeItem('outlist_weights');
-            localStorage.removeItem('outlist_useCustom');
-            location.reload();
-        }
-    });
+    var outlistResetBtn = document.getElementById('outlist-reset');
+    if (outlistResetBtn) {
+        outlistResetBtn.addEventListener('click', function() {
+            if (confirm('Reset everything? Tool will return to default state.')) {
+                localStorage.removeItem('outlist_v6');
+                localStorage.removeItem('outlist_weights');
+                localStorage.removeItem('outlist_useCustom');
+                location.reload();
+            }
+        });
+    }
 
     function init() {
         const saved = localStorage.getItem('outlist_v6');

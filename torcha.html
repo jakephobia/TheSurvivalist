@@ -53,9 +53,9 @@
       <div class="header-right">
         <button type="button" class="btn-secondary btn-sm" id="torcha-save-session">Save Session</button>
         <button type="button" class="btn-secondary btn-sm" id="torcha-load-session">Load Session</button>
-        <button type="button" class="btn-danger btn-secondary btn-sm" id="torcha-reset-session">Reset</button>
         <input type="file" id="torcha-import-session-file" accept=".json" class="hidden">
         <button type="button" class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">☰</button>
+        <button type="button" class="btn-danger btn-secondary btn-sm" id="torcha-reset">Reset</button>
       </div>
     </header>
 
@@ -89,8 +89,9 @@
                     <div class="torcha-carousel-track" id="torcha-carousel-track"></div>
                     <button type="button" class="torcha-carousel-btn torcha-carousel-next" id="torcha-carousel-next" aria-label="Next expansion">›</button>
                   </div>
+                  <div id="torcha-carousel-dots" class="torcha-carousel-dots" role="tablist" aria-label="Expansion position"></div>
                   <select id="torcha-pack-expansion" class="hidden" aria-hidden="true"></select>
-                  <div class="torcha-pack-row" style="margin-top: var(--space-md); display: flex; justify-content: center;">
+                  <div class="torcha-pack-row" style="display: flex; justify-content: center;">
                     <button type="button" class="btn-primary torcha-pack-open-trigger" id="torcha-open-pack-btn" aria-label="Open pack">Open pack (5 cards)</button>
                   </div>
                 </section>
@@ -253,7 +254,7 @@
                 <p id="torcha-dex-summary" class="torcha-stats-content"></p>
               </div>
             </section>
-            <section class="section">
+            <section class="section torcha-dex-section">
               <div id="torcha-dex-grid" class="torcha-dex-content"></div>
             </section>
           </div>
@@ -263,6 +264,7 @@
     </div>
   </div>
 
+  <button type="button" id="torcha-dex-back-top" class="torcha-dex-back-top hidden" aria-label="Back to top">↑</button>
   <script src="dashboard-utils.js"></script>
   <script src="mobile-menu.js"></script>
   <script src="torcha.js"></script>

@@ -953,6 +953,13 @@ body.mobile-view .page-torcha .torcha-panel .section-title {
   margin-top: var(--space-sm);
 }
 
+body.mobile-view .page-torcha .torcha-dex-back-top {
+  bottom: var(--space-lg);
+  right: var(--space-lg);
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
 /* ========== BUTTONS - Touch-friendly ========== */
 body.mobile-view .btn-primary,
 body.mobile-view .btn-secondary {

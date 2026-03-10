@@ -20,7 +20,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const activeSeasonUI = document.getElementById('activeSeasonUI');
     const startSeasonBtn = document.getElementById('startSeasonBtn');
     const importFile = document.getElementById('importFile');
-    const resetAllBtn = document.getElementById('resetAllBtn');
     const exportBtn = document.getElementById('exportBtn');
     const importBtn = document.getElementById('importBtn');
 
@@ -944,13 +943,16 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Tools dropdown
-    resetAllBtn.addEventListener('click', function() {
-        if (confirm("Delete all data?")) {
-            localStorage.clear();
-            location.reload();
-        }
-    });
+    // Reset (header)
+    var smufferResetBtn = document.getElementById('smuffer-reset');
+    if (smufferResetBtn) {
+        smufferResetBtn.addEventListener('click', function() {
+            if (confirm('Reset everything? Tool will return to default state.')) {
+                localStorage.clear();
+                location.reload();
+            }
+        });
+    }
 
     exportBtn.addEventListener('click', function() {
         if (!currentSeason) return alert("No season to export");

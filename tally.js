@@ -622,7 +622,8 @@ const SurvivorApp = {
             document.getElementById('finalizeDraftBtn').addEventListener('click', SurvivorApp.Core.finalizeDraft.bind(SurvivorApp.Core));
             document.getElementById('addEpisodeBtn').addEventListener('click', SurvivorApp.Core.addEpisode.bind(SurvivorApp.Core));
             document.getElementById('exportBtn').addEventListener('click', SurvivorApp.Core.exportData.bind(SurvivorApp.Core));
-            document.getElementById('resetBtn').addEventListener('click', SurvivorApp.Core.resetGame.bind(SurvivorApp.Core));
+            var tallyResetBtn = document.getElementById('tally-reset');
+            if (tallyResetBtn) tallyResetBtn.addEventListener('click', SurvivorApp.Core.resetGame.bind(SurvivorApp.Core));
             document.getElementById('closeModalBtn').addEventListener('click', SurvivorApp.UI.closeModal.bind(SurvivorApp.UI));
 
             document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importFile').click());
