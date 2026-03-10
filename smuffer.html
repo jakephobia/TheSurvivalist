@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script>
+    (function(){var t=localStorage.getItem('survivalist_theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})();
+  </script>
+  <title>Smuffer | The Survivalist</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Meera+Inimai&family=Roboto+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="global.css">
+  <link rel="stylesheet" href="mobile.css">
+  <script src="theme.js" defer></script>
+</head>
+<body class="page-smuffer">
+  <script src="mobile-detection.js"></script>
+  <div class="mobile-menu-backdrop" id="mobileMenuBackdrop"></div>
+  <aside class="sidebar">
+    <div class="sidebar-logo"><img src="logo.png" alt="The Survivalist"></div>
+    <nav class="sidebar-nav">
+      <a href="index.html" class="nav-item"><span class="nav-icon-home"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></span><span>Homepage</span></a>
+      <a href="edger.html" class="nav-item"><span>Edger</span></a>
+      <a href="outlist.html" class="nav-item"><span>Outlist</span></a>
+      <a href="simoa.html" class="nav-item"><span>Simoa</span></a>
+      <a href="smuffer.html" class="nav-item active"><span>Smuffer</span><span class="nav-beta nav-beta-smuffer">BETA</span></a>
+      <a href="sutral.html" class="nav-item"><span>Sutral</span></a>
+      <a href="tally.html" class="nav-item"><span>Tally</span></a>
+      <a href="torcha.html" class="nav-item"><span>Torcha</span><span class="nav-beta nav-beta-torcha">BETA</span></a>
+    </nav>
+    <div class="sidebar-theme-wrap">
+      <button type="button" id="themeToggleBtn" class="theme-toggle-btn sidebar-theme-btn" aria-label="Toggle dark mode">🌙</button>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-social">
+        <a href="https://www.youtube.com/@TorchlightTalesYT" target="_blank" rel="noopener" class="social-yt" aria-label="YouTube">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+        </a>
+        <a href="https://www.instagram.com/thesurvivalis7" target="_blank" rel="noopener" class="social-ig" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+        </a>
+      </div>
+      <p class="sidebar-credit">tools by u/ylan93</p>
+      <a href="https://ko-fi.com/ylan93" target="_blank" rel="noopener" class="sidebar-kofi">Buy me a coffee!</a>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="main-header">
+      <div class="header-left">
+        <h2 class="header-title">SMUFFER</h2>
+        <p class="header-subtitle">Season progress tracker</p>
+      </div>
+      <div class="header-right">
+        <button type="button" class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">☰</button>
+        <button class="btn-secondary btn-sm" id="exportBtn">Save Session</button>
+        <button class="btn-secondary btn-sm" id="importBtn">Load Session</button>
+        <button class="btn-danger btn-secondary btn-sm" id="resetAllBtn">Reset</button>
+        <input type="file" id="importFile" class="hidden" accept=".json">
+      </div>
+    </header>
+
+    <main class="dashboard-container">
+      <section class="dashboard">
+        <div id="activeSeasonUI" class="hidden">
+          <div class="smuffer-status-bar">
+            <div id="seasonInfo" class="smuffer-season-info"></div>
+            <div class="smuffer-flex-row smuffer-gap-5">
+              <button class="btn-secondary" id="epPrevBtn">‹</button>
+              <span id="episodeDisplay" class="smuffer-ep-display">Ep. 1</span>
+              <button class="btn-secondary" id="epNextBtn">›</button>
+            </div>
+          </div>
+          <nav class="smuffer-tabs-nav">
+            <button class="smuffer-tab-btn active" data-tab="overview">Overview</button>
+            <button class="smuffer-tab-btn" data-tab="advantage">Advantages</button>
+            <button class="smuffer-tab-btn" data-tab="alliances">Alliances</button>
+            <button class="smuffer-tab-btn" data-tab="confessional">Confessionals</button>
+            <button class="smuffer-tab-btn" data-tab="rankings">Power Rankings</button>
+            <button class="smuffer-tab-btn smuffer-tab-red" data-tab="tribal">Tribal</button>
+          </nav>
+        </div>
+
+        <div id="setupPhase">
+          <div class="card section smuffer-setup-card">
+            <div class="smuffer-form-group smuffer-flex-row smuffer-gap-10" style="flex-wrap: wrap; align-items: flex-end;">
+              <div style="flex: 1; min-width: 140px;">
+                <label>Season Name</label>
+                <input type="text" id="wizSeasonName" placeholder="e.g. Survivor 47">
+              </div>
+              <div style="flex: 0 0 auto;">
+                <label>Tribes</label>
+                <input type="number" id="wizTribeCount" value="2" min="1" max="5" style="width: 70px;">
+              </div>
+            </div>
+            <div class="smuffer-form-group">
+              <label>Add Players</label>
+              <div class="smuffer-flex-row smuffer-gap-10">
+                <input type="text" id="wizSinglePlayer" class="smuffer-flex-1" placeholder="e.g. Player name">
+                <button class="btn-secondary" id="wizAddPlayerBtn">+</button>
+                <input type="file" id="wizImportCastFile" class="hidden" accept=".json">
+                <button class="btn-secondary" id="wizImportCastBtn">Import Cast</button>
+                <button class="btn-secondary" id="wizExportCastBtn">Export Cast</button>
+              </div>
+              <textarea id="wizBulkPlayers" rows="3" class="smuffer-mt-1" placeholder="e.g. Name 1&#10;Name 2&#10;Name 3"></textarea>
+            </div>
+            <div id="wizPlayerListDisplay" class="smuffer-player-tags"></div>
+            <div class="smuffer-total-count">Total: <span id="wizCount">0</span></div>
+            <div id="wizTribeInputsContainer"></div>
+            <div class="smuffer-setup-footer smuffer-flex-row smuffer-gap-10">
+              <button class="btn-primary" id="startSeasonBtn">Start Season</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="appContent" class="hidden">
+          <div id="tab-overview" class="smuffer-tab-content active">
+            <div class="card section">
+              <div class="smuffer-overview-header">
+                <h3 class="section-title">Tribe Management</h3>
+                <div class="smuffer-overview-btns smuffer-flex-row smuffer-gap-10">
+                  <button class="btn-secondary" id="toggleAllCardsBtn">Show Notes</button>
+                  <button class="btn-primary" id="swapSetupBtn">Tribe Swap</button>
+                  <button class="btn-secondary smuffer-btn-merge" id="openMergeModalBtn">Merge</button>
+                </div>
+              </div>
+              <div id="overviewContent"></div>
+            </div>
+          </div>
+
+          <div id="tab-advantage" class="smuffer-tab-content">
+            <div class="card section">
+              <div class="smuffer-overview-header">
+                <h3 class="section-title">Advantage Tracker</h3>
+                <button class="smuffer-btn-reset-tab" data-reset="advantage">Reset Tab</button>
+              </div>
+              <div id="advantageGrid" class="smuffer-adv-grid"></div>
+            </div>
+          </div>
+
+          <div id="tab-alliances" class="smuffer-tab-content">
+            <div class="card section">
+              <div class="smuffer-overview-header">
+                <h3 class="section-title">Alliance Map</h3>
+                <button class="smuffer-btn-reset-tab" data-reset="alliances">Reset Tab</button>
+              </div>
+              <div class="smuffer-alliance-layout">
+                <div class="smuffer-alliance-sidebar">
+                  <h4 class="section-title smuffer-mb-1">New Alliance</h4>
+                  <input type="text" id="allianceNameInput" placeholder="e.g. Alliance name" class="smuffer-input">
+                  <div id="allianceMemberSelect" class="smuffer-checkbox-grid"></div>
+                  <button class="btn-primary btn-block smuffer-mt-1" id="createAllianceBtn">Create</button>
+                  <hr class="smuffer-hr">
+                  <div id="activeAlliancesList"></div>
+                </div>
+                <div class="smuffer-canvas-container">
+                  <canvas id="allianceCanvas" width="800" height="500"></canvas>
+                  <div class="smuffer-canvas-hint">Drag nodes to move</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="tab-confessional" class="smuffer-tab-content">
+            <div class="card section">
+              <div class="smuffer-overview-header">
+                <h3 class="section-title">Confessionals <span id="confEpDisplay"></span></h3>
+                <button class="smuffer-btn-reset-tab" data-reset="confessional">Reset Tab</button>
+              </div>
+              <div id="confInputGrid" class="smuffer-conf-input-grid"></div>
+            </div>
+            <div class="card section smuffer-mt-1">
+              <div class="smuffer-overflow-x">
+                <table class="smuffer-conf-table" id="confMainTable"></table>
+              </div>
+            </div>
+          </div>
+
+          <div id="tab-rankings" class="smuffer-tab-content">
+            <div class="card section">
+              <div class="smuffer-overview-header">
+                <h3 class="section-title">Power Rankings</h3>
+                <button class="smuffer-btn-reset-tab" data-reset="rankings">Reset Tab</button>
+              </div>
+              <div id="rankingsContainer" class="smuffer-rank-two-cols">
+                <ul id="rankingsListLeft" class="smuffer-rank-list"></ul>
+                <ul id="rankingsListRight" class="smuffer-rank-list"></ul>
+              </div>
+            </div>
+          </div>
+
+          <div id="tab-tribal" class="smuffer-tab-content">
+            <div class="card section">
+              <div class="smuffer-overview-header smuffer-mb-1">
+                <div class="smuffer-flex-row smuffer-gap-15">
+                  <h3 class="section-title">Tribal Council Ep. <span id="tribalEpDisplay"></span></h3>
+                  <div id="ftcToggleArea"></div>
+                  <div id="splitTribalArea"></div>
+                </div>
+                <button class="smuffer-btn-reset-tab" data-reset="tribal">Reset Tab</button>
+              </div>
+              <div id="tribalTribeSelect" class="smuffer-mb-1"></div>
+
+              <div id="tribalContentArea" class="hidden">
+                <div class="smuffer-overflow-x">
+                  <table class="smuffer-tribal-grid">
+                    <thead>
+                      <tr>
+                        <th>Player</th>
+                        <th>Immunity</th>
+                        <th>Actions</th>
+                        <th>Status</th>
+                        <th>Vote</th>
+                        <th>Received</th>
+                        <th>Results</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tribalVoteList"></tbody>
+                  </table>
+                </div>
+                <div class="smuffer-flex-row smuffer-gap-20 smuffer-flex-end smuffer-mt-1-25">
+                  <label class="smuffer-label-inline">
+                    <input type="checkbox" id="noElimChk"> No Elimination
+                  </label>
+                  <button class="btn-primary" id="saveTribalBtn">Save Tribal Council</button>
+                </div>
+              </div>
+
+              <div id="finalTribalContentArea" class="hidden">
+                <div class="smuffer-ftc-container">
+                  <div id="finalistsContainer" class="smuffer-finalists-row"></div>
+                  <div class="smuffer-jury-pool-box">
+                    <h4 class="smuffer-jury-pool-title">The Jury</h4>
+                    <div id="juryPoolDrop" class="smuffer-finalists-row smuffer-jury-drop-zone"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modals -->
+  <div id="mergeModal" class="smuffer-modal-overlay">
+    <div class="smuffer-modal">
+      <button type="button" class="smuffer-modal-close" aria-label="Close" data-close="mergeModal">×</button>
+      <h3 class="section-title smuffer-mb-1">Merge</h3>
+      <input id="mergeName" class="smuffer-input" placeholder="e.g. Merged Tribe">
+      <input type="color" id="mergeColor" value="#000000" class="smuffer-color-input smuffer-input">
+      <button type="button" class="btn-primary btn-block" id="executeMergeBtn">Merge</button>
+    </div>
+  </div>
+
+  <div id="swapModal" class="smuffer-modal-overlay">
+    <div class="smuffer-modal">
+      <button type="button" class="smuffer-modal-close" aria-label="Close" data-close="swapModal">×</button>
+      <h3 class="section-title smuffer-mb-1">Swap</h3>
+      <p class="smuffer-modal-hint smuffer-mb-1">Create new tribes from the current episode. Players will go to Bench (drag &amp; drop) or will be assigned randomly if you select Random.</p>
+      <input type="number" id="swapTribeCount" value="2" min="1" class="smuffer-swap-count smuffer-input">
+      <div id="swapInputsContainer"></div>
+      <label class="smuffer-checkbox-label smuffer-mb-1" style="display:block;">
+        <input type="checkbox" id="swapRandomAssign"> Random assignment
+      </label>
+      <button type="button" class="btn-primary btn-block smuffer-mt-1" id="executeSwapBtn" onclick="window.smufferExecuteSwap && window.smufferExecuteSwap()">Execute</button>
+    </div>
+  </div>
+
+  <div id="splitModal" class="smuffer-modal-overlay">
+    <div class="smuffer-modal">
+      <button type="button" class="smuffer-modal-close" aria-label="Close" data-close="splitModal">×</button>
+      <h3 class="section-title smuffer-mb-1">Split Tribal Selection</h3>
+      <div id="splitSelectionList" class="smuffer-checkbox-grid"></div>
+      <button class="btn-primary btn-block smuffer-mt-1" id="confirmSplitBtn">Confirm</button>
+    </div>
+  </div>
+
+  <script src="dashboard-utils.js"></script>
+  <script src="mobile-menu.js"></script>
+  <script src="cast-shared.js"></script>
+  <script src="smuffer.js" defer></script>
+</body>
+</html>
