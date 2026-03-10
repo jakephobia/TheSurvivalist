@@ -555,6 +555,148 @@ body.mobile-view .tally-checkbox-grid {
   max-height: none;
 }
 
+/* ========== TORCHA - Mobile ========== */
+body.mobile-view .page-torcha .torcha-dashboard-row {
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+body.mobile-view .page-torcha .torcha-dashboard-box-pack,
+body.mobile-view .page-torcha .torcha-dashboard-box-tasks {
+  min-width: 0;
+  width: 100%;
+  flex: 1 1 auto;
+}
+
+body.mobile-view .page-torcha .torcha-dashboard-box-tasks {
+  flex: 0 0 auto;
+}
+
+body.mobile-view .page-torcha .torcha-pack-section .flex-row.gap-sm {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-sm);
+}
+
+body.mobile-view .page-torcha .torcha-pack-section .torcha-stats-box {
+  width: 100%;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+body.mobile-view .page-torcha .torcha-pack-section .torcha-stats-box .torcha-stats-content {
+  text-align: left;
+}
+
+body.mobile-view .page-torcha .torcha-expansion-carousel {
+  gap: var(--space-xs);
+  margin-bottom: var(--space-md);
+}
+
+body.mobile-view .page-torcha .torcha-carousel-track {
+  margin: 0 var(--space-sm);
+  padding: var(--space-sm);
+  -webkit-overflow-scrolling: touch;
+}
+
+body.mobile-view .page-torcha .torcha-expansion-cover {
+  width: 132px;
+  min-height: 192px;
+  flex-shrink: 0;
+}
+
+body.mobile-view .page-torcha .torcha-expansion-cover .torcha-cover-name {
+  font-size: 1rem;
+}
+
+body.mobile-view .page-torcha .torcha-carousel-btn {
+  min-width: 44px;
+  min-height: 44px;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+
+body.mobile-view .page-torcha .torcha-pack-row .torcha-pack-open-trigger {
+  width: 100%;
+  min-height: 44px;
+}
+
+body.mobile-view .page-torcha .torcha-main-card .torcha-tabs {
+  padding-left: var(--space-sm);
+  padding-right: var(--space-sm);
+}
+
+body.mobile-view .page-torcha .torcha-tab {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 0.8rem;
+  padding: var(--space-sm) var(--space-xs);
+}
+
+body.mobile-view .page-torcha .torcha-filters {
+  gap: var(--space-sm);
+}
+
+body.mobile-view .page-torcha .torcha-filters .input-group {
+  max-width: 100%;
+  min-width: 0;
+  flex: 1 1 120px;
+}
+
+body.mobile-view .page-torcha .torcha-collection-grid {
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: var(--space-sm);
+  justify-content: center;
+}
+
+body.mobile-view .page-torcha .torcha-card {
+  width: 100%;
+  min-width: 0;
+  max-width: 140px;
+  margin: 0 auto;
+}
+
+body.mobile-view .page-torcha .torcha-cards-reveal {
+  gap: var(--space-md);
+  justify-content: center;
+}
+
+body.mobile-view .page-torcha .torcha-reveal-section .btn-group {
+  flex-direction: column;
+}
+
+body.mobile-view .page-torcha .torcha-reveal-section .btn-group .btn-secondary {
+  width: 100%;
+  min-height: 44px;
+}
+
+body.mobile-view .page-torcha .torcha-battle-life-wrap {
+  gap: var(--space-sm);
+}
+
+body.mobile-view .page-torcha .torcha-battle-life-side {
+  flex-wrap: wrap;
+}
+
+body.mobile-view .page-torcha .torcha-pvp-deck {
+  flex-wrap: wrap;
+}
+
+body.mobile-view .page-torcha .torcha-dashboard-box {
+  padding: var(--space-lg);
+}
+
+body.mobile-view.page-torcha .main-content {
+  height: auto;
+  overflow: visible;
+}
+
+body.mobile-view.page-torcha .dashboard-container,
+body.mobile-view.page-torcha .dashboard {
+  overflow: visible;
+}
+
 /* ========== BUTTONS - Touch-friendly ========== */
 body.mobile-view .btn-primary,
 body.mobile-view .btn-secondary {

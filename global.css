@@ -2,7 +2,15 @@
  * Download from dafont.com and place in fonts/ folder:
  * - Biotrip: https://www.dafont.com/it/biotrip.font
  * - Choleric: https://www.dafont.com/it/choleric.font
+ * - Survivant: https://www.dafont.com/survivant.font (expansion names in Torcha)
  */
+@font-face {
+  font-family: 'Survivant';
+  font-style: normal;
+  font-weight: 400;
+  src: url('fonts/Survivant.ttf') format('truetype');
+  font-display: swap;
+}
 @font-face {
   font-family: 'Biotrip';
   font-style: normal;
@@ -353,6 +361,155 @@ body.page-torcha { --accent-color: #8BC34A; }
   gap: var(--space-xl);
   margin-top: var(--space-md);
 }
+
+/* Carousel copertine espansioni (no sachet) */
+.page-torcha .torcha-pack-carousel-hint {
+  margin: 0 0 var(--space-md);
+  font-size: 0.9rem;
+  color: #4a5f73;
+}
+.page-torcha .torcha-expansion-carousel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+.page-torcha .torcha-carousel-track {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  gap: var(--space-lg);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  padding: var(--space-sm) var(--space-md);
+  margin: 0 var(--space-xl);
+  scrollbar-width: thin;
+}
+.page-torcha .torcha-carousel-track::-webkit-scrollbar {
+  height: 6px;
+}
+.page-torcha .torcha-carousel-track::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+.page-torcha .torcha-expansion-cover {
+  position: relative;
+  flex: 0 0 auto;
+  width: 160px;
+  min-height: 220px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  scroll-snap-align: center;
+  border: 3px solid transparent;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  text-decoration: none;
+  color: inherit;
+  transform: scale(0.85);
+  opacity: 0.75;
+}
+.page-torcha .torcha-expansion-cover:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+.page-torcha .torcha-expansion-cover:not(.torcha-cover-selected):hover {
+  transform: scale(0.9);
+  opacity: 0.9;
+}
+.page-torcha .torcha-expansion-cover.torcha-cover-selected {
+  transform: scale(1);
+  opacity: 1;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px white, 0 0 0 4px var(--accent-color);
+}
+.page-torcha .torcha-expansion-cover.torcha-cover-selected:hover {
+  transform: scale(1.03);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2), 0 0 0 2px white, 0 0 0 4px var(--accent-color);
+}
+.page-torcha .torcha-expansion-cover:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px var(--accent-color);
+}
+.page-torcha .torcha-expansion-cover .torcha-cover-art {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-md);
+  box-sizing: border-box;
+}
+.page-torcha .torcha-expansion-cover .torcha-cover-name {
+  color: #fff;
+  font-family: 'Survivant', 'Bebas Neue', sans-serif;
+  font-weight: 400;
+  font-size: 1.2rem;
+  line-height: 1.2;
+  text-align: center;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.02em;
+}
+.page-torcha .torcha-expansion-cover .torcha-cover-label {
+  position: relative;
+  padding: var(--space-sm) var(--space-md);
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  font-family: 'Roboto Condensed', sans-serif;
+  font-weight: 400;
+  font-size: 0.7rem;
+  line-height: 1.25;
+  text-align: center;
+}
+.page-torcha .torcha-expansion-cover .torcha-cover-sub {
+  display: block;
+}
+/* Copertine per espansione: gradienti distinti */
+.page-torcha .torcha-expansion-cover[data-expansion="road-to-all-stars"] .torcha-cover-art {
+  background: linear-gradient(165deg, #1a5f4a 0%, #0d3d2e 50%, #062a1f 100%);
+}
+.page-torcha .torcha-expansion-cover[data-expansion="the-twists-era"] .torcha-cover-art {
+  background: linear-gradient(165deg, #5c3d6b 0%, #3d2952 50%, #2a1d3a 100%);
+}
+.page-torcha .torcha-expansion-cover[data-expansion="the-golden-age"] .torcha-cover-art {
+  background: linear-gradient(165deg, #b8860b 0%, #8b6914 40%, #5c4510 100%);
+}
+.page-torcha .torcha-expansion-cover[data-expansion="the-strategy-era"] .torcha-cover-art {
+  background: linear-gradient(165deg, #0e4d6e 0%, #0a3549 50%, #061f2e 100%);
+}
+
+.page-torcha .torcha-carousel-btn {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid var(--accent-color);
+  background: #fff;
+  color: var(--accent-color);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+}
+.page-torcha .torcha-carousel-btn:hover {
+  background: var(--accent-color);
+  color: #fff;
+}
+.page-torcha .torcha-carousel-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--accent-color);
+}
+
 .page-torcha .torcha-pack-sachet-wrap {
   display: inline-flex;
   flex-direction: column;

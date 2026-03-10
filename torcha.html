@@ -7,7 +7,7 @@
   </script>
   <title>Torcha | The Survivalist</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Meera+Inimai&family=Roboto+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Meera+Inimai&family=Roboto+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="global.css">
   <link rel="stylesheet" href="mobile.css">
   <script src="theme.js" defer></script>
@@ -79,16 +79,18 @@
                 <section class="section torcha-pack-section" id="torcha-pack-section" aria-label="Pack opener">
                   <div class="flex-row gap-sm" style="align-items: center; flex-wrap: wrap; justify-content: space-between;">
                     <h2 class="section-title" style="margin-bottom: 0;">Open pack</h2>
-                    <p id="torcha-timer" class="torcha-timer" style="margin: 0; text-align: right;" aria-live="polite"></p>
-                  </div>
-                  <div class="torcha-pack-row">
-                    <div class="torcha-pack-controls">
-                      <div class="input-group" style="max-width: 200px;">
-                        <label class="input-label" for="torcha-pack-expansion">Expansion</label>
-                        <select id="torcha-pack-expansion" class="input-base" aria-label="Choose expansion to open"></select>
-                      </div>
-                      <button type="button" class="btn-primary torcha-pack-open-trigger" id="torcha-open-pack-btn" aria-label="Open pack">Open pack (5 cards)</button>
+                    <div class="torcha-stats-box" aria-label="Pack stock">
+                      <p id="torcha-timer" class="torcha-stats-content" style="margin: 0; text-align: right;" role="status" aria-live="polite"></p>
                     </div>
+                  </div>
+                  <div class="torcha-expansion-carousel" role="list" aria-label="Expansion selection">
+                    <button type="button" class="torcha-carousel-btn torcha-carousel-prev" id="torcha-carousel-prev" aria-label="Previous expansion">‹</button>
+                    <div class="torcha-carousel-track" id="torcha-carousel-track"></div>
+                    <button type="button" class="torcha-carousel-btn torcha-carousel-next" id="torcha-carousel-next" aria-label="Next expansion">›</button>
+                  </div>
+                  <select id="torcha-pack-expansion" class="hidden" aria-hidden="true"></select>
+                  <div class="torcha-pack-row" style="margin-top: var(--space-md);">
+                    <button type="button" class="btn-primary torcha-pack-open-trigger" id="torcha-open-pack-btn" aria-label="Open pack">Open another pack (5 cards)</button>
                   </div>
                 </section>
               </div>

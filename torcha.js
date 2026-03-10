@@ -470,7 +470,7 @@
     return p + s;
   }
 
-  /** Un solo passaggio sul mazzo: restituisce totalPower, totalSocial e profilo (tank/glass_cannon/balanced). */
+  /** Single pass over the deck: returns totalPower, totalSocial and profile (tank/glass_cannon/balanced). */
   function getDeckTotalsAndProfile(deck) {
     var totalPower = 0, totalSocial = 0;
     for (var i = 0; i < deck.length; i++) {
@@ -549,7 +549,7 @@
     return newLife;
   }
 
-  /** Battaglia: si va avanti fino a quando una delle due barre arriva a 0 (first to 0 wins). CPU usa carte in ordine Power crescente (weakest first). */
+  /** Battle: proceeds until one life bar reaches 0 (first to 0 wins). CPU uses cards in ascending Power order (weakest first). */
   function runLifeBattle(userDeck, cpuDeck) {
     var userLifeInitial = getDeckHp(userDeck);
     var cpuLifeInitial = getDeckHp(cpuDeck);
@@ -800,6 +800,7 @@
 
   function renderPackPanel() {
     renderTimer();
+    updateExpansionCarouselSelected();
   }
 
   function renderDailyTasks() {
@@ -1208,7 +1209,7 @@
     var pool = released.length >= 5 ? released : cards;
     var cpuDeck = pickCpuDeckMatchmaking(userDeck, pool);
     if (cpuDeck.length < 5) {
-      if (typeof alert !== 'undefined') alert('Non ci sono abbastanza carte nel pool per formare il mazzo CPU. Riprova.');
+      if (typeof alert !== 'undefined') alert('Not enough cards in the pool to form the CPU deck. Try again.');
       return;
     }
     showBattleView();
@@ -1259,6 +1260,83 @@
     });
   }
 
+  function getExpansionSeasonRange(exp) {
+    if (!exp || !exp.seasons || exp.seasons.length === 0) return '';
+    const min = Math.min.apply(null, exp.seasons);
+    const max = Math.max.apply(null, exp.seasons);
+    return 'Seasons ' + min + '–' + max;
+  }
+
+  function updateExpansionCarouselSelected() {
+    const expansionId = (el('torcha-pack-expansion') && el('torcha-pack-expansion').value) || '';
+    const track = el('torcha-carousel-track');
+    if (!track) return;
+    track.querySelectorAll('.torcha-expansion-cover').forEach(function (node) {
+      node.classList.toggle('torcha-cover-selected', node.getAttribute('data-expansion') === expansionId);
+    });
+  }
+
+  function scrollSelectedCoverIntoView() {
+    const track = el('torcha-carousel-track');
+    if (!track) return;
+    const selected = track.querySelector('.torcha-expansion-cover.torcha-cover-selected');
+    if (selected) selected.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }
+
+  function selectPrevExpansion() {
+    const expansionSel = el('torcha-pack-expansion');
+    if (!expansionSel || !EXPANSIONS.length) return;
+    const currentId = expansionSel.value || EXPANSIONS[0].id;
+    const idx = EXPANSIONS.findIndex(function (e) { return e.id === currentId; });
+    const newIdx = idx <= 0 ? EXPANSIONS.length - 1 : idx - 1;
+    expansionSel.value = EXPANSIONS[newIdx].id;
+    updateExpansionCarouselSelected();
+    scrollSelectedCoverIntoView();
+    renderPackPanel();
+  }
+
+  function selectNextExpansion() {
+    const expansionSel = el('torcha-pack-expansion');
+    if (!expansionSel || !EXPANSIONS.length) return;
+    const currentId = expansionSel.value || EXPANSIONS[0].id;
+    const idx = EXPANSIONS.findIndex(function (e) { return e.id === currentId; });
+    const newIdx = idx >= EXPANSIONS.length - 1 ? 0 : idx + 1;
+    expansionSel.value = EXPANSIONS[newIdx].id;
+    updateExpansionCarouselSelected();
+    scrollSelectedCoverIntoView();
+    renderPackPanel();
+  }
+
+  function renderExpansionCarousel() {
+    const track = el('torcha-carousel-track');
+    const expansionSel = el('torcha-pack-expansion');
+    if (!track || !expansionSel) return;
+    track.innerHTML = '';
+    EXPANSIONS.forEach(function (e) {
+      const cover = document.createElement('button');
+      cover.type = 'button';
+      cover.className = 'torcha-expansion-cover';
+      cover.setAttribute('data-expansion', e.id);
+      cover.setAttribute('role', 'listitem');
+      cover.innerHTML = '<span class="torcha-cover-art" aria-hidden="true"><span class="torcha-cover-name">' + escapeHtml(e.name) + '</span></span><span class="torcha-cover-label"><span class="torcha-cover-sub">' + escapeHtml(getExpansionSeasonRange(e)) + '</span></span>';
+      cover.addEventListener('click', function () {
+        expansionSel.value = e.id;
+        updateExpansionCarouselSelected();
+        renderPackPanel();
+        openPack();
+      });
+      track.appendChild(cover);
+    });
+    updateExpansionCarouselSelected();
+  }
+
+  function initCarouselNav() {
+    const prevBtn = el('torcha-carousel-prev');
+    const nextBtn = el('torcha-carousel-next');
+    if (prevBtn) prevBtn.addEventListener('click', selectPrevExpansion);
+    if (nextBtn) nextBtn.addEventListener('click', selectNextExpansion);
+  }
+
   function initPackExpansion() {
     const sel = el('torcha-pack-expansion');
     if (!sel) return;
@@ -1269,6 +1347,9 @@
       opt.textContent = getExpansionDisplay(e);
       sel.appendChild(opt);
     });
+    if (EXPANSIONS.length && !sel.value) sel.value = EXPANSIONS[0].id;
+    renderExpansionCarousel();
+    initCarouselNav();
   }
 
   function syncFilterFromSelect(expansionSel, seasonSel, raritySel, sortSel) {
