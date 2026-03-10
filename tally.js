@@ -670,7 +670,8 @@ const SurvivorApp = {
                 const tag = document.createElement('span');
                 tag.className = 'tally-fantasy-tag';
                 tag.dataset.name = name;
-                tag.innerHTML = `${name} <b class="tally-fantasy-remove" style="cursor:pointer; color:#e74c3c; margin-left:4px;">×</b>`;
+                const safeName = (typeof escapeHtml !== 'undefined' ? escapeHtml(name) : String(name).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'));
+                tag.innerHTML = safeName + ' <b class="tally-fantasy-remove" style="cursor:pointer; color:#e74c3c; margin-left:4px;">×</b>';
                 list.appendChild(tag);
                 inp.value = '';
                 syncFantasyPlayersToHidden();

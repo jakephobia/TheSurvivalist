@@ -1088,10 +1088,10 @@ document.addEventListener('DOMContentLoaded', function() {
             if (revealEl) revealEl.innerHTML = '';
             const card = document.createElement('div');
             card.className = 'vote-card animate__animated animate__flipInX';
-            card.innerHTML = `${vote.name}`;
+            card.innerHTML = (typeof escapeHtml !== 'undefined' ? escapeHtml(vote.name) : String(vote.name).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'));
             if (!vote.valid) card.innerHTML += `<br><span style="color:red; font-size:0.5em">DOES NOT COUNT</span>`;
             if (revealEl) revealEl.appendChild(card);
-            this.addTribalLog(`Vote: ${vote.name}`);
+            this.addTribalLog('Vote: ' + (typeof escapeHtml !== 'undefined' ? escapeHtml(vote.name) : String(vote.name).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')));
             const bodyEl = document.getElementById('tribal-body');
             if (bodyEl) bodyEl.scrollTop = bodyEl.scrollHeight;
             if (this.votesToRead.length === 0) {
@@ -1211,7 +1211,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         playerOut: function(p) {
             const revealEl = document.getElementById('vote-reveal-area') || voteRevealArea;
-            if (revealEl) revealEl.innerHTML = `<h2 style="color:var(--error); font-size:3em;">${p.name}</h2><p>The tribe has spoken.</p>`;
+            if (revealEl) revealEl.innerHTML = '<h2 style="color:var(--error); font-size:3em;">' + (typeof escapeHtml !== 'undefined' ? escapeHtml(p.name) : String(p.name).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')) + '</h2><p>The tribe has spoken.</p>';
             bootOrder++;
             p.bootOrder = bootOrder;
             p.status = "Eliminated";
@@ -1223,10 +1223,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 p.status = "Jury";
                 if (!this.jury.includes(p.id)) {
                     this.jury.push(p.id);
-                    this.addTribalLog(`${p.name} joins the Jury.`);
+                    this.addTribalLog((typeof escapeHtml !== 'undefined' ? escapeHtml(p.name) : String(p.name).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')) + ' joins the Jury.');
                 }
             } else {
-                this.addTribalLog(`${p.name} eliminated.`);
+                this.addTribalLog((typeof escapeHtml !== 'undefined' ? escapeHtml(p.name) : String(p.name).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')) + ' eliminated.');
             }
             const readBtn = document.getElementById('btn-read-vote') || btnReadVote;
             const endBtn = document.getElementById('btn-end-tribal') || btnEndTribal;
@@ -1373,8 +1373,8 @@ document.addEventListener('DOMContentLoaded', function() {
             finalists.forEach(f => {
                 container.innerHTML += `
                     <div>
-                        <div style="width:100px; height:100px; background:#333; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2em; margin:0 auto 10px; border:3px solid ${settings.mergeColor}">${f.name.substring(0,1)}</div>
-                        <div style="font-weight:bold">${f.name}</div>
+                        <div style="width:100px; height:100px; background:#333; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2em; margin:0 auto 10px; border:3px solid ${settings.mergeColor}">${(typeof escapeHtml !== 'undefined' ? escapeHtml(f.name) : String(f.name).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')).substring(0,1)}</div>
+                        <div style="font-weight:bold">${typeof escapeHtml !== 'undefined' ? escapeHtml(f.name) : String(f.name).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
                         <div class="vote-counter" id="counter-${f.id}" style="font-size:2em; font-weight:bold; color:var(--secondary)">0</div>
                     </div>
                 `;

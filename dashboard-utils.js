@@ -1,7 +1,16 @@
 /**
  * Dashboard utilities - record tool usage for "Recent Tools" on index
+ * and shared security helpers (escapeHtml for XSS prevention).
  */
 (function () {
+  /** Escape string for safe insertion into HTML (prevents XSS). */
+  window.escapeHtml = function (s) {
+    if (s == null) return '';
+    var div = document.createElement('div');
+    div.textContent = s;
+    return div.innerHTML;
+  };
+
   const STORAGE_KEY = 'survivalist_recent_tools';
   const MAX_ITEMS = 3;
 

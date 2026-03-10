@@ -428,10 +428,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const ep = currentSeason.currentEpisode;
         const alliances = getEpAlliances(ep);
         const active = currentSeason.players.filter(p => !p.eliminated).sort((a, b) => a.name.localeCompare(b.name));
-        allianceMemberSelect.innerHTML = active.map(p => `<label style="display:block"><input type="checkbox" value="${p.id}" class="all-chk"> ${p.name}</label>`).join('');
+        const esc = (s) => (typeof escapeHtml !== 'undefined' ? escapeHtml(s) : String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'));
+        allianceMemberSelect.innerHTML = active.map(p => `<label style="display:block"><input type="checkbox" value="${p.id}" class="all-chk"> ${esc(p.name)}</label>`).join('');
         activeAlliancesList.innerHTML = alliances.map((a, i) => `<div class="card" style="padding:0.75rem; margin-bottom:0.5rem;">
-            <b>${a.name}</b> <button style="float:right; color:#e74c3c; border:none; background:none; cursor:pointer;" class="del-alliance" data-index="${i}">×</button>
-            <div style="font-size:0.8rem; color:#4a5f73;">${a.members.map(mid => currentSeason.players.find(x => x.id == mid)?.name).join(', ')}</div>
+            <b>${esc(a.name)}</b> <button style="float:right; color:#e74c3c; border:none; background:none; cursor:pointer;" class="del-alliance" data-index="${i}">×</button>
+            <div style="font-size:0.8rem; color:#4a5f73;">${a.members.map(mid => esc(currentSeason.players.find(x => x.id == mid)?.name || '')).join(', ')}</div>
         </div>`).join('');
         renderNetwork(active, alliances);
     }
@@ -774,7 +775,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     usedAdv: [], sitdUsed: false, sitdResult: null
                 };
                 const inventory = getEpAdv(p, ep);
-                const targets = part.filter(x => x.id !== p.id && !immuneIds.includes(x.id)).map(x => `<option value="${x.id}" ${v.target == x.id ? 'selected' : ''}>${x.name}</option>`).join('');
+                const esc = (s) => (typeof escapeHtml !== 'undefined' ? escapeHtml(s) : String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'));
+                const targets = part.filter(x => x.id !== p.id && !immuneIds.includes(x.id)).map(x => `<option value="${x.id}" ${v.target == x.id ? 'selected' : ''}>${esc(x.name)}</option>`).join('');
                 const usedBadges = (v.usedAdv || []).map((u, idx) => `<span class="smuffer-used-adv-badge">${u} <b class="smuffer-used-adv-remove" data-pid="${p.id}" data-idx="${idx}">×</b></span>`).join('');
                 const usedCounts = {};
                 (v.usedAdv || []).forEach(n => usedCounts[n] = (usedCounts[n] || 0) + 1);

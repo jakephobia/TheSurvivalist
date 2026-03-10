@@ -10,14 +10,23 @@
   const PACK_SIZE = 5;
   const PVP_PACK_REWARD_EVERY = 10;
   const PACKS_PER_CLAIM = 2;
-  const SEASONS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26];
+  const SEASONS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 50];
 
   const EXPANSIONS = [
     { id: 'road-to-all-stars', name: 'Road to All Stars', seasons: [1, 2, 3, 4, 5, 6, 7, 8] },
     { id: 'the-twists-era', name: 'The Twists Era', seasons: [9, 10, 11, 12, 13, 14] },
     { id: 'the-golden-age', name: 'The Golden Age', seasons: [15, 16, 17, 18, 19, 20] },
-    { id: 'the-strategy-era', name: 'The Strategy Era', seasons: [21, 22, 23, 24, 25, 26] },
+    { id: 'the-dark-age', name: 'The Dark Age', seasons: [21, 22, 23, 24, 25, 26] },
+    { id: 'rise-of-the-big-moves', name: 'Rise of the Big Moves', seasons: [27, 28, 29, 30, 31, 32, 33] },
+    { id: 'in-the-hands-of-the-fans', name: 'In the Hands of the Fans', seasons: [50] },
   ];
+
+  /** Expansion ids not yet published (hidden from carousel, pack select, filters). */
+  const HIDDEN_EXPANSION_IDS = ['in-the-hands-of-the-fans'];
+
+  function getVisibleExpansions() {
+    return EXPANSIONS.filter(function (e) { return HIDDEN_EXPANSION_IDS.indexOf(e.id) === -1; });
+  }
 
   /** Contestants excluded from the card pool (by exact name match, case-insensitive). */
   const CARD_BLOCKLIST_NAMES = new Set(['dan spilo', 'michael skupin', 'jeff varner']);
@@ -323,12 +332,26 @@
     URL.revokeObjectURL(url);
   }
 
+  var ALLOWED_STORAGE_KEYS;
+  function getAllowedStorageKeys() {
+    if (ALLOWED_STORAGE_KEYS) return ALLOWED_STORAGE_KEYS;
+    ALLOWED_STORAGE_KEYS = new Set(Object.keys(STORAGE).map(function (k) { return STORAGE[k]; }));
+    return ALLOWED_STORAGE_KEYS;
+  }
+
+  var MAX_IMPORT_JSON_LENGTH = 2 * 1024 * 1024; // 2MB
+
   function importSessionFile(file) {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = function (e) {
       try {
-        const raw = JSON.parse(e.target.result);
+        const str = e.target.result;
+        if (typeof str !== 'string' || str.length > MAX_IMPORT_JSON_LENGTH) {
+          alert('File too large or invalid.');
+          return;
+        }
+        const raw = JSON.parse(str);
         if (!raw || typeof raw !== 'object' || raw.tool !== 'Torcha') {
           alert('Invalid file. This is not a Torcha session.');
           return;
@@ -342,8 +365,12 @@
           alert('Invalid session data.');
           return;
         }
+        const allowed = getAllowedStorageKeys();
         Object.keys(data).forEach(function (key) {
-          if (data[key] != null) localStorage.setItem(key, String(data[key]));
+          if (!allowed.has(key)) return;
+          const val = data[key];
+          if (val == null) return;
+          localStorage.setItem(key, String(val));
         });
         refreshSessionUI();
         alert('Session loaded. Saved at: ' + (raw.savedAt || 'unknown'));
@@ -882,7 +909,7 @@
     const sel = el('torcha-filter-expansion');
     if (!sel) return;
     let html = '<option value="">All expansions</option>';
-    EXPANSIONS.forEach(function (e) {
+    getVisibleExpansions().forEach(function (e) {
       html += '<option value="' + e.id + '"' + (filterExpansion === e.id ? ' selected' : '') + '>' + escapeHtml(getExpansionDisplay(e)) + '</option>';
     });
     sel.innerHTML = html;
@@ -932,7 +959,7 @@
     const rarSel = el(rarityId);
     if (expSel) {
       let h = '<option value="">All expansions</option>';
-      EXPANSIONS.forEach(function (e) {
+      getVisibleExpansions().forEach(function (e) {
         h += '<option value="' + e.id + '"' + (filterExpansion === e.id ? ' selected' : '') + '>' + escapeHtml(getExpansionDisplay(e)) + '</option>';
       });
       expSel.innerHTML = h;
@@ -1285,11 +1312,12 @@
 
   function selectPrevExpansion() {
     const expansionSel = el('torcha-pack-expansion');
-    if (!expansionSel || !EXPANSIONS.length) return;
-    const currentId = expansionSel.value || EXPANSIONS[0].id;
-    const idx = EXPANSIONS.findIndex(function (e) { return e.id === currentId; });
-    const newIdx = idx <= 0 ? EXPANSIONS.length - 1 : idx - 1;
-    expansionSel.value = EXPANSIONS[newIdx].id;
+    const visible = getVisibleExpansions();
+    if (!expansionSel || !visible.length) return;
+    const currentId = expansionSel.value || visible[0].id;
+    const idx = visible.findIndex(function (e) { return e.id === currentId; });
+    const newIdx = idx <= 0 ? visible.length - 1 : idx - 1;
+    expansionSel.value = visible[newIdx].id;
     updateExpansionCarouselSelected();
     scrollSelectedCoverIntoView();
     renderPackPanel();
@@ -1297,11 +1325,12 @@
 
   function selectNextExpansion() {
     const expansionSel = el('torcha-pack-expansion');
-    if (!expansionSel || !EXPANSIONS.length) return;
-    const currentId = expansionSel.value || EXPANSIONS[0].id;
-    const idx = EXPANSIONS.findIndex(function (e) { return e.id === currentId; });
-    const newIdx = idx >= EXPANSIONS.length - 1 ? 0 : idx + 1;
-    expansionSel.value = EXPANSIONS[newIdx].id;
+    const visible = getVisibleExpansions();
+    if (!expansionSel || !visible.length) return;
+    const currentId = expansionSel.value || visible[0].id;
+    const idx = visible.findIndex(function (e) { return e.id === currentId; });
+    const newIdx = idx >= visible.length - 1 ? 0 : idx + 1;
+    expansionSel.value = visible[newIdx].id;
     updateExpansionCarouselSelected();
     scrollSelectedCoverIntoView();
     renderPackPanel();
@@ -1312,7 +1341,7 @@
     const expansionSel = el('torcha-pack-expansion');
     if (!track || !expansionSel) return;
     track.innerHTML = '';
-    EXPANSIONS.forEach(function (e) {
+    getVisibleExpansions().forEach(function (e) {
       const cover = document.createElement('button');
       cover.type = 'button';
       cover.className = 'torcha-expansion-cover';
@@ -1340,14 +1369,15 @@
   function initPackExpansion() {
     const sel = el('torcha-pack-expansion');
     if (!sel) return;
+    const visible = getVisibleExpansions();
     sel.innerHTML = '';
-    EXPANSIONS.forEach(function (e) {
+    visible.forEach(function (e) {
       const opt = document.createElement('option');
       opt.value = e.id;
       opt.textContent = getExpansionDisplay(e);
       sel.appendChild(opt);
     });
-    if (EXPANSIONS.length && !sel.value) sel.value = EXPANSIONS[0].id;
+    if (visible.length && (!sel.value || HIDDEN_EXPANSION_IDS.indexOf(sel.value) !== -1)) sel.value = visible[0].id;
     renderExpansionCarousel();
     initCarouselNav();
   }
