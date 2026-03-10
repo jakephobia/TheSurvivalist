@@ -1113,11 +1113,14 @@
     seasonOrder.forEach(function (seasonNum) {
       const list = bySeason[seasonNum].slice();
       list.sort(function (a, b) { return (a.card.name || '').localeCompare(b.card.name || '', undefined, { sensitivity: 'base' }); });
+      const totalInSeason = list.length;
+      const ownedInSeason = list.filter(function (e) { return (inventory[e.card.id] || 0) > 0; }).length;
       const section = document.createElement('section');
       section.className = 'torcha-dex-season';
       const heading = document.createElement('h3');
       heading.className = 'torcha-dex-season-title';
-      heading.textContent = getSeasonDisplay(seasonNum);
+      heading.textContent = getSeasonDisplay(seasonNum) + ' (' + ownedInSeason + '/' + totalInSeason + ')';
+      heading.setAttribute('aria-label', ownedInSeason + ' of ' + totalInSeason + ' cards owned');
       section.appendChild(heading);
       const grid = document.createElement('div');
       grid.className = 'torcha-collection-grid';
