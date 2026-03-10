@@ -999,6 +999,51 @@ body.page-torcha { --accent-color: #8BC34A; }
 .page-torcha .torcha-dex-back-top.hidden {
   display: none !important;
 }
+
+/* Torcha modal (replaces alert/confirm) */
+.page-torcha .torcha-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+}
+.page-torcha .torcha-modal-overlay.hidden {
+  display: none !important;
+}
+.page-torcha .torcha-modal-dialog {
+  background: var(--page-bg, #fff);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  max-width: 420px;
+  width: 100%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+.page-torcha .torcha-modal-title {
+  margin: 0 0 var(--space-sm) 0;
+  font-size: 1.15rem;
+}
+.page-torcha .torcha-modal-body {
+  margin: 0 0 var(--space-md) 0;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: #4a5f73;
+}
+.page-torcha .torcha-modal-actions {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.page-torcha .torcha-modal-btn.hidden {
+  display: none !important;
+}
+
 .page-torcha .torcha-dex-season {
   margin-bottom: var(--space-xl);
 }

@@ -420,21 +420,21 @@
       try {
         const str = e.target.result;
         if (typeof str !== 'string' || str.length > MAX_IMPORT_JSON_LENGTH) {
-          alert('File too large or invalid.');
+          showTorchaModal({ title: 'Load session', body: 'File too large or invalid.', primaryLabel: 'OK' });
           return;
         }
         const raw = JSON.parse(str);
         if (!raw || typeof raw !== 'object' || raw.tool !== 'Torcha') {
-          alert('Invalid file. This is not a Torcha session.');
+          showTorchaModal({ title: 'Load session', body: 'Invalid file. This is not a Torcha session.', primaryLabel: 'OK' });
           return;
         }
         if (raw.version !== SESSION_VERSION) {
-          alert('Unsupported file version.');
+          showTorchaModal({ title: 'Load session', body: 'Unsupported file version.', primaryLabel: 'OK' });
           return;
         }
         const data = raw.data;
         if (!data || typeof data !== 'object') {
-          alert('Invalid session data.');
+          showTorchaModal({ title: 'Load session', body: 'Invalid session data.', primaryLabel: 'OK' });
           return;
         }
         const allowed = getAllowedStorageKeys();
@@ -445,9 +445,9 @@
           localStorage.setItem(key, String(val));
         });
         refreshSessionUI();
-        alert('Session loaded. Saved at: ' + (raw.savedAt || 'unknown'));
+        showTorchaModal({ title: 'Load session', body: 'Session loaded. Saved at: ' + (raw.savedAt || 'unknown'), primaryLabel: 'OK' });
       } catch (err) {
-        alert('Invalid JSON file: ' + (err.message || err));
+        showTorchaModal({ title: 'Load session', body: 'Invalid JSON file: ' + (err.message || err), primaryLabel: 'OK' });
       }
     };
     reader.readAsText(file);
@@ -463,6 +463,60 @@
     renderPvpPanel();
     renderShredPanel();
     renderDexPanel();
+  }
+
+  var torchaModalPreviousFocus = null;
+  var torchaModalEscapeHandler = null;
+
+  function showTorchaModal(options) {
+    var overlay = el('torcha-modal-overlay');
+    var titleEl = el('torcha-modal-title');
+    var bodyEl = el('torcha-modal-body');
+    var primaryBtn = el('torcha-modal-primary');
+    var secondaryBtn = el('torcha-modal-secondary');
+    if (!overlay || !titleEl || !bodyEl || !primaryBtn) return;
+    titleEl.textContent = options.title || '';
+    bodyEl.textContent = options.body || '';
+    primaryBtn.textContent = options.primaryLabel || 'OK';
+    primaryBtn.onclick = function () {
+      if (typeof options.onPrimary === 'function') options.onPrimary();
+      hideTorchaModal();
+    };
+    if (options.secondaryLabel && secondaryBtn) {
+      secondaryBtn.textContent = options.secondaryLabel;
+      secondaryBtn.classList.remove('hidden');
+      secondaryBtn.onclick = function () {
+        if (typeof options.onSecondary === 'function') options.onSecondary();
+        hideTorchaModal();
+      };
+    } else if (secondaryBtn) {
+      secondaryBtn.classList.add('hidden');
+    }
+    torchaModalPreviousFocus = document.activeElement;
+    overlay.classList.remove('hidden');
+    overlay.setAttribute('aria-hidden', 'false');
+    primaryBtn.focus();
+    torchaModalEscapeHandler = function (e) {
+      if (e.key === 'Escape') {
+        if (typeof options.onSecondary === 'function') options.onSecondary();
+        hideTorchaModal();
+      }
+    };
+    document.addEventListener('keydown', torchaModalEscapeHandler);
+  }
+
+  function hideTorchaModal() {
+    var overlay = el('torcha-modal-overlay');
+    if (!overlay) return;
+    overlay.classList.add('hidden');
+    overlay.setAttribute('aria-hidden', 'true');
+    if (torchaModalEscapeHandler) {
+      document.removeEventListener('keydown', torchaModalEscapeHandler);
+      torchaModalEscapeHandler = null;
+    }
+    if (torchaModalPreviousFocus && typeof torchaModalPreviousFocus.focus === 'function') {
+      torchaModalPreviousFocus.focus();
+    }
   }
 
   // --- Card data & draw ---
@@ -1451,7 +1505,7 @@
     var pool = released.length >= 5 ? released : cards;
     var cpuDeck = pickCpuDeckMatchmaking(userDeck, pool);
     if (cpuDeck.length < 5) {
-      if (typeof alert !== 'undefined') alert('Not enough cards in the pool to form the CPU deck. Try again.');
+      showTorchaModal({ title: 'Challenge', body: 'Not enough cards in the pool to form the CPU deck. Try again.', primaryLabel: 'OK' });
       return;
     }
     showChallengeView();
@@ -1788,19 +1842,26 @@
     var btn = document.getElementById('torcha-reset');
     if (!btn) return;
     btn.addEventListener('click', function () {
-      if (!confirm('Reset everything? Tool will return to default state.')) return;
-      Object.keys(STORAGE).forEach(function (k) { localStorage.removeItem(STORAGE[k]); });
-      if (cards && cards.length > 0) {
-        inventory = loadInventory();
-        packState = getPackState();
-        renderTimer();
-        renderPackPanel();
-        renderDailyTasks();
-        renderInventoryPanel();
-        renderPvpPanel();
-        renderShredPanel();
-        renderDexPanel();
-      }
+      showTorchaModal({
+        title: 'Reset',
+        body: 'Reset everything? The tool will return to its default state. This cannot be undone.',
+        primaryLabel: 'Reset',
+        secondaryLabel: 'Cancel',
+        onPrimary: function () {
+          Object.keys(STORAGE).forEach(function (k) { localStorage.removeItem(STORAGE[k]); });
+          if (cards && cards.length > 0) {
+            inventory = loadInventory();
+            packState = getPackState();
+            renderTimer();
+            renderPackPanel();
+            renderDailyTasks();
+            renderInventoryPanel();
+            renderPvpPanel();
+            renderShredPanel();
+            renderDexPanel();
+          }
+        }
+      });
     });
   }
   if (document.readyState === 'loading') {
