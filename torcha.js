@@ -752,6 +752,7 @@
   let filterExpansion = '';
   let filterSort = 'season';
   let filterFavoritesOnly = false;
+  let filterSearch = '';
   let lastDrawnCards = [];
   let claimFeedbackTaskId = null;
   let isOpeningPack = false;
@@ -811,10 +812,17 @@
     return entries;
   }
 
+  function cardMatchesSearch(card, q) {
+    if (!q || typeof card.name !== 'string') return true;
+    return card.name.toLowerCase().indexOf(q.trim().toLowerCase()) !== -1;
+  }
+
   function applyFiltersToEntries(entries) {
+    const searchQ = filterSearch.trim();
     return entries.filter(function (_ref) {
       const card = _ref.card;
       if (HIDDEN_EXPANSION_IDS.indexOf(card.expansion) !== -1) return false;
+      if (searchQ && !cardMatchesSearch(card, filterSearch)) return false;
       if (filterFavoritesOnly && !isFavorite(card.id)) return false;
       if (filterRarity && card.rarity !== filterRarity) return false;
       if (filterSeason !== '' && card.season !== filterSeason) return false;
@@ -1080,10 +1088,12 @@
 
   function renderDexPanel() {
     const released = getReleasedCards();
-    const entries = released.map(function (card) {
+    let entries = released.map(function (card) {
       const count = inventory[card.id] || 0;
       return { card: card, count: count };
     });
+    const searchQ = filterSearch.trim();
+    if (searchQ) entries = entries.filter(function (e) { return cardMatchesSearch(e.card, filterSearch); });
     const summaryEl = el('torcha-dex-summary');
     if (summaryEl) {
       const ownedCount = entries.filter(function (e) { return (inventory[e.card.id] || 0) > 0; }).length;
@@ -1421,6 +1431,17 @@
     });
   }
 
+  function syncSearchInputs() {
+    const invSearch = el('torcha-filter-search');
+    const pvpSearch = el('torcha-pvp-filter-search');
+    const shredSearch = el('torcha-shred-filter-search');
+    const dexSearch = el('torcha-dex-filter-search');
+    if (invSearch) invSearch.value = filterSearch;
+    if (pvpSearch) pvpSearch.value = filterSearch;
+    if (shredSearch) shredSearch.value = filterSearch;
+    if (dexSearch) dexSearch.value = filterSearch;
+  }
+
   function switchTab(tabId) {
     activeTab = tabId;
     document.querySelectorAll('.torcha-tab').forEach(function (t) {
@@ -1432,6 +1453,7 @@
       const id = p.id && p.id.replace('torcha-panel-', '');
       toggleHidden(p, id !== tabId);
     });
+    syncSearchInputs();
     if (tabId === 'pack') { renderPackPanel(); renderDailyTasks(); }
     else if (tabId === 'inventory') renderInventoryPanel();
     else if (tabId === 'dex') { renderDexPanel(); updateDexBackTopVisibility(); }
@@ -1724,6 +1746,15 @@
     if (raritySel) raritySel.addEventListener('change', function () { filterRarity = raritySel.value || ''; renderInventoryPanel(); });
     if (seasonSel) seasonSel.addEventListener('change', function () { filterSeason = seasonSel.value === '' ? '' : parseInt(seasonSel.value, 10); renderInventoryPanel(); });
     if (sortSel) sortSel.addEventListener('change', function () { filterSort = sortSel.value || 'season'; renderInventoryPanel(); });
+
+    const invSearch = el('torcha-filter-search');
+    if (invSearch) invSearch.addEventListener('input', function () { filterSearch = invSearch.value; renderInventoryPanel(); });
+    const pvpSearch = el('torcha-pvp-filter-search');
+    if (pvpSearch) pvpSearch.addEventListener('input', function () { filterSearch = pvpSearch.value; renderPvpPanel(); });
+    const shredSearch = el('torcha-shred-filter-search');
+    if (shredSearch) shredSearch.addEventListener('input', function () { filterSearch = shredSearch.value; renderShredPanel(); });
+    const dexSearch = el('torcha-dex-filter-search');
+    if (dexSearch) dexSearch.addEventListener('input', function () { filterSearch = dexSearch.value; renderDexPanel(); });
 
     const pvpExp = el('torcha-pvp-filter-expansion');
     const pvpSea = el('torcha-pvp-filter-season');
