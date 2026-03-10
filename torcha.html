@@ -50,12 +50,22 @@
         <h2 class="header-title">TORCHA</h2>
         <p class="header-subtitle">Gacha card game</p>
       </div>
-      <div class="header-right">
-        <button type="button" class="btn-secondary btn-sm" id="torcha-save-session">Save Session</button>
-        <button type="button" class="btn-secondary btn-sm" id="torcha-load-session">Load Session</button>
-        <input type="file" id="torcha-import-session-file" accept=".json" class="hidden">
+      <div class="header-right torcha-header-right">
+        <div class="torcha-header-actions">
+          <button type="button" class="btn-secondary btn-sm" id="torcha-save-session">Save Session</button>
+          <button type="button" class="btn-secondary btn-sm" id="torcha-load-session">Load Session</button>
+          <input type="file" id="torcha-import-session-file" accept=".json" class="hidden">
+          <button type="button" class="btn-danger btn-secondary btn-sm" id="torcha-reset">Reset</button>
+        </div>
+        <div class="torcha-header-overflow-wrap">
+          <button type="button" class="torcha-header-overflow-btn" id="torcha-header-overflow-btn" aria-label="Session actions" aria-expanded="false" aria-haspopup="true">⋯</button>
+          <div id="torcha-header-overflow-dropdown" class="torcha-header-overflow-dropdown hidden" role="menu">
+            <button type="button" class="torcha-header-overflow-item" role="menuitem" id="torcha-overflow-save">Save Session</button>
+            <button type="button" class="torcha-header-overflow-item" role="menuitem" id="torcha-overflow-load">Load Session</button>
+            <button type="button" class="torcha-header-overflow-item torcha-header-overflow-danger" role="menuitem" id="torcha-overflow-reset">Reset</button>
+          </div>
+        </div>
         <button type="button" class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">☰</button>
-        <button type="button" class="btn-danger btn-secondary btn-sm" id="torcha-reset">Reset</button>
       </div>
     </header>
 
@@ -133,29 +143,35 @@
             </section>
             <section class="section">
               <h2 class="section-title">Your cards</h2>
-              <div class="torcha-filters">
-                <div class="input-group">
-                  <label class="input-label" for="torcha-filter-search">Search</label>
-                  <input type="text" id="torcha-filter-search" class="input-base" placeholder="Search by name…" aria-label="Search by card name">
+              <div class="torcha-filters" id="torcha-filters-inventory">
+                <div class="torcha-filters-primary">
+                  <div class="input-group">
+                    <label class="input-label" for="torcha-filter-search">Search</label>
+                    <input type="text" id="torcha-filter-search" class="input-base" placeholder="Search by name…" aria-label="Search by card name">
+                  </div>
+                  <button type="button" class="torcha-filters-toggle" id="torcha-filters-inventory-toggle" aria-expanded="false" aria-controls="torcha-filters-inventory-drawer">Filters</button>
                 </div>
-                <div class="input-group">
-                  <label class="input-label" for="torcha-filter-expansion">Expansion</label>
-                  <select id="torcha-filter-expansion" class="input-base" aria-label="Filter by expansion"></select>
-                </div>
-                <div class="input-group">
-                  <label class="input-label" for="torcha-filter-season">Season</label>
-                  <select id="torcha-filter-season" class="input-base" aria-label="Filter by season"></select>
-                </div>
-                <div class="input-group">
-                  <label class="input-label" for="torcha-filter-rarity">Rarity</label>
-                  <select id="torcha-filter-rarity" class="input-base" aria-label="Filter by rarity"></select>
-                </div>
-                <div class="input-group">
-                  <label class="input-label" for="torcha-filter-sort">Sort</label>
-                  <select id="torcha-filter-sort" class="input-base" aria-label="Sort by"></select>
+                <div class="torcha-filters-drawer" id="torcha-filters-inventory-drawer">
+                  <div class="input-group">
+                    <label class="input-label" for="torcha-filter-expansion">Expansion</label>
+                    <select id="torcha-filter-expansion" class="input-base" aria-label="Filter by expansion"></select>
+                  </div>
+                  <div class="input-group">
+                    <label class="input-label" for="torcha-filter-season">Season</label>
+                    <select id="torcha-filter-season" class="input-base" aria-label="Filter by season"></select>
+                  </div>
+                  <div class="input-group">
+                    <label class="input-label" for="torcha-filter-rarity">Rarity</label>
+                    <select id="torcha-filter-rarity" class="input-base" aria-label="Filter by rarity"></select>
+                  </div>
+                  <div class="input-group">
+                    <label class="input-label" for="torcha-filter-sort">Sort</label>
+                    <select id="torcha-filter-sort" class="input-base" aria-label="Sort by"></select>
+                  </div>
                 </div>
               </div>
               <div id="torcha-collection-grid" class="torcha-collection-grid"></div>
+              <div id="torcha-collection-load-more-wrap" class="torcha-load-more-wrap"></div>
               <p id="torcha-collection-empty" class="torcha-timer hidden" style="margin-top: var(--space-lg);">No cards match the filters. Open packs to add cards to your collection.</p>
             </section>
           </div>
@@ -169,26 +185,31 @@
               <div class="torcha-info-block">
                 <p class="torcha-info-text">Select 5 cards. Team HP = sum of Strategy; each card attacks with its Strength. CPU uses only released expansions.</p>
               </div>
-              <div class="torcha-filters">
-                <div class="input-group">
-                  <label class="input-label" for="torcha-pvp-filter-search">Search</label>
-                  <input type="text" id="torcha-pvp-filter-search" class="input-base" placeholder="Search by name…" aria-label="Search by card name">
+              <div class="torcha-filters" id="torcha-filters-pvp">
+                <div class="torcha-filters-primary">
+                  <div class="input-group">
+                    <label class="input-label" for="torcha-pvp-filter-search">Search</label>
+                    <input type="text" id="torcha-pvp-filter-search" class="input-base" placeholder="Search by name…" aria-label="Search by card name">
+                  </div>
+                  <button type="button" class="torcha-filters-toggle" id="torcha-filters-pvp-toggle" aria-expanded="false" aria-controls="torcha-filters-pvp-drawer">Filters</button>
                 </div>
-                <div class="input-group">
-                  <label class="input-label" for="torcha-pvp-filter-expansion">Expansion</label>
-                  <select id="torcha-pvp-filter-expansion" class="input-base" aria-label="Filter by expansion"></select>
-                </div>
-                <div class="input-group">
-                  <label class="input-label" for="torcha-pvp-filter-season">Season</label>
-                  <select id="torcha-pvp-filter-season" class="input-base" aria-label="Filter by season"></select>
-                </div>
-                <div class="input-group">
-                  <label class="input-label" for="torcha-pvp-filter-rarity">Rarity</label>
-                  <select id="torcha-pvp-filter-rarity" class="input-base" aria-label="Filter by rarity"></select>
-                </div>
-                <div class="input-group">
-                  <label class="input-label" for="torcha-pvp-filter-sort">Sort</label>
-                  <select id="torcha-pvp-filter-sort" class="input-base" aria-label="Sort by"></select>
+                <div class="torcha-filters-drawer" id="torcha-filters-pvp-drawer">
+                  <div class="input-group">
+                    <label class="input-label" for="torcha-pvp-filter-expansion">Expansion</label>
+                    <select id="torcha-pvp-filter-expansion" class="input-base" aria-label="Filter by expansion"></select>
+                  </div>
+                  <div class="input-group">
+                    <label class="input-label" for="torcha-pvp-filter-season">Season</label>
+                    <select id="torcha-pvp-filter-season" class="input-base" aria-label="Filter by season"></select>
+                  </div>
+                  <div class="input-group">
+                    <label class="input-label" for="torcha-pvp-filter-rarity">Rarity</label>
+                    <select id="torcha-pvp-filter-rarity" class="input-base" aria-label="Filter by rarity"></select>
+                  </div>
+                  <div class="input-group">
+                    <label class="input-label" for="torcha-pvp-filter-sort">Sort</label>
+                    <select id="torcha-pvp-filter-sort" class="input-base" aria-label="Sort by"></select>
+                  </div>
                 </div>
               </div>
               <div id="torcha-pvp-pool" class="torcha-collection-grid" style="margin-top: var(--space-sm);"></div>
@@ -228,26 +249,31 @@
             <div class="torcha-info-block">
               <p class="torcha-info-text">Select cards to shred (you lose 1 copy, gain Fire Tokens). Cards with 2+ copies:</p>
             </div>
-            <div class="torcha-filters">
-              <div class="input-group">
-                <label class="input-label" for="torcha-shred-filter-search">Search</label>
-                <input type="text" id="torcha-shred-filter-search" class="input-base" placeholder="Search by name…" aria-label="Search by card name">
+            <div class="torcha-filters" id="torcha-filters-shred">
+              <div class="torcha-filters-primary">
+                <div class="input-group">
+                  <label class="input-label" for="torcha-shred-filter-search">Search</label>
+                  <input type="text" id="torcha-shred-filter-search" class="input-base" placeholder="Search by name…" aria-label="Search by card name">
+                </div>
+                <button type="button" class="torcha-filters-toggle" id="torcha-filters-shred-toggle" aria-expanded="false" aria-controls="torcha-filters-shred-drawer">Filters</button>
               </div>
-              <div class="input-group">
-                <label class="input-label" for="torcha-shred-filter-expansion">Expansion</label>
-                <select id="torcha-shred-filter-expansion" class="input-base" aria-label="Filter by expansion"></select>
-              </div>
-              <div class="input-group">
-                <label class="input-label" for="torcha-shred-filter-season">Season</label>
-                <select id="torcha-shred-filter-season" class="input-base" aria-label="Filter by season"></select>
-              </div>
-              <div class="input-group">
-                <label class="input-label" for="torcha-shred-filter-rarity">Rarity</label>
-                <select id="torcha-shred-filter-rarity" class="input-base" aria-label="Filter by rarity"></select>
-              </div>
-              <div class="input-group">
-                <label class="input-label" for="torcha-shred-filter-sort">Sort</label>
-                <select id="torcha-shred-filter-sort" class="input-base" aria-label="Sort by"></select>
+              <div class="torcha-filters-drawer" id="torcha-filters-shred-drawer">
+                <div class="input-group">
+                  <label class="input-label" for="torcha-shred-filter-expansion">Expansion</label>
+                  <select id="torcha-shred-filter-expansion" class="input-base" aria-label="Filter by expansion"></select>
+                </div>
+                <div class="input-group">
+                  <label class="input-label" for="torcha-shred-filter-season">Season</label>
+                  <select id="torcha-shred-filter-season" class="input-base" aria-label="Filter by season"></select>
+                </div>
+                <div class="input-group">
+                  <label class="input-label" for="torcha-shred-filter-rarity">Rarity</label>
+                  <select id="torcha-shred-filter-rarity" class="input-base" aria-label="Filter by rarity"></select>
+                </div>
+                <div class="input-group">
+                  <label class="input-label" for="torcha-shred-filter-sort">Sort</label>
+                  <select id="torcha-shred-filter-sort" class="input-base" aria-label="Sort by"></select>
+                </div>
               </div>
             </div>
             <div id="torcha-shred-grid" class="torcha-collection-grid" style="margin-top: var(--space-sm);"></div>
@@ -279,6 +305,14 @@
       </div>
     </div>
   </div>
+
+  <nav class="torcha-bottom-nav" aria-label="Torcha sections" id="torcha-bottom-nav">
+    <button type="button" class="torcha-bottom-nav-item" data-torcha-tab="pack" aria-label="Dashboard" aria-selected="true">Dashboard</button>
+    <button type="button" class="torcha-bottom-nav-item" data-torcha-tab="inventory" aria-label="Inventory" aria-selected="false">Inventory</button>
+    <button type="button" class="torcha-bottom-nav-item" data-torcha-tab="challenge" aria-label="Challenges" aria-selected="false">Challenges</button>
+    <button type="button" class="torcha-bottom-nav-item" data-torcha-tab="raids" aria-label="Store" aria-selected="false">Store</button>
+    <button type="button" class="torcha-bottom-nav-item" data-torcha-tab="dex" aria-label="SurviDex" aria-selected="false">SurviDex</button>
+  </nav>
 
   <div id="torcha-modal-overlay" class="torcha-modal-overlay hidden" aria-hidden="true">
     <div id="torcha-modal-dialog" class="torcha-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="torcha-modal-title" aria-describedby="torcha-modal-body">

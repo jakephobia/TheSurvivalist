@@ -8,6 +8,8 @@
   const RESPAWN_MIN = 15;
   const MAX_STOCK = 10;
   const PACK_SIZE = 5;
+  const PAGE_SIZE = 48;
+  const DEX_PAGE_SIZE = 24;
   const PVP_PACK_REWARD_EVERY = 10;
   const PACKS_PER_CLAIM = 2;
   const EXPANSIONS = [
@@ -753,6 +755,8 @@
   let filterSort = 'season';
   let filterFavoritesOnly = false;
   let filterSearch = '';
+  let inventoryPageOffset = 0;
+  let dexSeasonOffsets = {};
   let lastDrawnCards = [];
   let claimFeedbackTaskId = null;
   let isOpeningPack = false;
@@ -1072,11 +1076,15 @@
     const favInv = el('torcha-favorites-only');
     if (favInv) favInv.checked = filterFavoritesOnly;
     const filtered = getFilteredEntries();
+    const limit = (inventoryPageOffset + 1) * PAGE_SIZE;
+    const toShow = filtered.slice(0, limit);
+    const hasMore = filtered.length > limit;
     const grid = el('torcha-collection-grid');
     const emptyEl = el('torcha-collection-empty');
+    const loadMoreWrap = el('torcha-collection-load-more-wrap');
     if (grid) {
       grid.innerHTML = '';
-      filtered.forEach(function (_ref) {
+      toShow.forEach(function (_ref) {
         const card = _ref.card;
         const count = _ref.count;
         const node = renderCardEl(card, { collection: true, count });
@@ -1084,6 +1092,20 @@
       });
     }
     if (emptyEl) toggleHidden(emptyEl, filtered.length > 0);
+    if (loadMoreWrap) {
+      loadMoreWrap.innerHTML = '';
+      if (hasMore && filtered.length > 0) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn-secondary torcha-load-more-btn';
+        btn.textContent = 'Load more (' + toShow.length + ' / ' + filtered.length + ')';
+        btn.addEventListener('click', function () {
+          inventoryPageOffset++;
+          renderInventoryPanel();
+        });
+        loadMoreWrap.appendChild(btn);
+      }
+    }
   }
 
   function renderDexPanel() {
@@ -1110,21 +1132,26 @@
       bySeason[s].push(entry);
     });
     const seasonOrder = Object.keys(bySeason).map(Number).sort(function (a, b) { return a - b; });
-    seasonOrder.forEach(function (seasonNum) {
+    seasonOrder.forEach(function (seasonNum, idx) {
       const list = bySeason[seasonNum].slice();
       list.sort(function (a, b) { return (a.card.name || '').localeCompare(b.card.name || '', undefined, { sensitivity: 'base' }); });
       const totalInSeason = list.length;
       const ownedInSeason = list.filter(function (e) { return (inventory[e.card.id] || 0) > 0; }).length;
-      const section = document.createElement('section');
-      section.className = 'torcha-dex-season';
-      const heading = document.createElement('h3');
-      heading.className = 'torcha-dex-season-title';
-      heading.textContent = getSeasonDisplay(seasonNum) + ' (' + ownedInSeason + '/' + totalInSeason + ')';
-      heading.setAttribute('aria-label', ownedInSeason + ' of ' + totalInSeason + ' cards owned');
-      section.appendChild(heading);
+      const pageOffset = dexSeasonOffsets[seasonNum] || 0;
+      const limit = (pageOffset + 1) * DEX_PAGE_SIZE;
+      const toShow = list.slice(0, limit);
+      const hasMore = totalInSeason > limit;
+      const details = document.createElement('details');
+      details.className = 'torcha-dex-season';
+      if (idx === 0) details.setAttribute('open', '');
+      const summary = document.createElement('summary');
+      summary.className = 'torcha-dex-season-title';
+      summary.textContent = getSeasonDisplay(seasonNum) + ' (' + ownedInSeason + '/' + totalInSeason + ')';
+      summary.setAttribute('aria-label', ownedInSeason + ' of ' + totalInSeason + ' cards owned');
+      details.appendChild(summary);
       const grid = document.createElement('div');
       grid.className = 'torcha-collection-grid';
-      list.forEach(function (_ref) {
+      toShow.forEach(function (_ref) {
         const card = _ref.card;
         const count = _ref.count;
         const owned = (inventory[card.id] || 0) > 0;
@@ -1136,8 +1163,22 @@
         });
         grid.appendChild(node);
       });
-      section.appendChild(grid);
-      container.appendChild(section);
+      details.appendChild(grid);
+      if (hasMore) {
+        const loadMoreWrap = document.createElement('div');
+        loadMoreWrap.className = 'torcha-load-more-wrap';
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn-secondary torcha-load-more-btn';
+        btn.textContent = 'Load more (' + toShow.length + ' / ' + totalInSeason + ')';
+        btn.addEventListener('click', function () {
+          dexSeasonOffsets[seasonNum] = pageOffset + 1;
+          renderDexPanel();
+        });
+        loadMoreWrap.appendChild(btn);
+        details.appendChild(loadMoreWrap);
+      }
+      container.appendChild(details);
     });
   }
 
@@ -1455,6 +1496,11 @@
       t.classList.toggle('torcha-tab-active', id === tabId);
       t.setAttribute('aria-selected', id === tabId);
     });
+    document.querySelectorAll('.torcha-bottom-nav-item').forEach(function (t) {
+      const id = t.getAttribute('data-torcha-tab') || '';
+      t.classList.toggle('torcha-tab-active', id === tabId);
+      t.setAttribute('aria-selected', id === tabId);
+    });
     document.querySelectorAll('.torcha-panel').forEach(function (p) {
       const id = p.id && p.id.replace('torcha-panel-', '');
       toggleHidden(p, id !== tabId);
@@ -1462,29 +1508,30 @@
     syncSearchInputs();
     if (tabId === 'pack') { renderPackPanel(); renderDailyTasks(); }
     else if (tabId === 'inventory') renderInventoryPanel();
-    else if (tabId === 'dex') { renderDexPanel(); updateDexBackTopVisibility(); }
+    else if (tabId === 'dex') { renderDexPanel(); updateBackTopVisibility(); }
     else if (tabId === 'challenge') { renderPvpPanel(); showChallengeSetup(); }
     else if (tabId === 'raids') { renderShredPanel(); renderBuyButtons(); }
-    if (tabId !== 'dex') updateDexBackTopVisibility();
+    updateBackTopVisibility();
   }
 
-  function updateDexBackTopVisibility() {
-    const panel = el('torcha-panel-dex');
+  var BACK_TOP_SCROLL_THRESHOLD = 250;
+  function updateBackTopVisibility() {
     const btn = el('torcha-dex-back-top');
-    if (!panel || !btn) return;
-    const dexVisible = !panel.classList.contains('hidden');
-    toggleHidden(btn, !dexVisible);
+    if (!btn) return;
+    const showForTab = activeTab === 'inventory' || activeTab === 'raids' || activeTab === 'dex';
+    const scrolled = typeof window.scrollY !== 'undefined' ? window.scrollY > BACK_TOP_SCROLL_THRESHOLD : (document.documentElement.scrollTop || 0) > BACK_TOP_SCROLL_THRESHOLD;
+    toggleHidden(btn, !(showForTab && scrolled));
   }
 
   function initDexBackTop() {
     const btn = el('torcha-dex-back-top');
     if (btn) {
       btn.addEventListener('click', function () {
-        window.scrollTo({ top: 0, behavior: 'auto' });
-        updateDexBackTopVisibility();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        updateBackTopVisibility();
       });
     }
-    window.addEventListener('scroll', function () { updateDexBackTopVisibility(); }, { passive: true });
+    window.addEventListener('scroll', function () { updateBackTopVisibility(); }, { passive: true });
   }
 
   function getReleasedCards() {
@@ -1582,6 +1629,65 @@
     ['pack', 'inventory', 'dex', 'challenge', 'raids'].forEach(function (tabId) {
       const btn = el('torcha-tab-' + tabId);
       if (btn) btn.addEventListener('click', function () { switchTab(tabId); });
+    });
+    document.querySelectorAll('.torcha-bottom-nav-item').forEach(function (btn) {
+      const tabId = btn.getAttribute('data-torcha-tab');
+      if (tabId) btn.addEventListener('click', function () { switchTab(tabId); });
+    });
+  }
+
+  function initHeaderOverflow() {
+    const overflowBtn = el('torcha-header-overflow-btn');
+    const dropdown = el('torcha-header-overflow-dropdown');
+    const saveBtn = el('torcha-save-session');
+    const loadBtn = el('torcha-load-session');
+    const importFileInput = el('torcha-import-session-file');
+    const resetBtn = el('torcha-reset');
+    function closeDropdown() {
+      if (dropdown) toggleHidden(dropdown, true);
+      if (overflowBtn) overflowBtn.setAttribute('aria-expanded', 'false');
+    }
+    if (overflowBtn && dropdown) {
+      overflowBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const isOpen = !dropdown.classList.contains('hidden');
+        toggleHidden(dropdown, isOpen);
+        overflowBtn.setAttribute('aria-expanded', !isOpen);
+      });
+    }
+    if (el('torcha-overflow-save')) {
+      el('torcha-overflow-save').addEventListener('click', function () {
+        if (saveBtn) saveBtn.click();
+        closeDropdown();
+      });
+    }
+    if (el('torcha-overflow-load')) {
+      el('torcha-overflow-load').addEventListener('click', function () {
+        if (importFileInput) importFileInput.click();
+        closeDropdown();
+      });
+    }
+    if (el('torcha-overflow-reset')) {
+      el('torcha-overflow-reset').addEventListener('click', function () {
+        if (resetBtn) resetBtn.click();
+        closeDropdown();
+      });
+    }
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('.torcha-header-overflow-wrap')) closeDropdown();
+    });
+  }
+
+  function initFiltersDrawers() {
+    document.querySelectorAll('.torcha-filters-toggle').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        const drawerId = btn.getAttribute('aria-controls');
+        const drawer = drawerId ? document.getElementById(drawerId) : null;
+        const container = drawer && drawer.closest('.torcha-filters');
+        if (!container) return;
+        const isOpen = container.classList.toggle('torcha-filters-open');
+        btn.setAttribute('aria-expanded', isOpen);
+      });
     });
   }
 
@@ -1742,25 +1848,26 @@
         favCheck.checked = filterFavoritesOnly;
         favCheck.addEventListener('change', function () {
           filterFavoritesOnly = favCheck.checked;
+          inventoryPageOffset = 0;
           renderInventoryPanel();
         });
       }
     }
     const invFavCheck = el('torcha-favorites-only');
     if (invFavCheck) invFavCheck.checked = filterFavoritesOnly;
-    if (expansionSel) expansionSel.addEventListener('change', function () { filterExpansion = expansionSel.value || ''; renderInventoryPanel(); });
-    if (raritySel) raritySel.addEventListener('change', function () { filterRarity = raritySel.value || ''; renderInventoryPanel(); });
-    if (seasonSel) seasonSel.addEventListener('change', function () { filterSeason = seasonSel.value === '' ? '' : parseInt(seasonSel.value, 10); renderInventoryPanel(); });
-    if (sortSel) sortSel.addEventListener('change', function () { filterSort = sortSel.value || 'season'; renderInventoryPanel(); });
+    if (expansionSel) expansionSel.addEventListener('change', function () { filterExpansion = expansionSel.value || ''; inventoryPageOffset = 0; renderInventoryPanel(); });
+    if (raritySel) raritySel.addEventListener('change', function () { filterRarity = raritySel.value || ''; inventoryPageOffset = 0; renderInventoryPanel(); });
+    if (seasonSel) seasonSel.addEventListener('change', function () { filterSeason = seasonSel.value === '' ? '' : parseInt(seasonSel.value, 10); inventoryPageOffset = 0; renderInventoryPanel(); });
+    if (sortSel) sortSel.addEventListener('change', function () { filterSort = sortSel.value || 'season'; inventoryPageOffset = 0; renderInventoryPanel(); });
 
     const invSearch = el('torcha-filter-search');
-    if (invSearch) invSearch.addEventListener('input', function () { filterSearch = invSearch.value; renderInventoryPanel(); });
+    if (invSearch) invSearch.addEventListener('input', function () { filterSearch = invSearch.value; inventoryPageOffset = 0; renderInventoryPanel(); });
     const pvpSearch = el('torcha-pvp-filter-search');
     if (pvpSearch) pvpSearch.addEventListener('input', function () { filterSearch = pvpSearch.value; renderPvpPanel(); });
     const shredSearch = el('torcha-shred-filter-search');
     if (shredSearch) shredSearch.addEventListener('input', function () { filterSearch = shredSearch.value; renderShredPanel(); });
     const dexSearch = el('torcha-dex-filter-search');
-    if (dexSearch) dexSearch.addEventListener('input', function () { filterSearch = dexSearch.value; renderDexPanel(); });
+    if (dexSearch) dexSearch.addEventListener('input', function () { filterSearch = dexSearch.value; dexSeasonOffsets = {}; renderDexPanel(); });
 
     const pvpExp = el('torcha-pvp-filter-expansion');
     const pvpSea = el('torcha-pvp-filter-season');
@@ -1866,6 +1973,8 @@
         if (saveBtn) saveBtn.addEventListener('click', exportSession);
         if (loadBtn) loadBtn.addEventListener('click', function () { if (importFileInput) importFileInput.click(); });
         if (importFileInput) importFileInput.addEventListener('change', function (e) { importSessionFile(e.target.files[0]); e.target.value = ''; });
+        initHeaderOverflow();
+        initFiltersDrawers();
         el('torcha-pvp-fight') && el('torcha-pvp-fight').addEventListener('click', doPvpFight);
         el('torcha-challenge-again') && el('torcha-challenge-again').addEventListener('click', showChallengeSetup);
         el('torcha-shred-btn') && el('torcha-shred-btn').addEventListener('click', doShred);

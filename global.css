@@ -1122,12 +1122,30 @@ body.page-torcha { --accent-color: #8BC34A; }
 .page-torcha .torcha-filters {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-end;
   gap: var(--space-lg);
   margin-bottom: var(--space-lg);
 }
+.page-torcha .torcha-filters-primary,
+.page-torcha .torcha-filters-drawer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-lg);
+}
+.page-torcha .torcha-filters-toggle {
+  display: none;
+}
 .page-torcha .torcha-filters .input-group {
   max-width: 160px;
+}
+
+.page-torcha .torcha-load-more-wrap {
+  margin-top: var(--space-md);
+  text-align: center;
+}
+.page-torcha .torcha-load-more-btn {
+  min-width: 140px;
 }
 
 /* Favorites only: toggle switch (not checkbox) */
