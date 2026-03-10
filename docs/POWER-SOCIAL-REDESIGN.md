@@ -1,7 +1,7 @@
-# Piano: Power e Social rivoluzionati
+# Piano: Strength e Strategy rivoluzionati
 
 ## Convenzioni attuali (implementate)
-- **Power** e **social** sono **calcolati in modo indipendente** (nessun legame tipo social = 2×power).
+- **Strength** e **Strategy** (memorizzati come power/social nel JSON) sono **calcolati in modo indipendente** (nessun legame tipo strategy = 2×strength).
 - Entrambi hanno **range 1–200** (min 1, max 200).
 - Ogni concorrente ha power e social derivati da placement + jitter deterministico (seed da nome+stagione), così stesso placement ≠ stesse stat.
 
@@ -20,7 +20,7 @@
 
 ### 1. Budget per placement (range 1–200)
 - Il **placement** definisce una **base** comune (1–200) per entrambe le stat.
-- **Power** e **social** sono calcolati **separatamente**: ciascuno = base + jitter proprio (hash diverso), poi clamp in [1, 200]. Nessun legame tra i due valori.
+- **Strength** e **social** sono calcolati **separatamente**: ciascuno = base + jitter proprio (hash diverso), poi clamp in [1, 200]. Nessun legame tra i due valori.
 
 ### 2. Seed deterministico per concorrente
 - `seed = hash(name + "|" + season)` (hash numerico semplice, senza dipendenze esterne).
@@ -29,7 +29,7 @@
 ### 3. Archetype da seed
 - Dal seed si deriva un **archetype**:
   - **Physical** (~33%): power alto, social più basso (challenge beast).
-  - **Social** (~33%): social alto, power più basso (stratega / social butterfly).
+  - **Strategy** (~33%): social alto, power più basso (stratega / social butterfly).
   - **Balanced** (~34%): power e social più vicini.
 - La scelta è deterministica (es. `seed % 3` o percentili da hash).
 
@@ -94,8 +94,8 @@
 
 ## Due strade possibili
 
-- **Fase 1 (solo placement + seed):** Power e social derivano dal **placement** (come oggi) ma lo **splitti** in modo diverso per ogni concorrente usando un seed deterministico (nome + stagione) → archetype (physical/social/balanced) + jitter. **Nessun dato esterno**, solo logica nel generatore.
-- **Fase 2 (dati Survivor Stats DB):** Power e social derivano dalle **statistiche reali** (outplay, outwit, vote, jury, challenge) del pacchetto survivoR. Servono i **dati** (JSON/xlsx) e un **match** nome+stagione ↔ castaway_id.
+- **Fase 1 (solo placement + seed):** Strength e Strategy derivano dal **placement** (come oggi) ma lo **splitti** in modo diverso per ogni concorrente usando un seed deterministico (nome + stagione) → archetype (physical/social/balanced) + jitter. **Nessun dato esterno**, solo logica nel generatore.
+- **Fase 2 (dati Survivor Stats DB):** Strength e Strategy derivano dalle **statistiche reali** (outplay, outwit, vote, jury, challenge) del pacchetto survivoR. Servono i **dati** (JSON/xlsx) e un **match** nome+stagione ↔ castaway_id.
 
 Se usi la **Fase 2**, sotto trovi le **scelte** da fare; se resti sulla Fase 1, le opzioni rilevanti sono quelle nel primo blocco (budget, archetype, jitter, bilanciamento).
 
@@ -103,7 +103,7 @@ Se usi la **Fase 2**, sotto trovi le **scelte** da fare; se resti sulla Fase 1, 
 
 ## Scelte da fare (Fase 2 – dati survivoR)
 
-### 1. Normalizzazione Power (come passare dagli score al numero 25–110)
+### 1. Normalizzazione Strength (come passare dagli score al numero 25–110)
 
 | Opzione | Descrizione | Pro | Contro |
 |--------|-------------|-----|--------|
@@ -118,7 +118,7 @@ Se usi la **Fase 2**, sotto trovi le **scelte** da fare; se resti sulla Fase 1, 
 
 | Opzione | Descrizione | Pro | Contro |
 |--------|-------------|-----|--------|
-| **Solo statistiche** | Power e social al 100% da score (con fallback placement solo per early boot senza dati). | Massima differenza tra “come hai giocato” e “dove sei arrivato”. | Rischio di carte “strane” (es. primo boot con power alto). |
+| **Solo statistiche** | Strength e Strategy al 100% da score (con fallback placement solo per early boot senza dati). | Massima differenza tra “come hai giocato” e “dove sei arrivato”. | Rischio di carte “strane” (es. primo boot con power alto). |
 | **Blend** | Come in 1B: power e social sono una miscela di stat + valore da placement. | Bilancio più prevedibile; le rarità (legend/super_rare/rare) restano legate al placement. | Meno estremi, un po’ meno “canone” Survivor. |
 | **Cap per placement** | Le stat decidono power/social, ma imponi un tetto per placement (es. un 16º non può superare un certo effective power). | Rarità e “forza” restano allineate al placement. | Più complesso da calibrare; alcuni profili veri (es. challenge beast bootato presto) vengono “tagliati”. |
 
@@ -137,9 +137,9 @@ Se usi la **Fase 2**, sotto trovi le **scelte** da fare; se resti sulla Fase 1, 
 
 ---
 
-### 4. Formula Social (quali score usare e con che pesi)
+### 4. Formula Strategy (quali score usare e con che pesi)
 
-Social = combinazione di `score_outwit`, `score_vote`, `score_jury`, `score_inf`.
+Strategy = combinazione di `score_outwit`, `score_vote`, `score_jury`, `score_inf`.
 
 | Opzione | Pesi (outwit, vote, jury, inf) | Quando ha senso |
 |--------|-------------------------------|----------------|
@@ -151,19 +151,19 @@ Social = combinazione di `score_outwit`, `score_vote`, `score_jury`, `score_inf`
 
 ---
 
-### 5. Power: solo score_outplay o anche dettaglio challenge?
+### 5. Strength: solo score_outplay o anche dettaglio challenge?
 
 | Opzione | Descrizione | Pro | Contro |
 |--------|-------------|-----|--------|
 | **Solo score_outplay** | Un solo numero per stagione da survivoR. | Semplice, pochi dati, niente join aggiuntivi. | Meno granulare. |
-| **+ r_score_chal_*** | Aggiungi (es. in media) `r_score_chal_individual_immunity`, `r_score_chal_individual_reward` per dare più peso alle challenge individuali. | Power più “challenge beast” (individuali contano di più). | Più campi da leggere e normalizzare. |
+| **+ r_score_chal_*** | Aggiungi (es. in media) `r_score_chal_individual_immunity`, `r_score_chal_individual_reward` per dare più peso alle challenge individuali. | Strength più “challenge beast” (individuali contano di più). | Più campi da leggere e normalizzare. |
 | **+ challenge_summary** | Usi i conteggi “vittorie individual immunity” (e simili) da `challenge_summary` per normalizzare o sostituire. | Massimo controllo (es. “win rate” individual immunity). | Pipeline più complessa (join, conteggi per stagione). |
 
-**Scegli:** Solo score_outplay per partire subito; + r_score_chal o challenge_summary se vuoi un Power più “atletico” o basato sulle individuali.
+**Scegli:** Solo score_outplay per partire subito; + r_score_chal o challenge_summary se vuoi un Strength più “atletico” o basato sulle individuali.
 
 ---
 
-### 6. Range per Power e Social
+### 6. Range per Strength e Strategy
 
 **Implementato:** power e social sono **indipendenti** e entrambi in **[1, 200]** (min 1, max 200). Stessa scala per entrambi; nessun rapporto fisso. Nel motore `roundDamage = power + 0.5*social` usa direttamente questi valori.
 
@@ -180,7 +180,7 @@ Da lì si può mettere nero su bianco la formula esatta e poi implementare.
 
 ---
 
-# Fase 2: Power e Social da statistiche in-game (Survivor Stats DB / survivoR)
+# Fase 2: Strength e Strategy da statistiche in-game (Survivor Stats DB / survivoR)
 
 L’idea è usare **dati reali** di gioco invece di (o insieme a) placement e seed. La fonte è [Survivor Stats DB](https://survivorstatsdb.com), costruito sul pacchetto [survivoR](https://github.com/doehm/survivoR): dati strutturati per stagione, concorrente, challenge, voti, jury. I dati sono disponibili in [JSON](https://github.com/doehm/survivoR/tree/master/dev/json) o in [xlsx](https://github.com/doehm/survivoR/raw/refs/heads/master/dev/xlsx/survivoR.xlsx) per chi non usa R.
 
@@ -191,16 +191,16 @@ Tabella per **castaway × season** con score già calcolati dal pacchetto:
 
 | Campo | Significato | Uso suggerito |
 |-------|-------------|----------------|
-| `score_outplay` | Successo nelle challenge (Outplay) | **Power** |
-| `score_outwit` | Strategia / voto / influenza (Outwit) | **Social** |
-| `score_outlast` | Resistenza / durata nel gioco | Power o mix |
-| `score_vote` | Efficacia del voto (maggioranza, target eliminato) | **Social** |
-| `score_jury` | Voti di jury ricevuti (solo finalisti) | **Social** |
-| `score_inf` | Influenza (metriche derivate) | **Social** |
+| `score_outplay` | Successo nelle challenge (Outplay) | **Strength** |
+| `score_outwit` | Strategia / voto / influenza (Outwit) | **Strategy** |
+| `score_outlast` | Resistenza / durata nel gioco | Strength o mix |
+| `score_vote` | Efficacia del voto (maggioranza, target eliminato) | **Strategy** |
+| `score_jury` | Voti di jury ricevuti (solo finalisti) | **Strategy** |
+| `score_inf` | Influenza (metriche derivate) | **Strategy** |
 | `score_adv` | Uso vantaggi (idoli, ecc.) | Opzionale (social/outwit) |
-| `r_score_chal_*` | Score challenge per tipo (immunity, reward, individual, tribal) | **Power** (dettaglio) |
+| `r_score_chal_*` | Score challenge per tipo (immunity, reward, individual, tribal) | **Strength** (dettaglio) |
 
-Qui **Power** si mappa naturalmente a *Outplay* (challenge), **Social** a *Outwit* (voto, strategia, jury, influenza).
+Qui **Strength** si mappa naturalmente a *Outplay* (challenge), **Strategy** a *Outwit* (voto, strategia, jury, influenza).
 
 ### 2. `challenge_results` / `challenge_summary`
 - **challenge_results**: per ogni challenge, chi ha vinto; campi `won`, `won_individual_immunity`, `won_individual_reward`, `won_tribal_immunity`, `won_tribal_reward`, `won_duel`, ecc.
@@ -229,11 +229,11 @@ Qui **Power** si mappa naturalmente a *Outplay* (challenge), **Social** a *Outwi
 - Tipo di challenge: `strength`, `endurance`, `balance`, `puzzle`, `memory`, `water`, `race`, ecc.
 
 **Uso opzionale per Power:**
-- Pesare le vittorie: più peso a individual immunity / reward, o a challenge “fisiche” (strength, endurance) per un “Power” più atletico, e meno peso a puzzle/memory se si vuole distinguere power “fisico” da “mentale” (in quel caso si potrebbero usare due sotto-componenti).
+- Pesare le vittorie: più peso a individual immunity / reward, o a challenge “fisiche” (strength, endurance) per un “Strength” più atletico, e meno peso a puzzle/memory se si vuole distinguere power “fisico” da “mentale” (in quel caso si potrebbero usare due sotto-componenti).
 
 ---
 
-## Come ricalcolare Power e Social
+## Come ricalcolare Strength e Strategy
 
 ### Power (Outplay + challenge)
 - **Base:** `score_outplay` (già aggregato da survivoR) per quella stagione.
@@ -267,9 +267,9 @@ Qui **Power** si mappa naturalmente a *Outplay* (challenge), **Social** a *Outwi
 
 ---
 
-## Proposta: calcolo Power e Social da survivoR (indipendenti)
+## Proposta: calcolo Strength e Strategy da survivoR (indipendenti)
 
-Di seguito una proposta operativa: **Power** e **Social** sono calcolati con **input e formule completamente separati**. Nessun valore usato per l’uno entra nel calcolo dell’altro. Entrambi in uscita in **[1, 200]**.
+Di seguito una proposta operativa: **Strength** e **Strategy** sono calcolati con **input e formule completamente separati**. Nessun valore usato per l’uno entra nel calcolo dell’altro. Entrambi in uscita in **[1, 200]**.
 
 ### Fonte dati principale: `castaway_scores`
 
@@ -369,7 +369,7 @@ Stesso placement può dare power alto e social basso (challenge beast) o il cont
 ---
 
 ## Riepilogo benefici (Fase 2)
-- **Power** e **Social** riflettono come il concorrente ha davvero giocato (challenge vs strategia/voto/jury).
+- **Strength (power)** e **Strategy (social)** riflettono come il concorrente ha davvero giocato (challenge vs strategia/voto/jury).
 - Differenza forte tra “challenge beast” (alto outplay, magari outwit più basso) e “stratega” (alto outwit, outplay più basso).
 - Dati **oggettivi** e **riproducibili** (stesso dataset → stesse carte).
 - Possibilità di allineare le carte al “canone” Survivor (es. Joe Anglim power altissimo, Sophie Clarke social alto).

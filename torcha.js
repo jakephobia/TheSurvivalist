@@ -525,7 +525,7 @@
     return arr;
   }
 
-  /** Forza = Power + Social (per matchmaking). */
+  /** Forza = Strength + Strategy (per matchmaking). */
   function getCardStrength(card) {
     return (card.power || 0) + (card.social || 0);
   }
@@ -556,7 +556,7 @@
     return result;
   }
 
-  /** Counter score: tank → privilegia Power; glass_cannon → privilegia Social; balanced → uguali. */
+  /** Counter score: tank → privilegia Strength; glass_cannon → privilegia Strategy; balanced → uguali. */
   function getCounterScore(card, profile) {
     var p = card.power || 0, s = card.social || 0;
     if (profile === 'tank') return p * 1.5 + s * 0.5;
@@ -564,7 +564,7 @@
     return p + s;
   }
 
-  /** Single pass over the deck: returns totalPower, totalSocial and profile (tank/glass_cannon/balanced). */
+  /** Single pass over the deck: returns totalStrength, totalStrategy and profile (tank/glass_cannon/balanced). */
   function getDeckTotalsAndProfile(deck) {
     var totalPower = 0, totalSocial = 0;
     for (var i = 0; i < deck.length; i++) {
@@ -643,7 +643,7 @@
     return newLife;
   }
 
-  /** Challenge: proceeds until one life bar reaches 0 (first to 0 wins). CPU uses cards in ascending Power order (weakest first). */
+  /** Challenge: proceeds until one life bar reaches 0 (first to 0 wins). CPU uses cards in ascending Strength order (weakest first). */
   function runLifeChallenge(userDeck, cpuDeck) {
     var userLifeInitial = getDeckHp(userDeck);
     var cpuLifeInitial = getDeckHp(cpuDeck);
@@ -839,6 +839,7 @@
     if (opts.button) div.type = 'button';
     const seasonDisplay = getSeasonDisplay(card.season);
     const showStar = (opts.collection || opts.showFavorite) && !opts.dexView;
+    const starReadOnly = !!opts.favoriteReadOnly;
     let html = '<div class="torcha-card-rarity">' + formatRarityLabel(card.rarity) + '</div>';
     html += '<div class="torcha-card-name">' + escapeHtml(card.name) + '</div>';
     html += '<div class="torcha-card-meta">' + escapeHtml(seasonDisplay) + '</div>';
@@ -849,11 +850,12 @@
     }
     if (showStar) {
       const fav = isFavorite(card.id);
-      const starClass = 'torcha-favorite-star' + (fav ? ' is-favorite' : '');
-      const starLabel = fav ? 'Remove from favorites' : 'Add to favorites';
+      const starClass = 'torcha-favorite-star' + (fav ? ' is-favorite' : '') + (starReadOnly ? ' torcha-favorite-star-readonly' : '');
+      const starLabel = starReadOnly ? (fav ? 'Favorite' : 'Not in favorites') : (fav ? 'Remove from favorites' : 'Add to favorites');
       const starChar = fav ? '★' : '☆';
       const countPart = opts.count > 1 ? '<span class="torcha-count-badge" aria-label="' + opts.count + ' copies">' + opts.count + '</span>' : '';
-      html = '<div class="torcha-card-top-row"><span class="' + starClass + '" role="button" tabindex="0" data-card-id="' + escapeHtml(card.id) + '" aria-label="' + starLabel + '">' + starChar + '</span>' + countPart + '</div>' + html;
+      const starAttrs = starReadOnly ? ' aria-label="' + starLabel + '"' : ' role="button" tabindex="0" data-card-id="' + escapeHtml(card.id) + '" aria-label="' + starLabel + '"';
+      html = '<div class="torcha-card-top-row"><span class="' + starClass + '"' + starAttrs + '>' + starChar + '</span>' + countPart + '</div>' + html;
     } else if (opts.count > 1) {
       html = '<span class="torcha-count-badge" aria-label="' + opts.count + ' copies">' + opts.count + '</span>' + html;
     }
@@ -861,8 +863,8 @@
       const powerVal = opts.missing ? '???' : card.power;
       const socialVal = opts.missing ? '???' : card.social;
       html += '<div class="torcha-card-stats">';
-      html += '<span class="torcha-stat"><span class="torcha-stat-label">Power</span> ' + powerVal + '</span>';
-      html += '<span class="torcha-stat"><span class="torcha-stat-label">Social</span> ' + socialVal + '</span>';
+      html += '<span class="torcha-stat"><span class="torcha-stat-label">Strength</span> ' + powerVal + '</span>';
+      html += '<span class="torcha-stat"><span class="torcha-stat-label">Strategy</span> ' + socialVal + '</span>';
       html += '</div>';
     }
     if (opts.shredTokens != null) html += '<div class="torcha-card-meta">+' + opts.shredTokens + ' tokens</div>';
@@ -966,7 +968,11 @@
     renderUnifiedFilters('');
     const progress = getProgress();
     const textEl = el('torcha-progress-text');
-    if (textEl) textEl.innerHTML = 'Overall: <strong>' + progress.overall.owned + '</strong> / <strong>' + progress.overall.total + '</strong> unique cards';
+    if (textEl) {
+      const pctOverall = progress.overall.total ? Math.round(100 * progress.overall.owned / progress.overall.total) : 0;
+      textEl.className = 'torcha-stats-content torcha-progress-row';
+      textEl.innerHTML = '<span>Overall: <strong>' + progress.overall.owned + '</strong> / <strong>' + progress.overall.total + '</strong> unique cards</span><span class="torcha-progress-pct">' + pctOverall + '%</span>';
+    }
     const fillEl = el('torcha-progress-fill');
     if (fillEl) {
       const pct = progress.overall.total ? (100 * progress.overall.owned / progress.overall.total) : 0;
@@ -983,7 +989,8 @@
         const div = document.createElement('div');
         div.className = 'torcha-progress-item';
         const pct = data.total ? (100 * data.owned / data.total) : 0;
-        div.innerHTML = '<label class="torcha-progress-item-label">' + escapeHtml(data.name || e.name) + '</label><div class="torcha-progress-bar"><div class="torcha-progress-fill" role="progressbar" aria-valuenow="' + data.owned + '" aria-valuemin="0" aria-valuemax="' + data.total + '" style="width:' + pct + '%"></div></div><span class="torcha-progress-item-count">' + data.owned + '/' + data.total + '</span>';
+        const pctRounded = Math.round(pct);
+        div.innerHTML = '<label class="torcha-progress-item-label">' + escapeHtml(data.name || e.name) + '</label><div class="torcha-progress-bar"><div class="torcha-progress-fill" role="progressbar" aria-valuenow="' + data.owned + '" aria-valuemin="0" aria-valuemax="' + data.total + '" style="width:' + pct + '%"></div></div><div class="torcha-progress-item-row"><span class="torcha-progress-item-count">' + data.owned + '/' + data.total + '</span><span class="torcha-progress-item-pct">' + pctRounded + '%</span></div>';
         expansionContainer.appendChild(div);
       });
     }
@@ -995,7 +1002,8 @@
         const div = document.createElement('div');
         div.className = 'torcha-progress-item';
         const pct = data.total ? (100 * data.owned / data.total) : 0;
-        div.innerHTML = '<label class="torcha-progress-item-label">S' + s + '</label><div class="torcha-progress-bar"><div class="torcha-progress-fill" role="progressbar" aria-valuenow="' + data.owned + '" aria-valuemin="0" aria-valuemax="' + data.total + '" style="width:' + pct + '%"></div></div><span class="torcha-progress-item-count">' + data.owned + '/' + data.total + '</span>';
+        const pctRounded = Math.round(pct);
+        div.innerHTML = '<label class="torcha-progress-item-label">S' + s + '</label><div class="torcha-progress-bar"><div class="torcha-progress-fill" role="progressbar" aria-valuenow="' + data.owned + '" aria-valuemin="0" aria-valuemax="' + data.total + '" style="width:' + pct + '%"></div></div><div class="torcha-progress-item-row"><span class="torcha-progress-item-count">' + data.owned + '/' + data.total + '</span><span class="torcha-progress-item-pct">' + pctRounded + '%</span></div>';
         seasonContainer.appendChild(div);
       });
     }
@@ -1097,8 +1105,8 @@
     { id: 'season', label: 'Season' },
     { id: 'name', label: 'Name (A–Z)' },
     { id: 'rarity', label: 'Rarity (rarest first)' },
-    { id: 'power', label: 'Power (high first)' },
-    { id: 'social', label: 'Social (high first)' },
+    { id: 'power', label: 'Strength (high first)' },
+    { id: 'social', label: 'Strategy (high first)' },
   ];
 
   function renderSortFilter(selectId) {
@@ -1177,7 +1185,7 @@
       pool.forEach(function (_ref) {
         const card = _ref.card;
         const count = _ref.count;
-        const btn = renderCardEl(card, { button: true, showFavorite: true, count: count });
+        const btn = renderCardEl(card, { button: true, showFavorite: true, favoriteReadOnly: true, count: count });
         btn.style.cursor = 'pointer';
         btn.style.borderWidth = '2px';
         btn.addEventListener('click', function () {
@@ -1695,6 +1703,7 @@
         const from = e.target && e.target.nodeType === 1 ? e.target : (e.target && e.target.parentElement) || null;
         const star = from && from.closest && from.closest('.torcha-favorite-star');
         if (!star) return;
+        if (star.classList.contains('torcha-favorite-star-readonly')) return;
         e.preventDefault();
         e.stopPropagation();
         const cardId = star.getAttribute('data-card-id');

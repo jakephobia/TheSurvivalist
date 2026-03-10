@@ -815,6 +815,17 @@ body.page-torcha { --accent-color: #8BC34A; }
 .page-torcha .torcha-stats-box-progress .torcha-progress-bar {
   margin-top: var(--space-sm);
 }
+.page-torcha .torcha-progress-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+.page-torcha .torcha-progress-pct {
+  font-weight: 600;
+  color: var(--accent-color);
+}
 
 /* Info block: regole / istruzioni più leggibili */
 .page-torcha .torcha-info-block {
@@ -1029,6 +1040,10 @@ body.page-torcha { --accent-color: #8BC34A; }
 .page-torcha .torcha-favorite-star.is-favorite {
   color: #d4a800;
 }
+.page-torcha .torcha-favorite-star.torcha-favorite-star-readonly {
+  cursor: default;
+  pointer-events: none;
+}
 .page-torcha .torcha-card-top-row .torcha-count-badge {
   position: static;
 }
@@ -1203,9 +1218,20 @@ body.page-torcha { --accent-color: #8BC34A; }
   overflow: hidden;
   background: rgba(0, 0, 0, 0.08);
 }
+.page-torcha .torcha-progress-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-sm);
+}
 .page-torcha .torcha-progress-item-count {
   font-size: 0.75rem;
   color: #4a5f73;
+}
+.page-torcha .torcha-progress-item-pct {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent-color);
 }
 .page-torcha .torcha-pack-section.is-opening .torcha-pack-open-trigger {
   animation: torchaPackOpen 0.5s ease-out;

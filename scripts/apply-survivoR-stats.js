@@ -1,19 +1,16 @@
 /**
- * Computes power and social from survivoR data (castaways, castaway_scores, confessionals).
+ * Computes Strength (power) and Strategy (social) from survivoR data (castaways, castaway_scores, confessionals).
  * Data source: https://survivorstatsdb.com (built on survivoR R package).
  * Normalization is GLOBAL across all 49 US seasons; all cards are updated. App shows only first two expansions (1–14).
  *
- * POWER = 30% placement + 70% (challenges score + successful boots + times immune)
- *   - challenges score: score_outplay
- *   - successful boots: n_successful_boots (normalized per season)
- *   - times immune: p_score_chal_immunity (immunity challenge score)
- *
- * SOCIAL = 40% placement + 60% (advantages + influence + tribal council + confessionals + overall)
- *   - advantages: score_adv
- *   - influence: score_inf
- *   - tribal council: score_vote
+ * STRENGTH (stored as power) = 30% placement + 70% (outplay + immunity + confessionals)
+ *   - score_outplay (challenge performance)
+ *   - p_score_chal_immunity (immunity challenge score)
  *   - total confessionals: sum(confessional_count) per season
- *   - overall score: score_overall
+ *
+ * STRATEGY (stored as social) = 30% placement + 70% (advantages + influence + vote + overall + successful boots)
+ *   - score_adv, score_inf, score_vote, score_overall
+ *   - n_successful_boots (successful vote-outs)
  *
  * RARITY = base from placement (1=legend, 2=super_rare, 3=rare, else common) then returnee bump
  *   from torcha-player-identities.json: +1 at 2 appearances, then +1 every 3 seasons from 3rd onward (4→+1, 5→+2); cap at legend.
@@ -37,7 +34,7 @@ const STAT_MAX = 200;
 const SURVIVOR_RAW = 'https://raw.githubusercontent.com/doehm/survivoR/master/dev/json';
 
 const POWER_PLACEMENT_WEIGHT = 0.3;
-const SOCIAL_PLACEMENT_WEIGHT = 0.4;
+const SOCIAL_PLACEMENT_WEIGHT = 0.3;
 const IMAGE_BASE = 'https://gradientdescending.com/survivor/castaways/colour';
 
 function buildImageUrl(season, castawayId) {
@@ -166,16 +163,16 @@ function buildLookup(castaways, castawayScores, confessionalsByKey) {
       full_name: base.full_name,
       castaway_id: base.castaway_id,
       placementPct,
-      // Power components (70% total)
+      // Strength (power) components: outplay, immunity, confessionals
       score_outplay: outplay,
-      n_successful_boots: nBoots,
       p_score_chal_immunity: chalImmunity,
-      // Social components (60% total)
+      total_confessionals: confessionals,
+      // Strategy (social) components: adv, inf, vote, overall, boots
+      n_successful_boots: nBoots,
       score_adv: adv,
       score_inf: inf,
       score_vote: vote,
       score_overall: overall,
-      total_confessionals: confessionals,
     });
   }
   return lookup;
@@ -240,16 +237,16 @@ function computeGlobalBounds(lookup, ranges) {
   for (const [, v] of lookup) {
     const placementPct = v.placementPct;
     const ro = ranges.powerRanges.get('outplay');
-    const rb = ranges.powerRanges.get('boots');
     const ri = ranges.powerRanges.get('immunity');
+    const rConf = ranges.powerRanges.get('conf');
     let powerRaw = placementPct;
-    if (ro && rb && ri) {
+    if (ro && ri && rConf) {
       const nOutplay = norm01(v.score_outplay, ro.min, ro.max);
-      const nBoots = norm01(v.n_successful_boots, rb.min, rb.max);
       const nImmunity = norm01(v.p_score_chal_immunity, ri.min, ri.max);
+      const nConf = norm01(v.total_confessionals, rConf.min, rConf.max);
       powerRaw =
         POWER_PLACEMENT_WEIGHT * placementPct +
-        (1 - POWER_PLACEMENT_WEIGHT) * (nOutplay + nBoots + nImmunity) / 3;
+        (1 - POWER_PLACEMENT_WEIGHT) * (nOutplay + nImmunity + nConf) / 3;
     }
     powerMin = Math.min(powerMin, powerRaw);
     powerMax = Math.max(powerMax, powerRaw);
@@ -258,17 +255,17 @@ function computeGlobalBounds(lookup, ranges) {
     const rInf = ranges.socialRanges.get('inf');
     const rVote = ranges.socialRanges.get('vote');
     const rOverall = ranges.socialRanges.get('overall');
-    const rConf = ranges.socialRanges.get('conf');
+    const rb = ranges.socialRanges.get('boots');
     let socialRaw = placementPct;
-    if (rAdv && rInf && rVote && rOverall && rConf) {
+    if (rAdv && rInf && rVote && rOverall && rb) {
       const nAdv = norm01(v.score_adv, rAdv.min, rAdv.max);
       const nInf = norm01(v.score_inf, rInf.min, rInf.max);
       const nVote = norm01(v.score_vote, rVote.min, rVote.max);
       const nOverall = norm01(v.score_overall, rOverall.min, rOverall.max);
-      const nConf = norm01(v.total_confessionals, rConf.min, rConf.max);
+      const nBoots = norm01(v.n_successful_boots, rb.min, rb.max);
       socialRaw =
         SOCIAL_PLACEMENT_WEIGHT * placementPct +
-        (1 - SOCIAL_PLACEMENT_WEIGHT) * (nAdv + nInf + nVote + nOverall + nConf) / 5;
+        (1 - SOCIAL_PLACEMENT_WEIGHT) * (nAdv + nInf + nVote + nOverall + nBoots) / 5;
     }
     socialMin = Math.min(socialMin, socialRaw);
     socialMax = Math.max(socialMax, socialRaw);
@@ -282,18 +279,18 @@ function computeGlobalRanges(lookup) {
   const socialRanges = new Map();
   const keys = {
     outplay: (v) => v.score_outplay,
-    boots: (v) => v.n_successful_boots,
     immunity: (v) => v.p_score_chal_immunity,
+    conf: (v) => v.total_confessionals,
     adv: (v) => v.score_adv,
     inf: (v) => v.score_inf,
     vote: (v) => v.score_vote,
     overall: (v) => v.score_overall,
-    conf: (v) => v.total_confessionals,
+    boots: (v) => v.n_successful_boots,
   };
   for (const [, v] of lookup) {
     for (const [key, getVal] of Object.entries(keys)) {
       const val = getVal(v);
-      const map = key === 'outplay' || key === 'boots' || key === 'immunity' ? powerRanges : socialRanges;
+      const map = key === 'outplay' || key === 'immunity' || key === 'conf' ? powerRanges : socialRanges;
       if (!map.has(key)) map.set(key, { min: val, max: val });
       else {
         const m = map.get(key);
@@ -372,16 +369,16 @@ function buildAppearancesByCastawayId(lookup) {
 function computePower(v, bounds, ranges) {
   const placementPct = v.placementPct;
   const ro = ranges.powerRanges.get('outplay');
-  const rb = ranges.powerRanges.get('boots');
   const ri = ranges.powerRanges.get('immunity');
-  if (!ro || !rb || !ri) return scaleToRange(powerFromPlacement(v.placement, v.total), 0, 1);
+  const rConf = ranges.powerRanges.get('conf');
+  if (!ro || !ri || !rConf) return scaleToRange(powerFromPlacement(v.placement, v.total), 0, 1);
 
   const nOutplay = norm01(v.score_outplay, ro.min, ro.max);
-  const nBoots = norm01(v.n_successful_boots, rb.min, rb.max);
   const nImmunity = norm01(v.p_score_chal_immunity, ri.min, ri.max);
+  const nConf = norm01(v.total_confessionals, rConf.min, rConf.max);
   const powerRaw =
     POWER_PLACEMENT_WEIGHT * placementPct +
-    (1 - POWER_PLACEMENT_WEIGHT) * (nOutplay + nBoots + nImmunity) / 3;
+    (1 - POWER_PLACEMENT_WEIGHT) * (nOutplay + nImmunity + nConf) / 3;
   return scaleToRange(powerRaw, bounds.powerMin, bounds.powerMax);
 }
 
@@ -391,8 +388,8 @@ function computeSocial(v, bounds, ranges) {
   const rInf = ranges.socialRanges.get('inf');
   const rVote = ranges.socialRanges.get('vote');
   const rOverall = ranges.socialRanges.get('overall');
-  const rConf = ranges.socialRanges.get('conf');
-  if (!rAdv || !rInf || !rVote || !rOverall || !rConf) {
+  const rb = ranges.socialRanges.get('boots');
+  if (!rAdv || !rInf || !rVote || !rOverall || !rb) {
     return scaleToRange(powerFromPlacement(v.placement, v.total), 0, 1);
   }
 
@@ -400,10 +397,10 @@ function computeSocial(v, bounds, ranges) {
   const nInf = norm01(v.score_inf, rInf.min, rInf.max);
   const nVote = norm01(v.score_vote, rVote.min, rVote.max);
   const nOverall = norm01(v.score_overall, rOverall.min, rOverall.max);
-  const nConf = norm01(v.total_confessionals, rConf.min, rConf.max);
+  const nBoots = norm01(v.n_successful_boots, rb.min, rb.max);
   const socialRaw =
     SOCIAL_PLACEMENT_WEIGHT * placementPct +
-    (1 - SOCIAL_PLACEMENT_WEIGHT) * (nAdv + nInf + nVote + nOverall + nConf) / 5;
+    (1 - SOCIAL_PLACEMENT_WEIGHT) * (nAdv + nInf + nVote + nOverall + nBoots) / 5;
   return scaleToRange(socialRaw, bounds.socialMin, bounds.socialMax);
 }
 
@@ -509,7 +506,7 @@ async function main() {
     updated++;
   }
 
-  process.stderr.write('Updated all card rarities from placement + returnee bump; ' + updated + ' cards with survivoR stats (power/social skipped for season 50).\n');
+  process.stderr.write('Updated all card rarities from placement + returnee bump; ' + updated + ' cards with survivoR stats (Strength/Strategy skipped for season 50).\n');
   if (!opts.dryRun) {
     fs.writeFileSync(opts.out, JSON.stringify(cards, null, 2), 'utf8');
     process.stderr.write('Wrote ' + opts.out + '\n');

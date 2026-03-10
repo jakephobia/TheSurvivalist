@@ -77,7 +77,7 @@ function placementToRarity(placement) {
   return 'common';
 }
 
-/** Power and social are computed independently; both in [STAT_MIN, STAT_MAX] (1–200). */
+/** Strength (power) and Strategy (social) are computed independently; both in [STAT_MIN, STAT_MAX] (1–200). */
 function placementToPowerSocial(placement, total, name, season) {
   const pct = 1 - (placement - 1) / Math.max(total, 1);
   const base = STAT_MIN + pct * (STAT_MAX - STAT_MIN); // 1..200
