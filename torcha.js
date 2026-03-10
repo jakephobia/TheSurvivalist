@@ -1445,8 +1445,11 @@
     if (dexSearch) dexSearch.value = filterSearch;
   }
 
+  var TORCHA_VALID_TABS = ['pack', 'inventory', 'challenge', 'raids', 'dex'];
+
   function switchTab(tabId) {
     activeTab = tabId;
+    if (TORCHA_VALID_TABS.indexOf(tabId) !== -1) localStorage.setItem('torcha_active_tab', tabId);
     document.querySelectorAll('.torcha-tab').forEach(function (t) {
       const id = t.id && t.id.replace('torcha-tab-', '');
       t.classList.toggle('torcha-tab-active', id === tabId);
@@ -1851,7 +1854,9 @@
         renderRarityFilter();
         renderSeasonFilter();
         initFilters();
-        switchTab('pack');
+        var savedTab = localStorage.getItem('torcha_active_tab');
+        if (savedTab && TORCHA_VALID_TABS.indexOf(savedTab) !== -1) switchTab(savedTab);
+        else switchTab('pack');
         el('torcha-reveal-close') && el('torcha-reveal-close').addEventListener('click', closeReveal);
         el('torcha-open-pack-btn') && el('torcha-open-pack-btn').addEventListener('click', openPack);
         el('torcha-pack-expansion') && el('torcha-pack-expansion').addEventListener('change', renderPackPanel);
@@ -1883,6 +1888,7 @@
         secondaryLabel: 'Cancel',
         onPrimary: function () {
           Object.keys(STORAGE).forEach(function (k) { localStorage.removeItem(STORAGE[k]); });
+          localStorage.removeItem('torcha_active_tab');
           if (cards && cards.length > 0) {
             inventory = loadInventory();
             packState = getPackState();
