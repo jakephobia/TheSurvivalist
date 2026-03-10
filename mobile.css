@@ -570,19 +570,21 @@ body.mobile-view.page-torcha .torcha-bottom-nav {
   z-index: 50;
   background: var(--page-bg, #fff);
   border-top: 1px solid rgba(0, 0, 0, 0.08);
-  padding: var(--space-xs) 0 calc(var(--space-xs) + env(safe-area-inset-bottom, 0)) 0;
+  padding: var(--space-xs) var(--space-sm) calc(var(--space-xs) + env(safe-area-inset-bottom, 0)) var(--space-sm);
   justify-content: space-around;
   align-items: center;
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+  box-sizing: border-box;
 }
 body.mobile-view.page-torcha .torcha-bottom-nav-item {
   flex: 1;
+  min-width: 0;
   max-width: 20%;
   min-height: 44px;
   padding: var(--space-xs) 2px;
   border: none;
   background: transparent;
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 600;
   color: #4a5f73;
   cursor: pointer;
@@ -593,6 +595,9 @@ body.mobile-view.page-torcha .torcha-bottom-nav-item {
   gap: 2px;
   transition: color 0.15s, background 0.15s;
   border-radius: var(--radius-sm);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 body.mobile-view.page-torcha .torcha-bottom-nav-item:hover {
   color: var(--accent-color);
@@ -733,20 +738,25 @@ body.mobile-view .page-torcha .torcha-dashboard-box-tasks .torcha-tasks-list {
 
 body.mobile-view .page-torcha .torcha-pack-section .flex-row.gap-sm {
   flex-direction: column;
-  align-items: flex-start;
+  align-items: stretch;
   gap: var(--space-xs);
+  min-width: 0;
 }
 
 body.mobile-view .page-torcha .torcha-pack-section .torcha-stats-box {
   width: 100%;
+  min-width: 0;
   box-sizing: border-box;
   text-align: left;
   padding: var(--space-sm) var(--space-md);
+  overflow: hidden;
 }
 
 body.mobile-view .page-torcha .torcha-pack-section .torcha-stats-box .torcha-stats-content {
   text-align: left;
   font-size: 0.8rem;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 body.mobile-view .page-torcha .torcha-info-block {
@@ -761,6 +771,10 @@ body.mobile-view .page-torcha .torcha-info-block .torcha-info-text {
 body.mobile-view .page-torcha .torcha-expansion-carousel {
   gap: 2px;
   margin-bottom: var(--space-sm);
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 body.mobile-view .page-torcha .torcha-carousel-track {
@@ -768,25 +782,36 @@ body.mobile-view .page-torcha .torcha-carousel-track {
   padding: var(--space-xs);
   gap: var(--space-sm);
   -webkit-overflow-scrolling: touch;
+  min-width: 0;
+  flex: 1;
 }
 
 body.mobile-view .page-torcha .torcha-expansion-cover {
-  width: 100px;
-  min-height: 138px;
+  width: 35vw;
+  max-width: 100px;
+  min-width: 70px;
+  min-height: 120px;
   flex-shrink: 0;
   border-width: 2px;
+  box-sizing: border-box;
 }
 
 body.mobile-view .page-torcha .torcha-expansion-cover .torcha-cover-name {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
 }
 
 body.mobile-view .page-torcha .torcha-expansion-cover .torcha-cover-label {
   padding: 2px var(--space-xs);
-  font-size: 0.6rem;
+  font-size: 0.55rem;
 }
 
 body.mobile-view .page-torcha .torcha-carousel-btn {
+  position: relative;
+  z-index: 2;
   min-width: 36px;
   min-height: 36px;
   width: 36px;

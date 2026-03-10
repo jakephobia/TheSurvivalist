@@ -1929,14 +1929,36 @@
   function init() {
     if (typeof window.recordToolUsed === 'function') window.recordToolUsed('torcha');
     incrementSessionsToday();
+    var cardsUrl = new URL('torcha-cards.json', window.location.href).href;
+    var identitiesUrl = new URL('torcha-player-identities.json', window.location.href).href;
     Promise.all([
-      fetch('torcha-cards.json').then(function (res) { if (!res.ok) throw new Error('Failed to load cards'); return res.json(); }),
-      fetch('torcha-player-identities.json').then(function (res) { return res.ok ? res.json() : { identities: [] }; }).catch(function () { return { identities: [] }; })
+      fetch(cardsUrl).then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status + ' loading torcha-cards.json');
+        return res.text();
+      }).then(function (text) {
+        try {
+          return JSON.parse(text);
+        } catch (e) {
+          throw new Error('Invalid JSON in torcha-cards.json: ' + (e.message || e));
+        }
+      }),
+      fetch(identitiesUrl).then(function (res) { return res.ok ? res.json() : { identities: [] }; }).catch(function () { return { identities: [] }; })
     ]).then(function (results) {
       var data = results[0];
       var identityData = results[1];
+      if (!Array.isArray(data)) {
+        data = (data && (data.cards || data.data)) || [];
+      }
+      if (!Array.isArray(data)) {
+        throw new Error('torcha-cards.json must be a JSON array (or object with "cards" or "data" array)');
+      }
       cards = data.filter(function (c) {
-        return !CARD_BLOCKLIST_NAMES.has((c.name || '').trim().toLowerCase());
+        try {
+          var name = (c && c.name != null) ? String(c.name) : '';
+          return !CARD_BLOCKLIST_NAMES.has(name.trim().toLowerCase());
+        } catch (e) {
+          return true;
+        }
       });
       playerIdentitiesByCardId = {};
       (identityData.identities || []).forEach(function (ident) {
@@ -1981,8 +2003,15 @@
         setInterval(renderTimer, 1000);
       })
     .catch(function (err) {
+        console.error('Torcha load error:', err);
         var loading = el('torcha-loading');
-        if (loading) loading.innerHTML = '<p class="section-title">Failed to load cards. Check that torcha-cards.json exists.</p>';
+        if (loading) {
+          var msg = err && (err.message || String(err));
+          loading.innerHTML =
+            '<p class="section-title">Failed to load cards.</p>' +
+            '<p style="font-size: 0.9rem; margin-top: var(--space-sm);">' + escapeHtml(msg) + '</p>' +
+            '<p style="font-size: 0.85rem; margin-top: var(--space-sm); opacity: 0.9;">Check that <strong>torcha-cards.json</strong> is in the same folder as torcha.html on your server.</p>';
+        }
       });
   }
 
