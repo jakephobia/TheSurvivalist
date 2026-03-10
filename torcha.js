@@ -925,8 +925,8 @@
       const powerVal = opts.missing ? '???' : card.power;
       const socialVal = opts.missing ? '???' : card.social;
       html += '<div class="torcha-card-stats">';
-      html += '<span class="torcha-stat"><span class="torcha-stat-label">Strength</span> ' + powerVal + '</span>';
-      html += '<span class="torcha-stat"><span class="torcha-stat-label">Strategy</span> ' + socialVal + '</span>';
+      html += '<span class="torcha-stat"><span class="torcha-stat-label" title="Attack power in challenges. Based on challenge performance, immunity, and confessionals.">Strength</span> ' + powerVal + '</span>';
+      html += '<span class="torcha-stat"><span class="torcha-stat-label" title="Team HP in challenges. Based on advantages, influence, votes, and successful vote-outs.">Strategy</span> ' + socialVal + '</span>';
       html += '</div>';
     }
     if (opts.shredTokens != null) html += '<div class="torcha-card-meta">+' + opts.shredTokens + ' tokens</div>';
