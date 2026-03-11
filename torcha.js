@@ -11,7 +11,7 @@
   const PAGE_SIZE = 48;
   const DEX_PAGE_SIZE = 24;
   const PVP_PACK_REWARD_EVERY = 10;
-  const PACKS_PER_CLAIM = 2;
+  const PACKS_PER_CLAIM = 1;
   const EXPANSIONS = [
     { id: 'dawn-of-the-legends', name: 'Dawn of the Legends', seasons: [1, 2, 3, 4, 5, 6, 7, 8] },
     { id: 'age-of-exile', name: 'Age of Exile', seasons: [9, 10, 11, 12, 13, 14, 15] },
@@ -44,13 +44,73 @@
   const RARITIES = ['common', 'rare', 'super_rare', 'legend', 'mt_rushmore'];
   const FIRE_TOKEN_COSTS = { common: 500, rare: 1000, super_rare: 5000, legend: 10000, mt_rushmore: 20000 };
 
-  const DAILY_TASKS = [
+  /** Pool of 15 tasks; each day 5 are chosen at random (deterministic by date). */
+  const DAILY_TASKS_POOL = [
+    { id: 'open_3_packs', label: 'Open 3 packs', target: 3 },
     { id: 'open_5_packs', label: 'Open 5 packs', target: 5 },
+    { id: 'open_10_packs', label: 'Open 10 packs', target: 10 },
+    { id: 'win_1_pvp', label: 'Win 1 challenge', target: 1 },
     { id: 'win_3_pvp', label: 'Win 3 challenges', target: 3 },
+    { id: 'win_5_pvp', label: 'Win 5 challenges', target: 5 },
+    { id: 'earn_200_fire', label: 'Earn 200 Fire Tokens', target: 200 },
     { id: 'contribute_500_raid', label: 'Earn 500 Fire Tokens', target: 500 },
+    { id: 'earn_1000_fire', label: 'Earn 1000 Fire Tokens', target: 1000 },
+    { id: 'shred_1_card', label: 'Shred 1 card', target: 1 },
     { id: 'shred_3_cards', label: 'Shred 3 cards', target: 3 },
+    { id: 'shred_5_cards', label: 'Shred 5 cards', target: 5 },
+    { id: 'play_3_challenges', label: 'Play 3 challenges', target: 3 },
     { id: 'play_10_challenges', label: 'Play 10 challenges', target: 10 },
+    { id: 'play_15_challenges', label: 'Play 15 challenges', target: 15 },
+    { id: 'challenge_all_favorites', label: 'Complete a challenge with a team of only favorites', target: 1 },
+    { id: 'discover_5_cards', label: 'Discover 5 new cards', target: 5 },
+    { id: 'discover_10_cards', label: 'Discover 10 new cards', target: 10 },
+    { id: 'discover_15_cards', label: 'Discover 15 new cards', target: 15 },
   ];
+
+  /** Seeded shuffle: returns shuffled copy of [0..n-1] using dateKey as seed (same date = same order). */
+  function seededShuffleIndices(n, dateKey) {
+    var arr = [];
+    for (var i = 0; i < n; i++) arr.push(i);
+    var seed = 0;
+    for (var s = 0; s < dateKey.length; s++) seed = (seed * 31 + dateKey.charCodeAt(s)) >>> 0;
+    var mul = 1103515245;
+    var inc = 12345;
+    var next = function () { seed = (seed * mul + inc) >>> 0; return seed / 65536 % 1; };
+    for (var i = arr.length - 1; i > 0; i--) {
+      var j = Math.floor(next() * (i + 1));
+      var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+    }
+    return arr;
+  }
+
+  function getTodaysDailyTasks() {
+    var dateKey = todayKey();
+    var storedDate = localStorage.getItem(STORAGE.dailyTasksDate);
+    var storedIdsRaw = localStorage.getItem(STORAGE.dailyTasksIds);
+    if (storedDate === dateKey && storedIdsRaw) {
+      try {
+        var storedIds = JSON.parse(storedIdsRaw);
+        if (Array.isArray(storedIds) && storedIds.length === 5) {
+          var out = [];
+          for (var i = 0; i < 5; i++) {
+            var t = DAILY_TASKS_POOL.find(function (task) { return task.id === storedIds[i]; });
+            if (t) out.push(t); else break;
+          }
+          if (out.length === 5) return out;
+        }
+      } catch (_) {}
+    }
+    var indices = seededShuffleIndices(DAILY_TASKS_POOL.length, dateKey);
+    var out = [];
+    var ids = [];
+    for (var i = 0; i < 5; i++) {
+      out.push(DAILY_TASKS_POOL[indices[i]]);
+      ids.push(DAILY_TASKS_POOL[indices[i]].id);
+    }
+    localStorage.setItem(STORAGE.dailyTasksDate, dateKey);
+    localStorage.setItem(STORAGE.dailyTasksIds, JSON.stringify(ids));
+    return out;
+  }
 
   const SEASON_NAMES = {
     1: 'Borneo', 2: 'The Australian Outback', 3: 'Africa', 4: 'Marquesas', 5: 'Thailand',
@@ -120,6 +180,13 @@
     fireEarnedToday: 'torcha_fire_tokens_earned_today',
     fireLastReset: 'torcha_fire_tokens_last_reset',
     favorites: 'torcha_favorites',
+    acquiredAt: 'torcha_acquired_at',
+    challengeAllFavoritesToday: 'torcha_challenge_all_favorites_today',
+    challengeAllFavoritesLastReset: 'torcha_challenge_all_favorites_last_reset',
+    uniqueCardsDiscoveredToday: 'torcha_unique_cards_discovered_today',
+    uniqueCardsLastReset: 'torcha_unique_cards_last_reset',
+    dailyTasksIds: 'torcha_daily_tasks_ids',
+    dailyTasksDate: 'torcha_daily_tasks_date',
   };
 
   function loadInventory() {
@@ -150,6 +217,32 @@
 
   function saveFavorites(ids) {
     localStorage.setItem(STORAGE.favorites, JSON.stringify(ids));
+  }
+
+  function loadAcquiredAt() {
+    try {
+      const raw = localStorage.getItem(STORAGE.acquiredAt);
+      if (!raw) return {};
+      const data = JSON.parse(raw);
+      const out = {};
+      for (const [id, ts] of Object.entries(data)) {
+        if (typeof id === 'string' && typeof ts === 'number' && ts > 0) out[id] = ts;
+      }
+      return out;
+    } catch (_) { return {}; }
+  }
+
+  function saveAcquiredAt(data) {
+    localStorage.setItem(STORAGE.acquiredAt, JSON.stringify(data));
+  }
+
+  function setAcquiredAtIfFirst(cardId) {
+    const inv = loadInventory();
+    if ((inv[cardId] || 0) !== 1) return;
+    const data = loadAcquiredAt();
+    if (data[cardId]) return;
+    data[cardId] = Date.now();
+    saveAcquiredAt(data);
   }
 
   function isFavorite(cardId) {
@@ -282,6 +375,36 @@
     count += 1;
     localStorage.setItem(STORAGE.challengePlayedToday, String(count));
     localStorage.setItem(STORAGE.challengeLastReset, today);
+  }
+
+  function getChallengeAllFavoritesDoneToday() {
+    if (localStorage.getItem(STORAGE.challengeAllFavoritesLastReset) !== todayKey()) return 0;
+    const raw = localStorage.getItem(STORAGE.challengeAllFavoritesToday);
+    const n = raw == null ? 0 : parseInt(raw, 10);
+    return Number.isFinite(n) && n > 0 ? 1 : 0;
+  }
+
+  function setChallengeAllFavoritesDoneToday() {
+    const today = todayKey();
+    localStorage.setItem(STORAGE.challengeAllFavoritesLastReset, today);
+    localStorage.setItem(STORAGE.challengeAllFavoritesToday, '1');
+  }
+
+  function getUniqueCardsDiscoveredToday() {
+    if (localStorage.getItem(STORAGE.uniqueCardsLastReset) !== todayKey()) return 0;
+    const raw = localStorage.getItem(STORAGE.uniqueCardsDiscoveredToday);
+    const n = raw == null ? 0 : parseInt(raw, 10);
+    return Number.isFinite(n) && n >= 0 ? n : 0;
+  }
+
+  function addUniqueCardDiscoveredToday() {
+    const today = todayKey();
+    const last = localStorage.getItem(STORAGE.uniqueCardsLastReset);
+    let count = getUniqueCardsDiscoveredToday();
+    if (last !== today) count = 0;
+    count += 1;
+    localStorage.setItem(STORAGE.uniqueCardsDiscoveredToday, String(count));
+    localStorage.setItem(STORAGE.uniqueCardsLastReset, today);
   }
 
   function loadPvpWins() {
@@ -753,6 +876,7 @@
   let filterSeason = '';
   let filterExpansion = '';
   let filterSort = 'season';
+  let filterSortDirection = 'asc';
   let filterFavoritesOnly = false;
   let filterSearch = '';
   let inventoryPageOffset = 0;
@@ -771,19 +895,29 @@
   }
 
   function getProgressValues() {
+    var packs = getPacksOpenedToday();
+    var pvp = loadPvpWinsToday();
+    var fire = loadFireEarnedToday();
+    var shred = getShredCardsToday();
+    var challenges = getChallengePlayedToday();
+    var allFav = getChallengeAllFavoritesDoneToday();
+    var discovered = getUniqueCardsDiscoveredToday();
     return {
-      open_5_packs: getPacksOpenedToday(),
-      win_3_pvp: loadPvpWinsToday(),
-      contribute_500_raid: loadFireEarnedToday(),
-      shred_3_cards: getShredCardsToday(),
-      play_10_challenges: getChallengePlayedToday(),
+      open_3_packs: packs, open_5_packs: packs, open_10_packs: packs,
+      win_1_pvp: pvp, win_3_pvp: pvp, win_5_pvp: pvp,
+      earn_200_fire: fire, contribute_500_raid: fire, earn_1000_fire: fire,
+      shred_1_card: shred, shred_3_cards: shred, shred_5_cards: shred,
+      play_3_challenges: challenges, play_10_challenges: challenges, play_15_challenges: challenges,
+      challenge_all_favorites: allFav,
+      discover_5_cards: discovered, discover_10_cards: discovered, discover_15_cards: discovered,
     };
   }
 
   function getDailyTaskItems() {
     const claimed = loadDailyClaimed();
     const pv = getProgressValues();
-    return DAILY_TASKS.map(function (task) {
+    const todaysTasks = getTodaysDailyTasks();
+    return todaysTasks.map(function (task) {
       const current = pv[task.id] || 0;
       const canClaim = !claimed[task.id] && current >= task.target;
       return { task, current, claimed: !!claimed[task.id], canClaim };
@@ -793,7 +927,8 @@
   function claimDailyTask(taskId) {
     const claimed = loadDailyClaimed();
     if (claimed[taskId]) return false;
-    const task = DAILY_TASKS.find(function (t) { return t.id === taskId; });
+    const todaysTasks = getTodaysDailyTasks();
+    const task = todaysTasks.find(function (t) { return t.id === taskId; });
     const pv = getProgressValues();
     if (!task || (pv[taskId] || 0) < task.target) return false;
     claimed[taskId] = true;
@@ -806,12 +941,13 @@
   }
 
   function getOwnedEntries() {
+    const acquiredAt = loadAcquiredAt();
     const entries = [];
     Object.keys(inventory).forEach(function (id) {
       const count = inventory[id];
       if (count <= 0) return;
       const card = getCardById(cards, id);
-      if (card) entries.push({ card, count });
+      if (card) entries.push({ card, count, acquiredAt: acquiredAt[id] || 0 });
     });
     return entries;
   }
@@ -835,24 +971,31 @@
     });
   }
 
-  function sortEntries(entries, sortBy) {
+  function sortEntries(entries, sortBy, direction) {
     const list = entries.slice();
     sortBy = sortBy || filterSort;
+    direction = direction || filterSortDirection;
+    const mult = direction === 'desc' ? -1 : 1;
     list.sort(function (a, b) {
       const c = a.card;
       const d = b.card;
+      let cmp = 0;
       if (sortBy === 'season') {
-        if (c.season !== d.season) return c.season - d.season;
-        return (c.placement || 0) - (d.placement || 0);
-      }
-      if (sortBy === 'name') return (c.name || '').localeCompare(d.name || '', undefined, { sensitivity: 'base' });
-      if (sortBy === 'rarity') {
+        if (c.season !== d.season) cmp = c.season - d.season;
+        else cmp = (c.placement || 0) - (d.placement || 0);
+      } else if (sortBy === 'name') {
+        cmp = (c.name || '').localeCompare(d.name || '', undefined, { sensitivity: 'base' });
+      } else if (sortBy === 'rarity') {
         const ri = function (r) { const i = RARITIES.indexOf(r); return i === -1 ? -1 : i; };
-        return ri(d.rarity) - ri(c.rarity);
+        cmp = ri(d.rarity) - ri(c.rarity);
+      } else if (sortBy === 'power') {
+        cmp = (d.power || 0) - (c.power || 0);
+      } else if (sortBy === 'social') {
+        cmp = (d.social || 0) - (c.social || 0);
+      } else if (sortBy === 'acquired') {
+        cmp = (a.acquiredAt || 0) - (b.acquiredAt || 0);
       }
-      if (sortBy === 'power') return (d.power || 0) - (c.power || 0);
-      if (sortBy === 'social') return (d.social || 0) - (c.social || 0);
-      return 0;
+      return mult * cmp;
     });
     return list;
   }
@@ -1069,7 +1212,7 @@
         div.className = 'torcha-progress-item';
         const pct = data.total ? (100 * data.owned / data.total) : 0;
         const pctRounded = Math.round(pct);
-        div.innerHTML = '<label class="torcha-progress-item-label">S' + s + '</label><div class="torcha-progress-bar"><div class="torcha-progress-fill" role="progressbar" aria-valuenow="' + data.owned + '" aria-valuemin="0" aria-valuemax="' + data.total + '" style="width:' + pct + '%"></div></div><div class="torcha-progress-item-row"><span class="torcha-progress-item-count">' + data.owned + '/' + data.total + '</span><span class="torcha-progress-item-pct">' + pctRounded + '%</span></div>';
+        div.innerHTML = '<label class="torcha-progress-item-label">' + escapeHtml(getSeasonDisplay(s)) + '</label><div class="torcha-progress-bar"><div class="torcha-progress-fill" role="progressbar" aria-valuenow="' + data.owned + '" aria-valuemin="0" aria-valuemax="' + data.total + '" style="width:' + pct + '%"></div></div><div class="torcha-progress-item-row"><span class="torcha-progress-item-count">' + data.owned + '/' + data.total + '</span><span class="torcha-progress-item-pct">' + pctRounded + '%</span></div>';
         seasonContainer.appendChild(div);
       });
     }
@@ -1211,10 +1354,11 @@
 
   const SORT_OPTIONS = [
     { id: 'season', label: 'Season' },
-    { id: 'name', label: 'Name (A–Z)' },
-    { id: 'rarity', label: 'Rarity (rarest first)' },
-    { id: 'power', label: 'Strength (high first)' },
-    { id: 'social', label: 'Strategy (high first)' },
+    { id: 'name', label: 'Name' },
+    { id: 'rarity', label: 'Rarity' },
+    { id: 'power', label: 'Strength' },
+    { id: 'social', label: 'Strategy' },
+    { id: 'acquired', label: 'Obtained' },
   ];
 
   function renderSortFilter(selectId) {
@@ -1225,6 +1369,15 @@
       html += '<option value="' + o.id + '"' + (filterSort === o.id ? ' selected' : '') + '>' + escapeHtml(o.label) + '</option>';
     });
     sel.innerHTML = html;
+  }
+
+  function updateSortDirectionButtons() {
+    const label = filterSortDirection === 'asc' ? '↑' : '↓';
+    const title = filterSortDirection === 'asc' ? 'Ascending (click for descending)' : 'Descending (click for ascending)';
+    [ 'torcha-sort-direction-btn', 'torcha-pvp-sort-direction-btn', 'torcha-shred-sort-direction-btn' ].forEach(function (id) {
+      const btn = el(id);
+      if (btn) { btn.textContent = label; btn.setAttribute('title', title); btn.setAttribute('aria-label', title); }
+    });
   }
 
   function renderUnifiedFilters(prefix) {
@@ -1254,6 +1407,7 @@
       rarSel.innerHTML = options.map(function (o) { return '<option value="' + o.value + '"' + (filterRarity === o.value ? ' selected' : '') + '>' + escapeHtml(o.label) + '</option>'; }).join('');
     }
     renderSortFilter(sortId);
+    updateSortDirectionButtons();
     const filtersContainer = expSel ? expSel.closest('.torcha-filters') : null;
     const favCheckId = prefix ? 'torcha-' + prefix + '-favorites-only' : 'torcha-favorites-only';
     if (prefix !== 'shred') {
@@ -1306,29 +1460,55 @@
       });
     }
     const deckLabel = el('torcha-pvp-deck-label');
-    if (deckLabel) deckLabel.textContent = 'Deck: ' + deckIds.length + '/5';
+    if (deckLabel) deckLabel.textContent = deckIds.length + '/5 cards selected';
     const deckEl = el('torcha-pvp-deck');
+    const fightBtn = el('torcha-pvp-fight');
     if (deckEl) {
       deckEl.innerHTML = '';
-      deckIds.forEach(function (id) {
-        const card = getCardById(cards, id);
-        if (!card) return;
-        const chip = document.createElement('span');
-        chip.className = 'torcha-pvp-deck-chip';
-        chip.textContent = card.name;
-        deckEl.appendChild(chip);
-      });
-      const clearBtn = document.createElement('button');
+      for (var slotIndex = 0; slotIndex < 5; slotIndex++) {
+        var slotDiv = document.createElement('div');
+        slotDiv.className = 'torcha-pvp-slot';
+        slotDiv.setAttribute('aria-label', 'Slot ' + (slotIndex + 1));
+        var cardId = deckIds[slotIndex];
+        if (cardId) {
+          var card = getCardById(cards, cardId);
+          if (card) {
+            var count = inventory[card.id] || 0;
+            var cardBtn = renderCardEl(card, { button: true, showFavorite: true, favoriteReadOnly: true, count: count });
+            cardBtn.style.cursor = 'pointer';
+            cardBtn.style.borderWidth = '2px';
+            cardBtn.classList.add('torcha-pvp-deck-card');
+            cardBtn.setAttribute('aria-label', 'Remove ' + card.name + ' from deck');
+            cardBtn.addEventListener('click', function (id) {
+              return function () {
+                pvpDeck = pvpDeck.filter(function (cid) { return cid !== id; });
+                renderPvpPanel();
+              };
+            }(cardId));
+            slotDiv.appendChild(cardBtn);
+          } else {
+            slotDiv.classList.add('torcha-pvp-slot-empty');
+          }
+        } else {
+          slotDiv.classList.add('torcha-pvp-slot-empty');
+        }
+        deckEl.appendChild(slotDiv);
+      }
+      var actionsSlot = document.createElement('div');
+      actionsSlot.className = 'torcha-pvp-actions-slot';
+      actionsSlot.setAttribute('aria-label', 'Challenge actions');
+      if (fightBtn) actionsSlot.appendChild(fightBtn);
+      var clearBtn = document.createElement('button');
       clearBtn.type = 'button';
-      clearBtn.className = 'btn-secondary';
-      clearBtn.textContent = 'Clear';
+      clearBtn.className = 'btn-secondary torcha-pvp-clear-team';
+      clearBtn.textContent = 'Clear team';
       clearBtn.addEventListener('click', function () {
         pvpDeck = [];
         renderPvpPanel();
       });
-      deckEl.appendChild(clearBtn);
+      actionsSlot.appendChild(clearBtn);
+      deckEl.appendChild(actionsSlot);
     }
-    const fightBtn = el('torcha-pvp-fight');
     if (fightBtn) fightBtn.disabled = deckIds.length !== 5;
   }
 
@@ -1445,6 +1625,10 @@
       shredBtn.textContent = 'Shred (' + shredSelected.length + ' cards)';
       shredBtn.disabled = shredSelected.length === 0;
     }
+    const selectAllDupBtn = el('torcha-select-all-duplicates-btn');
+    if (selectAllDupBtn) {
+      selectAllDupBtn.disabled = filtered.length === 0;
+    }
   }
 
   function renderBuyButtons() {
@@ -1463,8 +1647,11 @@
         if (tokens < cost) return;
         const card = drawRandomCardByRarity(cards, rarity);
         if (!card || !spendFireTokens(cost)) return;
+        var wasNew = (inventory[card.id] || 0) === 0;
         inventory = addToInventory(inventory, card.id, 1);
         saveInventory(inventory);
+        setAcquiredAtIfFirst(card.id);
+        if (wasNew) addUniqueCardDiscoveredToday();
         renderReveal([card]);
         renderShredPanel();
         renderBuyButtons();
@@ -1551,7 +1738,10 @@
     const next = consumeOnePack(packState.stock, packState.nextPackAt);
     savePackState(next.stock, next.nextPackAt);
     drawn.forEach(function (c) {
+      var wasNew = (inventory[c.id] || 0) === 0;
       inventory = addToInventory(inventory, c.id, 1);
+      setAcquiredAtIfFirst(c.id);
+      if (wasNew) addUniqueCardDiscoveredToday();
     });
     saveInventory(inventory);
     incrementPacksOpenedToday();
@@ -1585,6 +1775,9 @@
     }
     showChallengeView();
     addChallengePlayedToday();
+    var favIds = loadFavorites();
+    var deckAllFavorites = pvpDeck.length === 5 && pvpDeck.every(function (id) { return favIds.indexOf(id) !== -1; });
+    if (deckAllFavorites) setChallengeAllFavoritesDoneToday();
     var result = runLifeChallenge(userDeck, cpuDeck);
     if (result.userWon) {
       savePvpWin();
@@ -1859,6 +2052,34 @@
     if (raritySel) raritySel.addEventListener('change', function () { filterRarity = raritySel.value || ''; inventoryPageOffset = 0; renderInventoryPanel(); });
     if (seasonSel) seasonSel.addEventListener('change', function () { filterSeason = seasonSel.value === '' ? '' : parseInt(seasonSel.value, 10); inventoryPageOffset = 0; renderInventoryPanel(); });
     if (sortSel) sortSel.addEventListener('change', function () { filterSort = sortSel.value || 'season'; inventoryPageOffset = 0; renderInventoryPanel(); });
+    (function () {
+      function toggleSortDirection() {
+        filterSortDirection = filterSortDirection === 'asc' ? 'desc' : 'asc';
+        updateSortDirectionButtons();
+        inventoryPageOffset = 0;
+        renderInventoryPanel();
+      }
+      const invDirBtn = el('torcha-sort-direction-btn');
+      if (invDirBtn) invDirBtn.addEventListener('click', toggleSortDirection);
+    })();
+    (function () {
+      function toggleSortDirection() {
+        filterSortDirection = filterSortDirection === 'asc' ? 'desc' : 'asc';
+        updateSortDirectionButtons();
+        renderPvpPanel();
+      }
+      const pvpDirBtn = el('torcha-pvp-sort-direction-btn');
+      if (pvpDirBtn) pvpDirBtn.addEventListener('click', toggleSortDirection);
+    })();
+    (function () {
+      function toggleSortDirection() {
+        filterSortDirection = filterSortDirection === 'asc' ? 'desc' : 'asc';
+        updateSortDirectionButtons();
+        renderShredPanel();
+      }
+      const shredDirBtn = el('torcha-shred-sort-direction-btn');
+      if (shredDirBtn) shredDirBtn.addEventListener('click', toggleSortDirection);
+    })();
 
     const invSearch = el('torcha-filter-search');
     if (invSearch) invSearch.addEventListener('input', function () { filterSearch = invSearch.value; inventoryPageOffset = 0; renderInventoryPanel(); });
@@ -1983,6 +2204,7 @@
         renderRarityFilter();
         renderSeasonFilter();
         initFilters();
+        updateSortDirectionButtons();
         var savedTab = localStorage.getItem('torcha_active_tab');
         if (savedTab && TORCHA_VALID_TABS.indexOf(savedTab) !== -1) switchTab(savedTab);
         else switchTab('pack');
@@ -2000,6 +2222,18 @@
         el('torcha-pvp-fight') && el('torcha-pvp-fight').addEventListener('click', doPvpFight);
         el('torcha-challenge-again') && el('torcha-challenge-again').addEventListener('click', showChallengeSetup);
         el('torcha-shred-btn') && el('torcha-shred-btn').addEventListener('click', doShred);
+        (function () {
+          const btn = el('torcha-select-all-duplicates-btn');
+          if (btn) btn.addEventListener('click', function () {
+            if (btn.disabled) return;
+            const prevFav = filterFavoritesOnly;
+            filterFavoritesOnly = false;
+            const filtered = getFilteredEntries().filter(function (_ref) { return _ref.count >= 2; });
+            filterFavoritesOnly = prevFav;
+            shredSelected = filtered.map(function (_ref) { return _ref.card.id; });
+            renderShredPanel();
+          });
+        })();
         setInterval(renderTimer, 1000);
       })
     .catch(function (err) {

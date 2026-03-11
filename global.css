@@ -349,6 +349,9 @@ body.page-torcha { --accent-color: #8BC34A; }
   border-radius: 12px;
   display: block;
 }
+.page-torcha .torcha-card:has(.torcha-favorite-star.is-favorite) .torcha-card-photo {
+  box-shadow: inset 0 0 0 2.2px #ffeb3b;
+}
 .page-torcha .torcha-card .torcha-card-stats {
   display: flex;
   flex-direction: column;
@@ -842,17 +845,99 @@ body.page-torcha { --accent-color: #8BC34A; }
   color: #4a5f73;
 }
 
+.page-torcha .torcha-shred-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+}
+.page-torcha .torcha-btn-select-duplicates:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .page-torcha .torcha-card.torcha-card-selected,
 .page-torcha .torcha-card[aria-pressed="true"] {
   box-shadow: 0 0 0 3px var(--accent-color);
   outline: 2px solid var(--accent-color);
   outline-offset: 2px;
 }
-.page-torcha .torcha-pvp-deck {
+.page-torcha .torcha-pvp-section-label {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #2c3e50;
+  margin: var(--space-lg) 0 var(--space-sm) 0;
+  padding-bottom: var(--space-xs);
+  border-bottom: 2px solid color-mix(in srgb, var(--accent-color) 50%, transparent);
+  letter-spacing: 0.02em;
+}
+.page-torcha .torcha-pvp-section-label:first-of-type {
+  margin-top: var(--space-md);
+}
+.page-torcha .torcha-pvp-deck-grid {
+  margin-top: var(--space-xs);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(124px, 124px));
+  gap: var(--space-md);
+}
+.page-torcha .torcha-pvp-slot {
+  width: 124px;
+  min-height: 222px;
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+  align-items: stretch;
+  justify-content: center;
+  box-sizing: border-box;
+}
+.page-torcha .torcha-pvp-slot-empty {
+  border: 2px dashed rgba(0, 0, 0, 0.25);
+  border-radius: var(--radius-md);
+  background: rgba(0, 0, 0, 0.03);
+  min-height: 222px;
+}
+.page-torcha .torcha-pvp-slot:not(.torcha-pvp-slot-empty) .torcha-card {
+  flex: 1;
+  min-width: 0;
+}
+.page-torcha .torcha-pvp-actions-slot {
+  width: 124px;
+  min-width: 124px;
+  min-height: 222px;
+  display: flex;
+  flex-direction: column;
   gap: var(--space-sm);
+  justify-content: center;
+  box-sizing: border-box;
+}
+.page-torcha .torcha-pvp-actions-slot .torcha-pvp-fight-btn {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  margin: 0;
+  border-radius: var(--radius-md);
+  font-size: 1.1rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-sm);
+}
+.page-torcha .torcha-pvp-actions-slot .torcha-pvp-fight-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.page-torcha .torcha-pvp-actions-slot .torcha-pvp-clear-team {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  margin: 0;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-sm);
 }
 .page-torcha .torcha-pvp-deck-chip {
   display: inline-block;
@@ -1083,7 +1168,9 @@ body.page-torcha { --accent-color: #8BC34A; }
   user-select: none;
 }
 .page-torcha .torcha-favorite-star.is-favorite {
-  color: #d4a800;
+  color: #ffeb3b;
+  -webkit-text-stroke: 1px #000;
+  paint-order: stroke fill;
 }
 .page-torcha .torcha-favorite-star.torcha-favorite-star-readonly {
   cursor: default;
@@ -1138,6 +1225,37 @@ body.page-torcha { --accent-color: #8BC34A; }
 }
 .page-torcha .torcha-filters .input-group {
   max-width: 160px;
+}
+.page-torcha .torcha-sort-row .torcha-sort-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+.page-torcha .torcha-sort-row .torcha-sort-controls .input-base {
+  flex: 1;
+  min-width: 0;
+}
+.page-torcha .torcha-sort-direction-btn {
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-md);
+  background: rgba(0, 0, 0, 0.05);
+  font-size: 1rem;
+  font-weight: 600;
+  color: #4a5f73;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, border-color 0.15s;
+}
+.page-torcha .torcha-sort-direction-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+  border-color: var(--accent-color);
+  color: var(--accent-color);
 }
 
 .page-torcha .torcha-load-more-wrap {
@@ -1258,6 +1376,14 @@ body.page-torcha { --accent-color: #8BC34A; }
   gap: var(--space-md);
   padding: var(--space-md);
 }
+.page-torcha .torcha-season-progress {
+  max-height: 22rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.page-torcha .torcha-season-progress .torcha-progress-item {
+  min-width: 200px;
+}
 .page-torcha .torcha-progress-item {
   min-width: 120px;
   padding: var(--space-sm) var(--space-md);
@@ -1274,6 +1400,7 @@ body.page-torcha { --accent-color: #8BC34A; }
   font-weight: 600;
   color: #4a5f73;
   display: block;
+  word-break: break-word;
 }
 .page-torcha .torcha-progress-item .torcha-progress-bar {
   height: 6px;
@@ -1337,6 +1464,14 @@ html[data-theme="dark"] .page-torcha .torcha-pvp-deck-chip {
   background: color-mix(in srgb, var(--accent-color) 25%, rgba(6, 24, 33, 0.8));
   border-color: var(--accent-color);
   color: #e0ecf8;
+}
+html[data-theme="dark"] .page-torcha .torcha-pvp-section-label {
+  color: #e0ecf8;
+  border-bottom-color: color-mix(in srgb, var(--accent-color) 50%, transparent);
+}
+html[data-theme="dark"] .page-torcha .torcha-pvp-slot-empty {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.04);
 }
 html[data-theme="dark"] .page-torcha .torcha-challenge-result {
   background: color-mix(in srgb, var(--accent-color) 12%, rgba(6, 24, 33, 0.9));

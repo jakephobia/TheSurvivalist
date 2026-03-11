@@ -557,23 +557,23 @@ body.mobile-view .tally-checkbox-grid {
 
 /* ========== TORCHA - Mobile (compact, seamless) ========== */
 
-/* Bottom navigation (mobile only) */
+/* Tab navigation: hidden on desktop; on mobile shown in flow right below header (nav is in DOM after header) */
 .torcha-bottom-nav {
   display: none;
 }
 body.mobile-view.page-torcha .torcha-bottom-nav {
   display: flex;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  position: static;
+  bottom: auto;
+  left: auto;
+  right: auto;
   z-index: 50;
   background: var(--page-bg, #fff);
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
-  padding: var(--space-xs) var(--space-sm) calc(var(--space-xs) + env(safe-area-inset-bottom, 0)) var(--space-sm);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  padding: var(--space-xs) var(--space-sm) var(--space-xs) var(--space-sm);
   justify-content: space-around;
   align-items: center;
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   box-sizing: border-box;
 }
 body.mobile-view.page-torcha .torcha-bottom-nav-item {
@@ -606,7 +606,7 @@ body.mobile-view.page-torcha .torcha-bottom-nav-item[aria-selected="true"] {
   color: var(--accent-color);
 }
 html[data-theme="dark"] body.mobile-view.page-torcha .torcha-bottom-nav {
-  border-top-color: rgba(255, 255, 255, 0.1);
+  border-bottom-color: rgba(255, 255, 255, 0.1);
   background: var(--page-bg);
 }
 html[data-theme="dark"] body.mobile-view.page-torcha .torcha-bottom-nav-item {
@@ -1050,6 +1050,19 @@ body.mobile-view .page-torcha .torcha-expansion-progress,
 body.mobile-view .page-torcha .torcha-season-progress {
   gap: var(--space-xs);
   padding: var(--space-sm);
+}
+
+body.mobile-view .page-torcha .torcha-season-progress {
+  max-height: 18rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+body.mobile-view .page-torcha .torcha-season-progress .torcha-progress-item {
+  min-width: 160px;
+  flex: 1 1 160px;
+  max-width: 100%;
 }
 
 body.mobile-view .page-torcha .torcha-progress-item {

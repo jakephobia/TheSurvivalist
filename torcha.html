@@ -69,6 +69,14 @@
       </div>
     </header>
 
+    <nav class="torcha-bottom-nav" aria-label="Torcha sections" id="torcha-bottom-nav">
+      <button type="button" class="torcha-bottom-nav-item" data-torcha-tab="pack" aria-label="Dashboard" aria-selected="true">Dashboard</button>
+      <button type="button" class="torcha-bottom-nav-item" data-torcha-tab="inventory" aria-label="Inventory" aria-selected="false">Inventory</button>
+      <button type="button" class="torcha-bottom-nav-item" data-torcha-tab="challenge" aria-label="Challenges" aria-selected="false">Challenges</button>
+      <button type="button" class="torcha-bottom-nav-item" data-torcha-tab="raids" aria-label="Store" aria-selected="false">Store</button>
+      <button type="button" class="torcha-bottom-nav-item" data-torcha-tab="dex" aria-label="SurviDex" aria-selected="false">SurviDex</button>
+    </nav>
+
     <div class="dashboard-container">
       <div class="dashboard">
         <div id="torcha-loading" class="section">
@@ -164,9 +172,12 @@
                     <label class="input-label" for="torcha-filter-rarity">Rarity</label>
                     <select id="torcha-filter-rarity" class="input-base" aria-label="Filter by rarity"></select>
                   </div>
-                  <div class="input-group">
+                  <div class="input-group torcha-sort-row">
                     <label class="input-label" for="torcha-filter-sort">Sort</label>
-                    <select id="torcha-filter-sort" class="input-base" aria-label="Sort by"></select>
+                    <div class="torcha-sort-controls">
+                      <select id="torcha-filter-sort" class="input-base" aria-label="Sort by"></select>
+                      <button type="button" id="torcha-sort-direction-btn" class="torcha-sort-direction-btn" aria-label="Sort direction" title="Toggle ascending/descending">↑</button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -185,6 +196,10 @@
               <div class="torcha-info-block">
                 <p class="torcha-info-text">Select 5 cards. Team HP = sum of Strategy; each card attacks with its Strength. CPU uses only released expansions.</p>
               </div>
+              <p class="torcha-pvp-section-label" id="torcha-pvp-selected-label">Selected Challengers</p>
+              <p id="torcha-pvp-deck-label" class="torcha-timer" aria-live="polite">0/5 cards selected</p>
+              <div id="torcha-pvp-deck" class="torcha-collection-grid torcha-pvp-deck-grid" role="group" aria-label="Selected challengers"></div>
+              <p class="torcha-pvp-section-label" id="torcha-pvp-available-label">Available Challengers</p>
               <div class="torcha-filters" id="torcha-filters-pvp">
                 <div class="torcha-filters-primary">
                   <div class="input-group">
@@ -206,16 +221,17 @@
                     <label class="input-label" for="torcha-pvp-filter-rarity">Rarity</label>
                     <select id="torcha-pvp-filter-rarity" class="input-base" aria-label="Filter by rarity"></select>
                   </div>
-                  <div class="input-group">
+                  <div class="input-group torcha-sort-row">
                     <label class="input-label" for="torcha-pvp-filter-sort">Sort</label>
-                    <select id="torcha-pvp-filter-sort" class="input-base" aria-label="Sort by"></select>
+                    <div class="torcha-sort-controls">
+                      <select id="torcha-pvp-filter-sort" class="input-base" aria-label="Sort by"></select>
+                      <button type="button" id="torcha-pvp-sort-direction-btn" class="torcha-sort-direction-btn" aria-label="Sort direction" title="Toggle ascending/descending">↑</button>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div id="torcha-pvp-pool" class="torcha-collection-grid" style="margin-top: var(--space-sm);"></div>
-              <p id="torcha-pvp-deck-label" class="torcha-timer">Deck: 0/5</p>
-              <div id="torcha-pvp-deck" class="flex-row gap-xs" style="margin-top: var(--space-xs);"></div>
-              <button type="button" class="btn-primary" id="torcha-pvp-fight" style="margin-top: var(--space-md);" disabled>Fight</button>
+              <div id="torcha-pvp-pool" class="torcha-collection-grid" role="list" aria-label="Available challengers"></div>
+              <button type="button" class="btn-primary torcha-pvp-fight-btn" id="torcha-pvp-fight" disabled>Fight</button>
             </div>
             <div id="torcha-challenge-result" class="torcha-challenge-result hidden" aria-live="polite" role="region" aria-label="Challenge result">
               <h2 class="section-title">Challenge</h2>
@@ -242,7 +258,7 @@
           </div>
 
           <div id="torcha-panel-raids" role="tabpanel" aria-labelledby="torcha-tab-raids" class="torcha-panel hidden">
-            <h2 class="section-title">Shred</h2>
+            <h2 class="section-title">Shred Duplicates</h2>
             <div class="torcha-stats-box" aria-label="Fire Tokens">
               <p id="torcha-fire-tokens-text" class="torcha-stats-content" role="status" aria-live="polite"></p>
             </div>
@@ -270,14 +286,20 @@
                   <label class="input-label" for="torcha-shred-filter-rarity">Rarity</label>
                   <select id="torcha-shred-filter-rarity" class="input-base" aria-label="Filter by rarity"></select>
                 </div>
-                <div class="input-group">
+                <div class="input-group torcha-sort-row">
                   <label class="input-label" for="torcha-shred-filter-sort">Sort</label>
-                  <select id="torcha-shred-filter-sort" class="input-base" aria-label="Sort by"></select>
+                  <div class="torcha-sort-controls">
+                    <select id="torcha-shred-filter-sort" class="input-base" aria-label="Sort by"></select>
+                    <button type="button" id="torcha-shred-sort-direction-btn" class="torcha-sort-direction-btn" aria-label="Sort direction" title="Toggle ascending/descending">↑</button>
+                  </div>
                 </div>
               </div>
             </div>
             <div id="torcha-shred-grid" class="torcha-collection-grid" style="margin-top: var(--space-sm);"></div>
-            <button type="button" class="btn-primary" id="torcha-shred-btn" style="margin-top: var(--space-md);" disabled>Shred (0 cards)</button>
+            <div class="torcha-shred-actions">
+              <button type="button" class="btn-primary torcha-btn-select-duplicates" id="torcha-select-all-duplicates-btn" style="margin-top: var(--space-md);" disabled>Select All Duplicates</button>
+              <button type="button" class="btn-primary" id="torcha-shred-btn" style="margin-top: var(--space-md);" disabled>Shred (0 cards)</button>
+            </div>
             <h3 class="section-title" style="margin-top: var(--space-2xl);">Buy</h3>
             <div class="torcha-info-block">
               <p class="torcha-info-text">Spend Fire Tokens for a random card by rarity:</p>
@@ -305,14 +327,6 @@
       </div>
     </div>
   </div>
-
-  <nav class="torcha-bottom-nav" aria-label="Torcha sections" id="torcha-bottom-nav">
-    <button type="button" class="torcha-bottom-nav-item" data-torcha-tab="pack" aria-label="Dashboard" aria-selected="true">Dashboard</button>
-    <button type="button" class="torcha-bottom-nav-item" data-torcha-tab="inventory" aria-label="Inventory" aria-selected="false">Inventory</button>
-    <button type="button" class="torcha-bottom-nav-item" data-torcha-tab="challenge" aria-label="Challenges" aria-selected="false">Challenges</button>
-    <button type="button" class="torcha-bottom-nav-item" data-torcha-tab="raids" aria-label="Store" aria-selected="false">Store</button>
-    <button type="button" class="torcha-bottom-nav-item" data-torcha-tab="dex" aria-label="SurviDex" aria-selected="false">SurviDex</button>
-  </nav>
 
   <div id="torcha-modal-overlay" class="torcha-modal-overlay hidden" aria-hidden="true">
     <div id="torcha-modal-dialog" class="torcha-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="torcha-modal-title" aria-describedby="torcha-modal-body">
