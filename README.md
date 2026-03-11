@@ -16,7 +16,7 @@ A collection of tools for Survivor and reality TV fans: EDGIC editor, season ran
 | **Smuffer** | Season progress tracker: tribes, advantages, alliances, EDGIC, confessionals, power rankings, votes per episode |
 | **Sutral** | Winner prediction algorithm: enter cast and episode data for win probability estimates |
 | **Tally** | Fantasy draft: pick castaways, track points from immunity, eliminations, idols |
-| **Torcha** | Gacha card game: collect contestant cards, open packs, play with your favorites (beta) |
+| **Torcha** | Gacha card game: collect contestant cards, open packs, play with your favorites |
 
 ---
 
@@ -30,7 +30,7 @@ A collection of tools for Survivor and reality TV fans: EDGIC editor, season ran
 
 ## Local development
 
-Open `index.html` in your browser or run a local server (e.g. `npx serve .` or your editor’s live preview).
+Open `index.html` in your browser or run a local server (e.g. `npx serve .` or your editor's live preview).
 
 ---
 
