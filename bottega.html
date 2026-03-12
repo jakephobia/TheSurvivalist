@@ -462,6 +462,22 @@
     var today = new Date().toISOString().slice(0, 10);
     var newDate = document.getElementById('newDate');
     if (newDate && !newDate.value) newDate.value = today;
+
+    var SUTRAL_ADAPTIVE_KEY = 'sutral_chart_adaptive_strength';
+    var sutralSlider = document.getElementById('sutralAdaptiveSlider');
+    var sutralOutput = document.getElementById('sutralAdaptiveValue');
+    if (sutralSlider && sutralOutput) {
+      var saved = localStorage.getItem(SUTRAL_ADAPTIVE_KEY);
+      var initial = saved != null ? parseFloat(saved) : 0.35;
+      initial = Math.max(0, Math.min(1, isNaN(initial) ? 0.35 : initial));
+      sutralSlider.value = Math.round(initial * 100);
+      sutralOutput.textContent = initial.toFixed(2);
+      sutralSlider.addEventListener('input', function () {
+        var v = parseInt(sutralSlider.value, 10) / 100;
+        sutralOutput.textContent = v.toFixed(2);
+        localStorage.setItem(SUTRAL_ADAPTIVE_KEY, String(v));
+      });
+    }
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
@@ -492,13 +508,28 @@
 
       <div id="adminApp" class="hidden">
         <nav class="admin-tabs" role="tablist">
-          <button type="button" class="admin-tab active" data-tab="tab-changelog" role="tab" aria-selected="true">Changelog</button>
+          <button type="button" class="admin-tab active" data-tab="tab-changelog" role="tab" aria-selected="true">Homepage</button>
+          <button type="button" class="admin-tab" data-tab="tab-sutral" role="tab" aria-selected="false">Sutral</button>
         </nav>
+
+        <div id="tab-sutral" class="admin-tab-panel" role="tabpanel">
+          <div class="card section index-card">
+            <h3 class="section-title">Sutral – Grafico Win Equity</h3>
+            <p style="margin-bottom: 1rem;">Regola quanto la scala Y del grafico si adatta alla densità dei dati (0 = lineare, 1 = totalmente guidata dai dati). Da questo momento in poi Sutral userà il valore scelto.</p>
+            <div style="max-width: 320px;">
+              <label for="sutralAdaptiveSlider" style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                <span>Adattività scala</span>
+                <output id="sutralAdaptiveValue" for="sutralAdaptiveSlider">0.35</output>
+              </label>
+              <input type="range" id="sutralAdaptiveSlider" min="0" max="100" value="35" step="1" style="width: 100%;">
+            </div>
+          </div>
+        </div>
 
         <div id="tab-changelog" class="admin-tab-panel active" role="tabpanel">
           <div class="card section index-card">
             <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
-              <h3 class="section-title" style="margin: 0;">Changelog</h3>
+              <h3 class="section-title" style="margin: 0;">Homepage</h3>
               <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;">
                 <button type="button" id="downloadBtn" class="btn-primary">Esporta JSON</button>
                 <label class="btn-secondary" style="margin: 0; cursor: pointer;">

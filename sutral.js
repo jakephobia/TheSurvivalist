@@ -724,6 +724,81 @@ function calculateProbabilities(scoresMap) {
   return probs;
 }
 
+// Scala Y adattiva: più dati in una fascia → più altezza (granularità data-driven)
+const CHART_Y_MIN = 0.1;
+// 0 = scala lineare, 1 = scala totalmente guidata dalla densità. Override da Bottega (localStorage 'sutral_chart_adaptive_strength').
+const CHART_ADAPTIVE_STRENGTH_DEFAULT = 0.35;
+function getChartAdaptiveStrength() {
+  try {
+    const v = localStorage.getItem('sutral_chart_adaptive_strength');
+    if (v != null) { const n = parseFloat(v); if (!isNaN(n)) return Math.max(0, Math.min(1, n)); }
+  } catch (e) {}
+  return CHART_ADAPTIVE_STRENGTH_DEFAULT;
+}
+// Fascia 70–100%: massima frazione di altezza (sempre compressa in alto)
+const CHART_TOP_BAND_MAX_FRAC = 0.07;
+const CHART_TOP_BAND_START = 70;
+function buildAdaptiveScale(allValues, yMax) {
+  const sorted = allValues.slice().sort((a, b) => a - b);
+  const n = sorted.length;
+  const alpha = Math.max(0, Math.min(1, getChartAdaptiveStrength()));
+  const range = Math.max(yMax - CHART_Y_MIN, 0.1);
+
+  function valueToNormYInner(v) {
+    const val = Math.max(Math.min(v, yMax), CHART_Y_MIN);
+    const linear = (val - CHART_Y_MIN) / range;
+    if (n === 0) return linear;
+    let count = 0;
+    for (let i = 0; i < n; i++) {
+      if (sorted[i] <= val) count++;
+      else break;
+    }
+    const data = count / n;
+    return (1 - alpha) * linear + alpha * data;
+  }
+
+  function normYToValueInner(normY) {
+    const ny = Math.max(0, Math.min(1, normY));
+    if (n === 0) return CHART_Y_MIN + ny * range;
+    const uniq = [CHART_Y_MIN];
+    let prev = CHART_Y_MIN;
+    for (let i = 0; i < n; i++) {
+      if (sorted[i] > prev && sorted[i] <= yMax) { uniq.push(sorted[i]); prev = sorted[i]; }
+    }
+    if (yMax > prev) uniq.push(yMax);
+    const samples = uniq.map(v => ({ ny: valueToNormYInner(v), v }));
+    samples.sort((a, b) => a.ny - b.ny);
+    if (ny <= samples[0].ny) return samples[0].v;
+    if (ny >= samples[samples.length - 1].ny) return samples[samples.length - 1].v;
+    for (let i = 0; i < samples.length - 1; i++) {
+      if (ny >= samples[i].ny && ny <= samples[i + 1].ny) {
+        const t = (ny - samples[i].ny) / (samples[i + 1].ny - samples[i].ny || 1e-9);
+        return samples[i].v + t * (samples[i + 1].v - samples[i].v);
+      }
+    }
+    return yMax;
+  }
+
+  const capTop = yMax >= CHART_TOP_BAND_START;
+  const raw70 = capTop ? valueToNormYInner(CHART_TOP_BAND_START) : 1;
+  const belowFrac = 1 - CHART_TOP_BAND_MAX_FRAC;
+
+  function valueToNormY(v) {
+    const raw = valueToNormYInner(v);
+    if (!capTop || raw <= raw70) return raw <= raw70 ? raw * (belowFrac / (raw70 || 1e-9)) : raw;
+    return belowFrac + (raw - raw70) / (1 - raw70 || 1e-9) * CHART_TOP_BAND_MAX_FRAC;
+  }
+
+  function normYToValue(normY) {
+    const ny = Math.max(0, Math.min(1, normY));
+    if (!capTop) return normYToValueInner(ny);
+    if (ny <= belowFrac) return normYToValueInner(ny * (raw70 / belowFrac));
+    return normYToValueInner(raw70 + (ny - belowFrac) / CHART_TOP_BAND_MAX_FRAC * (1 - raw70));
+  }
+
+  return { valueToNormY, normYToValue };
+}
+
 function drawChart(playersToShow, seriesData) {
   const w = chartContainer.clientWidth || 800;
   const h = chartContainer.clientHeight || 300;
@@ -747,13 +822,30 @@ function drawChart(playersToShow, seriesData) {
   let yMax = Math.ceil(maxVal / 5) * 5;
   if (yMax < 5) yMax = 5;
   if (yMax > 100) yMax = 100;
-  const minVal = 0;
+  const allValues = [];
+  playersToShow.forEach(p => {
+    const s = seriesData[p] || [];
+    s.forEach(pt => allValues.push(Math.max(CHART_Y_MIN, Math.min(pt.val, yMax))));
+  });
+  const scale = buildAdaptiveScale(allValues, yMax);
   let svgHtml = `<svg viewBox="0 0 ${w} ${h}">`;
-  for (let i = 0; i <= 5; i++) {
-    const val = minVal + (yMax - minVal) * (i / 5);
-    const y = h - padding - (i / 5) * (h - 2 * padding);
+  const numBands = 8;
+  const formatBandLabel = (v, forceTwoDecimals) => {
+    if (v < 1) return v.toFixed(2);
+    if (v >= yMax - 0.5) return Math.round(yMax) + '';
+    if (forceTwoDecimals || v < 10) return v.toFixed(1);
+    return Math.round(v) + '';
+  };
+  let prevLabel = '';
+  for (let i = 0; i <= numBands; i++) {
+    const normY = i / numBands;
+    const val = scale.normYToValue(normY);
+    let label = formatBandLabel(val);
+    if (label === prevLabel) label = formatBandLabel(val, true);
+    prevLabel = label;
+    const y = h - padding - normY * (h - 2 * padding);
     svgHtml += `<line x1="${padding}" y1="${y}" x2="${w - rightBuffer}" y2="${y}" stroke="#eee" stroke-width="1" stroke-dasharray="4 2" />`;
-    svgHtml += `<text x="5" y="${y + 3}" font-size="10" fill="#666">${val.toFixed(0)}%</text>`;
+    svgHtml += `<text x="5" y="${y + 3}" font-size="10" fill="#666">${label}%</text>`;
   }
   for (let i = 0; i <= numEp; i++) {
     const x = padding + (i / (numEp > 0 ? numEp : 1)) * (w - padding - rightBuffer);
@@ -767,8 +859,8 @@ function drawChart(playersToShow, seriesData) {
     const coords = s.map(entry => {
       const epIndex = parseInt(entry.ep.replace('ep', ''), 10);
       const x = padding + (epIndex / xScale) * (w - padding - rightBuffer);
-      const drawVal = Math.min(entry.val, yMax);
-      const normY = (drawVal - minVal) / (yMax - minVal);
+      const drawVal = Math.max(Math.min(entry.val, yMax), CHART_Y_MIN);
+      const normY = scale.valueToNormY(drawVal);
       const y = h - padding - normY * (h - 2 * padding);
       return { x, y, val: entry.val, ep: entry.ep };
     });
