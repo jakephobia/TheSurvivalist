@@ -900,12 +900,12 @@
     return { totalPower: totalPower, totalSocial: totalSocial, profile: profile };
   }
 
-  /** Matchmaking (banda -12% così CPU da fascia un po' più debole) + 75% counter + 25% forza. Carta 1 da top 10%, …, 5 da 55-70%. */
+  /** Matchmaking strettamente legato alla forza media del mazzo giocatore: banda stretta attorno al percentile del giocatore, fasce centrate per allineare la forza media CPU. */
   function pickCpuDeckMatchmaking(userDeck, fullPool) {
     if (!fullPool || fullPool.length === 0) return [];
     var totals = getDeckTotalsAndProfile(userDeck);
     var userAvgStrength = (totals.totalPower + totals.totalSocial) / 5;
-    var strengthPool = getStrengthFilteredPool(fullPool, userAvgStrength, 0.4, -0.12);
+    var strengthPool = getStrengthFilteredPool(fullPool, userAvgStrength, 0.28, 0);
     if (strengthPool.length < 5) strengthPool = fullPool.slice();
     var profile = totals.profile;
     var withScore = strengthPool.map(function (c) {
@@ -915,7 +915,7 @@
     });
     withScore.sort(function (a, b) { return b.score - a.score; });
     var L = withScore.length;
-    var limits = [0.10, 0.25, 0.40, 0.55, 0.70];
+    var limits = [0.32, 0.40, 0.48, 0.56, 0.64];
     var result = [];
     var used = {};
     for (var b = 0; b < 5; b++) {
