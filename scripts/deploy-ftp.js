@@ -36,6 +36,7 @@ const UPLOAD = [
   'global.css',
   'mobile.css',
   'theme.js',
+  'theme-flash.js',
   'torcha.js',
   'tally.js',
   'outlist.js',
@@ -50,6 +51,8 @@ const UPLOAD = [
   'dashboard-utils.js',
   'torcha-cards.json',
   'torcha-player-identities.json',
+  'changelog.json',
+  'bottega.html',
   'assets',
 ];
 
@@ -112,7 +115,6 @@ async function main() {
       user,
       password,
       secure: true,
-      secureOptions: { rejectUnauthorized: false },
     });
     console.log('Connesso.\nCaricamento in /' + remoteDir + ':\n');
 

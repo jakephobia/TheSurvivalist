@@ -36,6 +36,14 @@
 :root {
   color-scheme: light;
   --accent-color: #00bcd4; /* default: dashboard */
+  /* Per-tool accent (single source: pages + recent tools) */
+  --accent-sutral: #EC9F0C;
+  --accent-simoa: #D32F2F;
+  --accent-smuffer: #0D47A1;
+  --accent-edger: #7B2CBF;
+  --accent-tally: #8BC34A;
+  --accent-outlist: #089686;
+  --accent-torcha: #D60270;
   /* Unified font stack */
   --font-title: 'Roboto Condensed', system-ui, sans-serif;
   --font-text: 'Meera Inimai', system-ui, sans-serif;
@@ -56,8 +64,8 @@
   --radius-2xl: 24px;
 }
 
-body.page-sutral { --accent-color: #EC9F0C; }
-body.page-simoa { --accent-color: #D32F2F; }
+body.page-sutral { --accent-color: var(--accent-sutral); }
+body.page-simoa { --accent-color: var(--accent-simoa); }
 
 /* Simoa game phase: fill viewport height, Events log grows to use space */
 body.page-simoa .main-content {
@@ -190,11 +198,11 @@ body.page-simoa #game-phase #tab-narrative:has(#finale-section:not(.hidden)) .si
 body.page-simoa #game-phase #tab-narrative:has(#finale-section:not(.hidden)) #btn-main-action {
   display: none !important;
 }
-body.page-smuffer { --accent-color: #0D47A1; }
-body.page-edger { --accent-color: #7B2CBF; }
-body.page-tally { --accent-color: #D60270; }
-body.page-outlist { --accent-color: #00695C; }
-body.page-torcha { --accent-color: #8BC34A; }
+body.page-smuffer { --accent-color: var(--accent-smuffer); }
+body.page-edger { --accent-color: var(--accent-edger); }
+body.page-tally { --accent-color: var(--accent-tally); }
+body.page-outlist { --accent-color: var(--accent-outlist); }
+body.page-torcha { --accent-color: var(--accent-torcha); }
 
 /* ---------- TORCHA (gacha card game) ---------- */
 /* Portrait TCG-style cards */
@@ -453,6 +461,19 @@ body.page-torcha { --accent-color: #8BC34A; }
   align-items: flex-end;
   gap: var(--space-xl);
   margin-top: var(--space-xl);
+}
+.page-torcha .torcha-pack-buttons {
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+}
+.page-torcha .torcha-pack-open-secondary {
+  font-size: 0.8rem;
+  padding: var(--space-xs) var(--space-md);
+}
+.page-torcha .torcha-pack-open-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* Carousel copertine espansioni (no sachet) */
@@ -1085,11 +1106,11 @@ body.page-torcha { --accent-color: #8BC34A; }
   display: none !important;
 }
 
-/* Torcha modal (replaces alert/confirm) */
+/* Torcha modal (replaces alert/confirm); above card detail overlay */
 .page-torcha .torcha-modal-overlay {
   position: fixed;
   inset: 0;
-  z-index: 10000;
+  z-index: 20000;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
@@ -1127,6 +1148,222 @@ body.page-torcha { --accent-color: #8BC34A; }
 }
 .page-torcha .torcha-modal-btn.hidden {
   display: none !important;
+}
+
+/* Card detail popup (expanded card view) */
+.page-torcha .torcha-card-detail-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 19999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+  overflow-y: auto;
+}
+.page-torcha .torcha-card-detail-overlay.hidden {
+  display: none !important;
+}
+.page-torcha .torcha-card-detail-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+}
+.page-torcha .torcha-card-detail-dialog {
+  position: relative;
+  background: var(--page-bg, #fff);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.25);
+  max-width: 520px;
+  width: 100%;
+  max-height: calc(100vh - 2 * var(--space-lg));
+  overflow: hidden;
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+.page-torcha .torcha-card-detail-dialog.torcha-card-detail-dialog-rarity-common {
+  border-color: #9e9e9e;
+  background: linear-gradient(180deg, #e8e8e8 0%, #f5f5f5 35%, #e0e0e0 100%);
+  outline-color: #9e9e9e;
+}
+.page-torcha .torcha-card-detail-dialog.torcha-card-detail-dialog-rarity-rare {
+  border-color: #2e7d32;
+  background: linear-gradient(180deg, #c8e6c9 0%, #e8f5e9 35%, #c8e6c9 100%);
+  outline-color: #2e7d32;
+}
+.page-torcha .torcha-card-detail-dialog.torcha-card-detail-dialog-rarity-super_rare {
+  border-color: #2196f3;
+  background: linear-gradient(180deg, #bbdefb 0%, #e3f2fd 35%, #bbdefb 100%);
+  outline-color: #2196f3;
+}
+.page-torcha .torcha-card-detail-dialog.torcha-card-detail-dialog-rarity-legend {
+  border-color: #7b1fa2;
+  background: linear-gradient(180deg, #e1bee7 0%, #f3e5f5 35%, #e1bee7 100%);
+  outline-color: #7b1fa2;
+}
+.page-torcha .torcha-card-detail-dialog.torcha-card-detail-dialog-rarity-mt_rushmore {
+  border-color: #f9a825;
+  background: linear-gradient(180deg, #fff8e1 0%, #ffecb3 35%, #ffe082 70%, #ffd54f 100%);
+  outline-color: #f9a825;
+}
+.page-torcha .torcha-card-detail-close {
+  position: absolute;
+  top: var(--space-sm);
+  right: var(--space-sm);
+  z-index: 2;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: rgba(0, 0, 0, 0.08);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--text-color, #333);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+[data-theme="dark"] .page-torcha .torcha-card-detail-close {
+  background: rgba(255, 255, 255, 0.12);
+}
+.page-torcha .torcha-card-detail-close:hover {
+  background: rgba(0, 0, 0, 0.14);
+}
+[data-theme="dark"] .page-torcha .torcha-card-detail-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+.page-torcha .torcha-card-detail-inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  padding: var(--space-xl);
+  padding-top: var(--space-2xl);
+}
+@media (min-width: 520px) {
+  .page-torcha .torcha-card-detail-inner {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+.page-torcha .torcha-card-detail-image-wrap {
+  flex-shrink: 0;
+  width: 180px;
+  aspect-ratio: 1;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--card-bg, #f5f5f5);
+}
+.page-torcha .torcha-card-detail-image-wrap img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  vertical-align: top;
+}
+.page-torcha .torcha-card-detail-image-wrap .torcha-card-silhouette {
+  width: 100%;
+  height: 100%;
+  min-height: 180px;
+  background: linear-gradient(180deg, rgba(0,0,0,0.06) 0%, rgba(0,0,0,0.02) 100%);
+}
+.page-torcha .torcha-card-detail-info {
+  flex: 1;
+  min-width: 0;
+}
+.page-torcha .torcha-card-detail-name {
+  margin: 0 0 var(--space-xs) 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-color, #1a1a1a);
+}
+.page-torcha .torcha-card-detail-meta {
+  margin: 0 0 var(--space-md) 0;
+  font-size: 0.95rem;
+  color: var(--muted-color, #5a6c7d);
+}
+.page-torcha .torcha-card-detail-fields {
+  margin: 0 0 var(--space-md) 0;
+  font-size: 0.9rem;
+  display: grid;
+  gap: var(--space-xs);
+}
+.page-torcha .torcha-card-detail-fields dt {
+  font-weight: 600;
+  color: var(--muted-color, #5a6c7d);
+  margin: 0;
+}
+.page-torcha .torcha-card-detail-fields dd {
+  margin: 0 0 var(--space-xs) 0;
+  color: var(--text-color, #1a1a1a);
+}
+.page-torcha .torcha-card-detail-fields dd:last-child {
+  margin-bottom: 0;
+}
+.page-torcha .torcha-card-detail-fields .is-placeholder {
+  color: var(--muted-color, #8a9baa);
+}
+.page-torcha .torcha-card-detail-other-seasons-wrap {
+  margin: 0 0 var(--space-md) 0;
+  font-size: 0.9rem;
+}
+.page-torcha .torcha-card-detail-other-seasons-wrap.hidden {
+  display: none !important;
+}
+.page-torcha .torcha-card-detail-other-seasons-label {
+  display: block;
+  font-weight: 600;
+  color: var(--muted-color, #5a6c7d);
+  margin-bottom: var(--space-xs);
+}
+.page-torcha .torcha-card-detail-other-seasons-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin: 0;
+}
+.page-torcha .torcha-card-detail-other-season-link {
+  display: inline-block;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  background: var(--accent-color);
+  color: var(--button-text, #fff);
+  font-size: 0.85rem;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+}
+.page-torcha .torcha-card-detail-other-season-link:hover {
+  opacity: 0.9;
+  filter: brightness(1.05);
+}
+.page-torcha .torcha-card-detail-stats {
+  display: flex;
+  gap: var(--space-lg);
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+}
+.page-torcha .torcha-card-detail-stats .torcha-detail-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.page-torcha .torcha-card-detail-stats .torcha-detail-stat-label {
+  color: var(--muted-color, #5a6c7d);
+  font-weight: 600;
+}
+.page-torcha .torcha-card-detail-stats .torcha-detail-stat-value {
+  font-weight: 700;
+  color: var(--accent-color);
+}
+.page-torcha .torcha-collection-card.torcha-card-clickable-detail {
+  cursor: pointer;
+}
+.page-torcha .torcha-reveal-card.torcha-card-clickable-detail {
+  cursor: pointer;
 }
 
 .page-torcha .torcha-dex-season {
@@ -1761,7 +1998,6 @@ input, select, textarea {
   align-items: center;
   justify-content: center;
   margin-top: var(--space-2xl);
-  border-top: 1px solid rgba(255, 255, 255, 0.4);
 }
 
 .sidebar-theme-wrap .sidebar-theme-btn {
@@ -1787,7 +2023,6 @@ html[data-theme="dark"] .sidebar-theme-wrap .sidebar-theme-btn {
 .sidebar-footer {
   margin-top: auto;
   padding-top: var(--space-2xl);
-  border-top: 1px solid rgba(255, 255, 255, 0.4);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1950,7 +2185,7 @@ body.page-dashboard .dashboard-container {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  padding: var(--space-2xl) var(--content-padding-x);
+  padding: var(--space-lg) var(--content-padding-x);
 }
 
 body.page-dashboard .dashboard {
@@ -1969,6 +2204,10 @@ body.page-dashboard .dashboard > .index-recent-card {
   flex-shrink: 0;
 }
 
+body.page-dashboard .dashboard > .section {
+  margin-top: var(--space-md);
+}
+
 body.page-dashboard .index-grid-3 {
   flex: 1;
   min-height: 0;
@@ -1982,6 +2221,10 @@ body.page-dashboard .index-grid-3 .index-card {
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
+}
+
+body.page-dashboard .dashboard .index-card.card {
+  padding: var(--space-lg);
 }
 
 body.page-dashboard .index-changelog,
@@ -2551,7 +2794,7 @@ body.page-dashboard .index-instagram-embed {
   display: none;
   position: fixed;
   inset: 0;
-  z-index: 1000;
+  z-index: 20000;
   background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(4px);
   align-items: center;
@@ -3250,7 +3493,7 @@ html[data-theme="dark"] .simoa-btn-divider {
 #tribal-section.simoa-tribal-overlay:not(.hidden) {
   position: fixed;
   inset: 0;
-  z-index: 1000;
+  z-index: 19999;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4272,7 +4515,7 @@ html[data-theme="dark"] .simoa-voting-table thead th:first-child {
   display: none;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 20000;
 }
 
 .smuffer-modal-overlay.open {
@@ -4862,7 +5105,7 @@ html[data-theme="dark"] .simoa-voting-table thead th:first-child {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.6);
-  z-index: 999;
+  z-index: 20000;
   display: none;
   justify-content: center;
   align-items: center;
@@ -4988,7 +5231,7 @@ html[data-theme="dark"] .simoa-voting-table thead th:first-child {
 .tally-sort-icon { font-size: 0.7rem; margin-left: 0.25rem; opacity: 0.5; }
 .tally-sort-icon.active { opacity: 1; color: var(--accent-color); }
 
-.tally-modal-overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; padding: var(--space-lg); }
+.tally-modal-overlay { position: fixed; inset: 0; z-index: 20000; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; padding: var(--space-lg); }
 .tally-modal-overlay.open { display: flex; }
 .tally-modal-content { background: #fff; border-radius: var(--radius-xl); padding: var(--space-xl); max-width: 560px; max-height: 85vh; overflow-y: auto; box-shadow: 0 24px 48px rgba(0, 0, 0, 0.15); border-top: 4px solid var(--accent-color); }
 .tally-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-xl); padding-bottom: var(--space-md); border-bottom: 2px solid rgba(0, 0, 0, 0.08); }
@@ -5065,7 +5308,7 @@ html[data-theme="dark"] .simoa-voting-table thead th:first-child {
 .outlist-export-btns { display: flex; gap: var(--space-md); flex-wrap: wrap; margin-top: var(--space-md); }
 .outlist-export-btns .btn-block { flex: 1; min-width: 180px; }
 
-.outlist-modal-overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; padding: 1rem; }
+.outlist-modal-overlay { position: fixed; inset: 0; z-index: 20000; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; padding: 1rem; }
 .outlist-modal-overlay.open { display: flex; }
 .outlist-modal-content { background: #fff; border-radius: 24px; padding: 1.5rem; max-width: 420px; width: 100%; max-height: 85vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 24px 48px rgba(0, 0, 0, 0.15); border-top: 4px solid var(--accent-color); }
 .outlist-modal-content h3 { margin: 0 0 1rem 0; font-size: 1.1rem; color: #0e2638; }
@@ -5081,19 +5324,27 @@ html[data-theme="dark"] .simoa-voting-table thead th:first-child {
 /* ---------- DARK MODE ----------
  * Accent colors: more saturated & lighter for better readability on dark bg
  * Dashboard: #4dd0e1 | Sutral: #ffb74d | Simoa: #ef5350 | Smuffer: #42a5f5
- * Edger: #ba68c8 | Tally: #f06292 | Outlist: #4db6ac
+ * Edger: #ba68c8 | Tally: #f06292 | Outlist: #089686
  */
 html[data-theme="dark"] {
   color-scheme: dark;
+  /* Per-tool accent (dark) – same vars drive body.page-* and .index-recent-item-* */
+  --accent-sutral: #ffb74d;
+  --accent-simoa: #ef5350;
+  --accent-smuffer: #42a5f5;
+  --accent-edger: #ba68c8;
+  --accent-tally: #f06292;
+  --accent-outlist: #089686;
+  --accent-torcha: #9CCC65;
 }
 html[data-theme="dark"] body { --accent-color: #4dd0e1; }
-html[data-theme="dark"] body.page-sutral { --accent-color: #ffb74d; }
-html[data-theme="dark"] body.page-simoa { --accent-color: #ef5350; }
-html[data-theme="dark"] body.page-smuffer { --accent-color: #42a5f5; }
-html[data-theme="dark"] body.page-edger { --accent-color: #ba68c8; }
-html[data-theme="dark"] body.page-tally { --accent-color: #f06292; }
-html[data-theme="dark"] body.page-outlist { --accent-color: #4db6ac; }
-html[data-theme="dark"] body.page-torcha { --accent-color: #9CCC65; }
+html[data-theme="dark"] body.page-sutral { --accent-color: var(--accent-sutral); }
+html[data-theme="dark"] body.page-simoa { --accent-color: var(--accent-simoa); }
+html[data-theme="dark"] body.page-smuffer { --accent-color: var(--accent-smuffer); }
+html[data-theme="dark"] body.page-edger { --accent-color: var(--accent-edger); }
+html[data-theme="dark"] body.page-tally { --accent-color: var(--accent-tally); }
+html[data-theme="dark"] body.page-outlist { --accent-color: var(--accent-outlist); }
+html[data-theme="dark"] body.page-torcha { --accent-color: var(--accent-torcha); }
 
 html[data-theme="dark"] body {
   background: radial-gradient(circle at 20% 30%, #0e2e40, #081c28);
@@ -6167,12 +6418,16 @@ body.page-dashboard .index-recent-card {
   margin-bottom: var(--space-lg);
 }
 
+.index-recent-card .section-title {
+  margin-bottom: var(--space-md);
+}
+
 body.page-dashboard .dashboard {
-  padding: var(--space-xl) var(--content-padding-x);
+  padding: var(--space-lg) var(--content-padding-x);
 }
 
 body.page-dashboard .index-grid-3 {
-  gap: var(--space-xl);
+  gap: var(--space-md);
 }
 
 .index-welcome-title {
@@ -6202,7 +6457,7 @@ body.page-dashboard .index-grid-3 {
 .index-grid-3 {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-2xl);
+  gap: var(--space-lg);
 }
 
 .index-card-sub {
@@ -6230,14 +6485,14 @@ body.page-dashboard .index-grid-3 {
   transition: background 0.15s, transform 0.15s;
 }
 
-/* Accent colors per tool (light theme) - match body.page-* --accent-color */
-.index-recent-item-sutral { color: #EC9F0C; }
-.index-recent-item-simoa { color: #D32F2F; }
-.index-recent-item-edger { color: #7B2CBF; }
-.index-recent-item-outlist { color: #00695C; }
-.index-recent-item-smuffer { color: #0D47A1; }
-.index-recent-item-tally { color: #D60270; }
-.index-recent-item-torcha { color: #8BC34A; }
+/* Accent colors from same vars as body.page-* (--accent-* in :root / dark) */
+.index-recent-item-sutral { color: var(--accent-sutral); }
+.index-recent-item-simoa { color: var(--accent-simoa); }
+.index-recent-item-edger { color: var(--accent-edger); }
+.index-recent-item-outlist { color: var(--accent-outlist); }
+.index-recent-item-smuffer { color: var(--accent-smuffer); }
+.index-recent-item-tally { color: var(--accent-tally); }
+.index-recent-item-torcha { color: var(--accent-torcha); }
 
 .index-recent-item:hover {
   background: color-mix(in srgb, currentColor 12%, rgba(255, 255, 255, 0.8));
@@ -6378,15 +6633,6 @@ html[data-theme="dark"] .index-empty-msg {
 html[data-theme="dark"] .index-recent-item {
   background: rgba(255, 255, 255, 0.12);
 }
-
-/* Dark theme accent colors per tool - match html[data-theme="dark"] body.page-* --accent-color */
-html[data-theme="dark"] .index-recent-item-sutral { color: #ffb74d; }
-html[data-theme="dark"] .index-recent-item-simoa { color: #ef5350; }
-html[data-theme="dark"] .index-recent-item-edger { color: #ba68c8; }
-html[data-theme="dark"] .index-recent-item-outlist { color: #4db6ac; }
-html[data-theme="dark"] .index-recent-item-smuffer { color: #42a5f5; }
-html[data-theme="dark"] .index-recent-item-tally { color: #f06292; }
-html[data-theme="dark"] .index-recent-item-torcha { color: #9CCC65; }
 
 html[data-theme="dark"] .index-recent-item:hover {
   background: color-mix(in srgb, currentColor 18%, rgba(255, 255, 255, 0.2));

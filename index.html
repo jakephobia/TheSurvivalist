@@ -2,9 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <script>
-    (function(){var t=localStorage.getItem('survivalist_theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})();
-  </script>
+  <script src="theme-flash.js"></script>
   <title>The Survivalist</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="logo.png" type="image/png">
@@ -97,8 +95,7 @@
 
         <!-- Recent tools -->
         <div class="card section index-card index-recent-card">
-          <h3 class="section-title">Recent Tools</h3>
-          <p class="index-card-sub">Your recently used tools</p>
+          <h3 class="section-title">Recently Used</h3>
           <div id="recentToolsList" class="index-recent-list-h"></div>
           <p id="recentToolsEmpty" class="index-empty-msg hidden">No recent activity. Start using a tool!</p>
         </div>
@@ -127,40 +124,12 @@
             </div>
           </div>
 
-          <!-- Changelog -->
+          <!-- Changelog (loaded from changelog.json) -->
           <div class="card section index-card">
             <h3 class="section-title">Changelog</h3>
             <p class="index-card-sub">Updates and news</p>
-            <div class="index-changelog">
-              <div class="index-changelog-item">
-                <span class="index-changelog-date">2026-03-11</span>
-                <p>Torcha is now out of beta!</p>
-              </div>
-              <div class="index-changelog-item">
-                <span class="index-changelog-date">2025-03-09</span>
-                <p>New tool launched (still in beta)! Try Torcha, our new Survivor gacha card game!</p>
-              </div>
-              <div class="index-changelog-item">
-                <span class="index-changelog-date">2026-02-14</span>
-                <p>Mobile version refined and updated. Still not 100% perfect!</p>
-              </div>
-                <div class="index-changelog-item">
-                <span class="index-changelog-date">2026-02-13</span>
-                <p>Sutral and Tally are completed and are out of the Beta stage.</p>
-              </div>
-              <div class="index-changelog-item">
-                <span class="index-changelog-date">2026-02-13</span>
-                <p>Edger and Outlist are now out of their Beta version!</p>
-              </div>
-              <div class="index-changelog-item">
-                <span class="index-changelog-date">2026-02-12</span>
-                <p>Complete remake of the website: new design, unified cast export feature and more.</p>
-              </div>
-              <div class="index-changelog-item">
-                <span class="index-changelog-date">2025-12-17</span>
-                <p>Aaaaand we're online!</p>
-              </div>
-              
+            <div id="indexChangelog" class="index-changelog">
+              <p class="index-card-sub">Caricamento…</p>
             </div>
           </div>
         </div>

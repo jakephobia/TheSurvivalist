@@ -98,7 +98,9 @@
           }
           if (out.length === 5) return out;
         }
-      } catch (_) {}
+      } catch (e) {
+        if (typeof console !== 'undefined' && console.warn) console.warn('getTodaysDailyTasks parse:', e);
+      }
     }
     var indices = seededShuffleIndices(DAILY_TASKS_POOL.length, dateKey);
     var out = [];
@@ -575,6 +577,11 @@
         showTorchaModal({ title: 'Load session', body: 'Invalid JSON file: ' + (err.message || err), primaryLabel: 'OK' });
       }
     };
+    reader.onerror = function () {
+      showTorchaModal({ title: 'Load session', body: 'Impossibile leggere il file.', primaryLabel: 'OK' });
+      var input = el('torcha-import-session-file');
+      if (input) input.value = '';
+    };
     reader.readAsText(file);
   }
 
@@ -641,6 +648,145 @@
     }
     if (torchaModalPreviousFocus && typeof torchaModalPreviousFocus.focus === 'function') {
       torchaModalPreviousFocus.focus();
+    }
+  }
+
+  var torchaCardDetailEscapeHandler = null;
+  var torchaCardDetailPreviousFocus = null;
+
+  function showCardDetail(card) {
+    if (!card) return;
+    var overlay = el('torcha-card-detail-overlay');
+    var nameEl = el('torcha-card-detail-name');
+    var metaEl = el('torcha-card-detail-meta');
+    var fieldsEl = el('torcha-card-detail-fields');
+    var otherSeasonsWrap = el('torcha-card-detail-other-seasons-wrap');
+    var otherSeasonsEl = el('torcha-card-detail-other-seasons');
+    var statsEl = el('torcha-card-detail-stats');
+    var imageWrap = el('torcha-card-detail-image');
+    var dialogEl = el('torcha-card-detail-dialog');
+    if (!overlay || !nameEl) return;
+    if (dialogEl) {
+      RARITIES.forEach(function (r) { dialogEl.classList.remove('torcha-card-detail-dialog-rarity-' + r); });
+      if (card.rarity) dialogEl.classList.add('torcha-card-detail-dialog-rarity-' + card.rarity);
+    }
+    nameEl.textContent = card.name || '';
+    metaEl.textContent = getSeasonDisplay(card.season) + (card.placement != null ? ' · Place: #' + card.placement : '') + (card.is_winner ? ' · Winner' : '');
+    fieldsEl.innerHTML = '';
+    function addField(label, value, isPlaceholder) {
+      var dt = document.createElement('dt');
+      dt.textContent = label;
+      var dd = document.createElement('dd');
+      dd.textContent = value || '—';
+      if (isPlaceholder || !value || (typeof value === 'string' && !value.trim())) dd.classList.add('is-placeholder');
+      fieldsEl.appendChild(dt);
+      fieldsEl.appendChild(dd);
+    }
+    addField('Initial tribe', (card.tribe && String(card.tribe).trim()) ? card.tribe : '—', !card.tribe || !String(card.tribe).trim());
+    addField('Age (at taping)', (card.age != null && card.age !== '') ? String(card.age) : '—', card.age == null || card.age === '');
+    addField('SurviDex #', '—', true);
+    if (otherSeasonsWrap && otherSeasonsEl) {
+      var identity = getPlayerIdentity(card.id);
+      var otherCardIds = identity && identity.cardIds ? identity.cardIds.filter(function (cid) { return cid !== card.id; }) : [];
+      if (otherCardIds.length > 0) {
+        otherSeasonsEl.innerHTML = '';
+        otherCardIds.forEach(function (otherId) {
+          var otherCard = getCardById(cards, otherId);
+          if (!otherCard) return;
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'torcha-card-detail-other-season-link';
+          btn.textContent = getSeasonDisplay(otherCard.season);
+          btn.setAttribute('role', 'listitem');
+          btn.addEventListener('click', function () {
+            var owned = (inventory[otherCard.id] || 0) > 0;
+            if (owned) {
+              showCardDetail(otherCard);
+              return;
+            }
+            var cost = FIRE_TOKEN_COSTS[otherCard.rarity] || FIRE_TOKEN_COSTS.common;
+            var tokens = loadFireTokens();
+            var body = "You don't own this card. Want to buy it?\n\nYou have " + tokens.toLocaleString() + " fire tokens.\nCost: " + cost.toLocaleString() + " tokens (" + formatRarityLabel(otherCard.rarity) + ").";
+            showTorchaModal({
+              title: 'Card not owned',
+              body: body,
+              primaryLabel: 'Buy',
+              secondaryLabel: 'Cancel',
+              onPrimary: function () {
+                if (loadFireTokens() < cost) return;
+                if (!spendFireTokens(cost)) return;
+                var wasNew = (inventory[otherCard.id] || 0) === 0;
+                inventory = addToInventory(inventory, otherCard.id, 1);
+                saveInventory(inventory);
+                setAcquiredAtIfFirst(otherCard.id);
+                if (wasNew) addUniqueCardDiscoveredToday();
+                renderBuyButtons();
+                renderInventoryPanel();
+                renderDailyTasks();
+                showCardDetail(otherCard);
+              }
+            });
+          });
+          otherSeasonsEl.appendChild(btn);
+        });
+        otherSeasonsWrap.classList.remove('hidden');
+      } else {
+        otherSeasonsWrap.classList.add('hidden');
+      }
+    }
+    if (statsEl) {
+      var powerVal = card.power != null ? card.power : '—';
+      var socialVal = card.social != null ? card.social : '—';
+      statsEl.innerHTML = '<div class="torcha-detail-stat"><span class="torcha-detail-stat-label">Strength</span><span class="torcha-detail-stat-value">' + escapeHtml(String(powerVal)) + '</span></div><div class="torcha-detail-stat"><span class="torcha-detail-stat-label">Strategy</span><span class="torcha-detail-stat-value">' + escapeHtml(String(socialVal)) + '</span></div>';
+    }
+    if (imageWrap) {
+      imageWrap.innerHTML = '';
+      if (card.imageUrl) {
+        var img = document.createElement('img');
+        img.src = card.imageUrl;
+        img.alt = '';
+        imageWrap.appendChild(img);
+      } else {
+        var placeholder = document.createElement('div');
+        placeholder.className = 'torcha-card-silhouette';
+        imageWrap.appendChild(placeholder);
+      }
+    }
+    torchaCardDetailPreviousFocus = document.activeElement;
+    overlay.classList.remove('hidden');
+    overlay.setAttribute('aria-hidden', 'false');
+    torchaCardDetailEscapeHandler = function (e) {
+      if (e.key === 'Escape') hideCardDetail();
+    };
+    document.addEventListener('keydown', torchaCardDetailEscapeHandler);
+    var closeBtn = el('torcha-card-detail-close');
+    if (closeBtn) closeBtn.focus();
+  }
+
+  function hideCardDetail() {
+    var overlay = el('torcha-card-detail-overlay');
+    if (!overlay) return;
+    overlay.classList.add('hidden');
+    overlay.setAttribute('aria-hidden', 'true');
+    if (torchaCardDetailEscapeHandler) {
+      document.removeEventListener('keydown', torchaCardDetailEscapeHandler);
+      torchaCardDetailEscapeHandler = null;
+    }
+    if (torchaCardDetailPreviousFocus && typeof torchaCardDetailPreviousFocus.focus === 'function') {
+      torchaCardDetailPreviousFocus.focus();
+    }
+  }
+
+  function initCardDetailPopup() {
+    var overlay = el('torcha-card-detail-overlay');
+    var backdrop = el('torcha-card-detail-backdrop');
+    var closeBtn = el('torcha-card-detail-close');
+    if (backdrop) backdrop.addEventListener('click', hideCardDetail);
+    if (closeBtn) closeBtn.addEventListener('click', hideCardDetail);
+    if (overlay) {
+      overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) hideCardDetail();
+      });
     }
   }
 
@@ -1042,7 +1188,9 @@
     const div = document.createElement(opts.button ? 'button' : 'div');
     let baseClass = 'torcha-card torcha-rarity-' + card.rarity;
     if (opts.missing) baseClass += ' torcha-card-missing';
+    if (opts.clickableDetail) baseClass += ' torcha-card-clickable-detail';
     div.className = baseClass;
+    if (opts.clickableDetail) div.setAttribute('data-card-id', card.id);
     if (opts.reveal) div.classList.add('torcha-reveal-card');
     if (opts.collection) div.classList.add('torcha-collection-card');
     if (opts.button) div.type = 'button';
@@ -1081,11 +1229,12 @@
     return div;
   }
 
-  function escapeHtml(s) {
-    const div = document.createElement('div');
+  var escapeHtml = (typeof window.escapeHtml === 'function') ? window.escapeHtml : function (s) {
+    if (s == null) return '';
+    var div = document.createElement('div');
     div.textContent = s;
     return div.innerHTML;
-  }
+  };
 
   function renderTimer() {
     packState = getPackState();
@@ -1098,6 +1247,12 @@
     const expansionId = expansionSel && expansionSel.value || '';
     const poolSize = getCardsForExpansion(expansionId).length;
     if (openBtn) openBtn.disabled = packState.stock <= 0 || isOpeningPack || !expansionId || poolSize === 0;
+    const openRandomBtn = el('torcha-open-random-pack-btn');
+    if (openRandomBtn) {
+      const visible = getVisibleExpansions();
+      const hasAnyPool = visible.some(function (e) { return getCardsForExpansion(e.id).length > 0; });
+      openRandomBtn.disabled = packState.stock <= 0 || isOpeningPack || !hasAnyPool;
+    }
   }
 
   function renderReveal(drawn) {
@@ -1109,7 +1264,7 @@
     if (countEl) countEl.textContent = drawn.length;
     container.innerHTML = '';
     drawn.forEach(function (card) {
-      container.appendChild(renderCardEl(card, { reveal: true }));
+      container.appendChild(renderCardEl(card, { reveal: true, clickableDetail: true }));
     });
     toggleHidden(el('torcha-loading'), true);
     toggleHidden(el('torcha-main-card'), false);
@@ -1230,7 +1385,7 @@
       toShow.forEach(function (_ref) {
         const card = _ref.card;
         const count = _ref.count;
-        const node = renderCardEl(card, { collection: true, count });
+        const node = renderCardEl(card, { collection: true, count, clickableDetail: true });
         grid.appendChild(node);
       });
     }
@@ -1302,7 +1457,8 @@
           collection: true,
           count: owned ? count : 0,
           missing: !owned,
-          dexView: true
+          dexView: true,
+          clickableDetail: owned
         });
         grid.appendChild(node);
       });
@@ -1734,6 +1890,25 @@
     const expansionId = (el('torcha-pack-expansion') && el('torcha-pack-expansion').value) || '';
     const pool = getCardsForExpansion(expansionId);
     if (!pool.length || packState.stock <= 0) return;
+    openPackWithPool(pool);
+  }
+
+  function openRandomPack() {
+    const visible = getVisibleExpansions();
+    const withCards = visible.filter(function (e) { return getCardsForExpansion(e.id).length > 0; });
+    if (!withCards.length || packState.stock <= 0) return;
+    const chosen = withCards[Math.floor(Math.random() * withCards.length)];
+    const pool = getCardsForExpansion(chosen.id);
+    if (!pool.length) return;
+    openPackWithPool(pool);
+    const expansionSel = el('torcha-pack-expansion');
+    if (expansionSel && chosen.id) {
+      expansionSel.value = chosen.id;
+      updateExpansionCarouselSelected();
+    }
+  }
+
+  function openPackWithPool(pool) {
     const drawn = drawCards(pool, PACK_SIZE);
     const next = consumeOnePack(packState.stock, packState.nextPackAt);
     savePackState(next.stock, next.nextPackAt);
@@ -2018,9 +2193,16 @@
     if (track) track.scrollLeft = 0;
   }
 
+  /** Normalize filterSeason to '' or a finite number (for consistent comparison with card.season). */
+  function normalizeFilterSeason(val) {
+    if (val === '' || val == null) return '';
+    var n = parseInt(val, 10);
+    return Number.isFinite(n) ? n : '';
+  }
+
   function syncFilterFromSelect(expansionSel, seasonSel, raritySel, sortSel) {
     if (expansionSel) filterExpansion = expansionSel.value || '';
-    if (seasonSel) filterSeason = seasonSel.value === '' ? '' : parseInt(seasonSel.value, 10);
+    if (seasonSel) filterSeason = normalizeFilterSeason(seasonSel.value);
     if (raritySel) filterRarity = raritySel.value || '';
     if (sortSel) filterSort = sortSel.value || 'season';
   }
@@ -2050,7 +2232,7 @@
     if (invFavCheck) invFavCheck.checked = filterFavoritesOnly;
     if (expansionSel) expansionSel.addEventListener('change', function () { filterExpansion = expansionSel.value || ''; inventoryPageOffset = 0; renderInventoryPanel(); });
     if (raritySel) raritySel.addEventListener('change', function () { filterRarity = raritySel.value || ''; inventoryPageOffset = 0; renderInventoryPanel(); });
-    if (seasonSel) seasonSel.addEventListener('change', function () { filterSeason = seasonSel.value === '' ? '' : parseInt(seasonSel.value, 10); inventoryPageOffset = 0; renderInventoryPanel(); });
+    if (seasonSel) seasonSel.addEventListener('change', function () { filterSeason = normalizeFilterSeason(seasonSel.value); inventoryPageOffset = 0; renderInventoryPanel(); });
     if (sortSel) sortSel.addEventListener('change', function () { filterSort = sortSel.value || 'season'; inventoryPageOffset = 0; renderInventoryPanel(); });
     (function () {
       function toggleSortDirection() {
@@ -2119,6 +2301,19 @@
     const appEl = el('torcha-app');
     if (appEl) {
       appEl.addEventListener('click', function (e) {
+        const cardEl = e.target && e.target.closest ? e.target.closest('.torcha-card-clickable-detail') : null;
+        if (cardEl && !(e.target.closest && e.target.closest('.torcha-favorite-star'))) {
+          const cardId = cardEl.getAttribute('data-card-id');
+          if (cardId) {
+            const card = getCardById(cards, cardId);
+            if (card) {
+              e.preventDefault();
+              e.stopPropagation();
+              showCardDetail(card);
+              return;
+            }
+          }
+        }
         const from = e.target && e.target.nodeType === 1 ? e.target : (e.target && e.target.parentElement) || null;
         const star = from && from.closest && from.closest('.torcha-favorite-star');
         if (!star) return;
@@ -2151,6 +2346,7 @@
     if (typeof window.recordToolUsed === 'function') window.recordToolUsed('torcha');
     incrementSessionsToday();
     var cardsUrl = new URL('torcha-cards.json', window.location.href).href;
+    cardsUrl += (cardsUrl.indexOf('?') === -1 ? '?' : '&') + 'v=2';
     var identitiesUrl = new URL('torcha-player-identities.json', window.location.href).href;
     Promise.all([
       fetch(cardsUrl).then(function (res) {
@@ -2210,6 +2406,7 @@
         else switchTab('pack');
         el('torcha-reveal-close') && el('torcha-reveal-close').addEventListener('click', closeReveal);
         el('torcha-open-pack-btn') && el('torcha-open-pack-btn').addEventListener('click', openPack);
+        el('torcha-open-random-pack-btn') && el('torcha-open-random-pack-btn').addEventListener('click', openRandomPack);
         el('torcha-pack-expansion') && el('torcha-pack-expansion').addEventListener('change', renderPackPanel);
         var saveBtn = el('torcha-save-session');
         var loadBtn = el('torcha-load-session');
@@ -2219,6 +2416,7 @@
         if (importFileInput) importFileInput.addEventListener('change', function (e) { importSessionFile(e.target.files[0]); e.target.value = ''; });
         initHeaderOverflow();
         initFiltersDrawers();
+        initCardDetailPopup();
         el('torcha-pvp-fight') && el('torcha-pvp-fight').addEventListener('click', doPvpFight);
         el('torcha-challenge-again') && el('torcha-challenge-again').addEventListener('click', showChallengeSetup);
         el('torcha-shred-btn') && el('torcha-shred-btn').addEventListener('click', doShred);

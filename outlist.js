@@ -286,10 +286,27 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     copyBtn.addEventListener('click', function() {
-        exportText.select();
-        document.execCommand('copy');
-        alert('Copied!');
+        var text = exportText.value;
+        if (!text) return;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(function() {
+                alert('Copied!');
+            }).catch(function() {
+                fallbackCopy(text);
+            });
+        } else {
+            fallbackCopy(text);
+        }
     });
+    function fallbackCopy(text) {
+        exportText.select();
+        try {
+            if (document.execCommand('copy')) alert('Copied!');
+            else alert('Copy failed. Select the text and copy manually.');
+        } catch (e) {
+            alert('Copy failed. Select the text and copy manually.');
+        }
+    }
 
     document.getElementById('exportRankingsBtn').addEventListener('click', function() {
         const content = exportText.value;
@@ -318,25 +335,34 @@ document.addEventListener('DOMContentLoaded', function() {
     importJsonBtn.addEventListener('click', () => jsonFile.click());
 
     jsonFile.addEventListener('change', function(e) {
-        const file = e.target.files[0];
+        var file = e.target.files[0];
         if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (ev) => {
+        var reader = new FileReader();
+        reader.onload = function(ev) {
             try {
-                const parsed = JSON.parse(ev.target.result);
+                var parsed = JSON.parse(ev.target.result);
                 data = parsed.data || data;
                 customWeights = parsed.weights || customWeights;
                 useCustomWeights = parsed.useCustom || false;
                 localStorage.setItem('outlist_v6', JSON.stringify(data));
                 localStorage.setItem('outlist_weights', JSON.stringify(customWeights));
                 localStorage.setItem('outlist_useCustom', useCustomWeights);
-                location.reload();
+                useCustomWeightsCheckbox.checked = useCustomWeights;
+                weightsContainer.classList.toggle('hidden', !useCustomWeights);
+                renderWeightsGrid();
+                render();
+                updateStats();
+                alert('Session imported. Data updated.');
             } catch (err) {
                 alert('Invalid JSON file');
             }
+            e.target.value = '';
+        };
+        reader.onerror = function() {
+            alert('Impossibile leggere il file.');
+            e.target.value = '';
         };
         reader.readAsText(file);
-        e.target.value = '';
     });
 
     var outlistResetBtn = document.getElementById('outlist-reset');
@@ -353,9 +379,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function init() {
         const saved = localStorage.getItem('outlist_v6');
-        if (saved) try { data = JSON.parse(saved); } catch(_) {}
+        if (saved) try { data = JSON.parse(saved); } catch (e) { if (console && console.warn) console.warn('outlist_v6 parse:', e); }
         const sw = localStorage.getItem('outlist_weights');
-        if (sw) try { customWeights = JSON.parse(sw); } catch(_) {}
+        if (sw) try { customWeights = JSON.parse(sw); } catch (e) { if (console && console.warn) console.warn('outlist_weights parse:', e); }
         useCustomWeights = localStorage.getItem('outlist_useCustom') === 'true';
         useCustomWeightsCheckbox.checked = useCustomWeights;
         weightsContainer.classList.toggle('hidden', !useCustomWeights);

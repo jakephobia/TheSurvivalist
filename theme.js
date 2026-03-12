@@ -7,7 +7,8 @@
   function getSavedTheme() {
     try {
       return localStorage.getItem(STORAGE_KEY) || 'light';
-    } catch (_) {
+    } catch (e) {
+      if (typeof console !== 'undefined' && console.warn) console.warn('getSavedTheme:', e);
       return 'light';
     }
   }
@@ -16,7 +17,9 @@
     document.documentElement.setAttribute('data-theme', theme);
     try {
       localStorage.setItem(STORAGE_KEY, theme);
-    } catch (_) {}
+    } catch (e) {
+      if (typeof console !== 'undefined' && console.warn) console.warn('setTheme storage:', e);
+    }
     updateToggleLabel();
   }
 

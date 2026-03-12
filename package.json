@@ -4,6 +4,7 @@
   "description": "Survivor tools and Torcha card game",
   "scripts": {
     "fetch-fandom-45-49": "node scripts/fetch-fandom-images-45-49.js",
+    "fetch-fandom-wiki-fields": "node scripts/fetch-fandom-wiki-fields.js",
     "apply-brantsteele-44-49": "node scripts/apply-brantsteele-images-44-49.js",
     "download-card-images": "node scripts/download-all-card-images.js",
     "crop-wiki-faces": "node scripts/crop-wiki-faces-to-face.js",

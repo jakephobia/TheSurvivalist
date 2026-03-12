@@ -34,11 +34,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const hdTitleTarget = document.getElementById('hd-title-target');
     const hdTableInner = document.getElementById('hd-table-inner');
 
+    const EDGER_STORAGE_KEY = 'edger_session';
+
     // ------------------- EVENT LISTENERS ----------------------
     var edgerResetBtn = document.getElementById('edger-reset');
     if (edgerResetBtn) {
         edgerResetBtn.addEventListener('click', function() {
             if (!confirm('Reset everything? Tool will return to default state.')) return;
+            try { localStorage.removeItem(EDGER_STORAGE_KEY); } catch (e) {}
             document.getElementById('headRow').innerHTML = '<th class="edger-sticky-player">PLAYER</th>';
             document.getElementById('bodyRow').innerHTML = '';
             document.getElementById('colGroup').innerHTML = '<col class="edger-col-player">';
@@ -62,10 +65,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 e.target.value = '';
                 return;
             }
-            const names = window.CastShared.forEdger(parsed.data);
+            var names = window.CastShared.forEdger(parsed.data);
+            names = names.filter(function(n) {
+                var t = String(n).trim();
+                return t && !/^\d+$/.test(t);
+            });
             document.getElementById('bodyRow').innerHTML = '';
             addBatch(names.join(', '));
             if (parsed.data.seasonName) seasonNameInput.value = parsed.data.seasonName;
+            e.target.value = '';
+            saveEdgerState();
+        };
+        r.onerror = function() {
+            alert('Impossibile leggere il file.');
             e.target.value = '';
         };
         r.readAsText(file);
@@ -129,12 +141,17 @@ document.addEventListener('DOMContentLoaded', function() {
             moveRow(mBtn, dir);
         }
         const delBtn = e.target.closest('.edger-del-btn');
-        if (delBtn) delBtn.closest('tr').remove();
+        if (delBtn) {
+            delBtn.closest('tr').remove();
+            saveEdgerState();
+        }
     });
 
     // ------------------- INIZIALIZZAZIONE --------------------
-    addEp();
-    addBatch("");
+    if (!restoreEdgerState()) {
+        addEp();
+        addBatch("");
+    }
 
     // ------------------- FUNZIONI ----------------------------
     function addEp() {
@@ -159,6 +176,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('headRow').appendChild(th);
 
         document.querySelectorAll('#bodyRow tr').forEach(tr => mkCell(tr, ep));
+        saveEdgerState();
     }
 
     function deleteEp(th) {
@@ -174,6 +192,7 @@ document.addEventListener('DOMContentLoaded', function() {
         for (let i = 1; i < remainingHeaders.length; i++) {
             remainingHeaders[i].querySelector('.ep-label').innerText = 'E' + i;
         }
+        saveEdgerState();
     }
 
     function moveRow(btn, dir) {
@@ -183,6 +202,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if (dir === 1 && tr.nextElementSibling) {
             tr.parentNode.insertBefore(tr.nextElementSibling, tr);
         }
+        saveEdgerState();
     }
 
     function createPlayerHeader(name) {
@@ -206,16 +226,19 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function addBatch(txt) {
-        let val = txt || batchInInput.value;
-        if (!val) return;
-        val.split(',').forEach(n => {
-            if (!n.trim()) return;
-            let tr = document.createElement('tr');
-            tr.appendChild(createPlayerHeader(n.trim()));
-            for (let i = 1; i <= ep; i++) mkCell(tr, i);
+        var inputEl = document.getElementById('batchIn');
+        var val = (typeof txt === 'string') ? txt : (inputEl ? inputEl.value : '');
+        if (!val || !val.trim()) return;
+        val.split(',').forEach(function(n) {
+            var name = n.trim();
+            if (!name) return;
+            var tr = document.createElement('tr');
+            tr.appendChild(createPlayerHeader(name));
+            for (var i = 1; i <= ep; i++) mkCell(tr, i);
             document.getElementById('bodyRow').appendChild(tr);
         });
-        if (!txt) batchInInput.value = '';
+        if (inputEl && typeof txt !== 'string') inputEl.value = '';
+        saveEdgerState();
     }
 
     function mkCell(tr, i, data) {
@@ -275,6 +298,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function save() {
         if (curCell && s.r) applyCellData(curCell, s);
         closeModal();
+        saveEdgerState();
     }
 
     function closeModal() {
@@ -343,24 +367,84 @@ document.addEventListener('DOMContentLoaded', function() {
     function importData(e) {
         const file = e.target.files[0];
         if (!file) return;
-        let r = new FileReader();
-        r.onload = ev => {
-            if (window.recordToolUsed) window.recordToolUsed('edger');
-            let d = JSON.parse(ev.target.result);
+        var r = new FileReader();
+        r.onload = function(ev) {
+            try {
+                var d = JSON.parse(ev.target.result);
+                if (!d || typeof d !== 'object' || !Array.isArray(d.p) || typeof d.ep !== 'number') {
+                    alert('Formato file non valido. Usa un file di sessione esportato da Edger.');
+                    e.target.value = '';
+                    return;
+                }
+                if (window.recordToolUsed) window.recordToolUsed('edger');
+                document.getElementById('headRow').innerHTML = '<th class="edger-sticky-player">PLAYER</th>';
+                document.getElementById('bodyRow').innerHTML = '';
+                document.getElementById('colGroup').innerHTML = '<col class="edger-col-player">';
+                ep = 0;
+                if (d.season) seasonNameInput.value = d.season;
+                for (var i = 0; i < d.ep; i++) addEp();
+                d.p.forEach(function(p) {
+                    var tr = document.createElement('tr');
+                    tr.appendChild(createPlayerHeader(p.n));
+                    (p.c || []).forEach(function(c, idx) { mkCell(tr, idx + 1, c && c.r ? c : null); });
+                    document.getElementById('bodyRow').appendChild(tr);
+                });
+                saveEdgerState();
+            } catch (err) {
+                alert('File non valido o non supportato: ' + (err.message || 'errore di lettura'));
+            }
+            e.target.value = '';
+        };
+        r.onerror = function() {
+            alert('Impossibile leggere il file.');
+            e.target.value = '';
+        };
+        r.readAsText(file);
+    }
+
+    function getEdgerState() {
+        var d = { ep: ep, season: seasonNameInput ? seasonNameInput.value : '', p: [] };
+        var rows = document.querySelectorAll('#bodyRow tr');
+        for (var i = 0; i < rows.length; i++) {
+            var tr = rows[i];
+            var inp = tr.querySelector('input');
+            var cells = [];
+            tr.querySelectorAll('td.edger-cell').forEach(function(td) {
+                cells.push({ r: td.dataset.r || '', t: td.dataset.t || '', v: td.dataset.v || '1' });
+            });
+            d.p.push({ n: inp ? inp.value : '', c: cells });
+        }
+        return d;
+    }
+
+    function saveEdgerState() {
+        try {
+            var d = getEdgerState();
+            if (d.p.length === 0 && d.ep === 0) return;
+            localStorage.setItem(EDGER_STORAGE_KEY, JSON.stringify(d));
+        } catch (e) {}
+    }
+
+    function restoreEdgerState() {
+        try {
+            var raw = localStorage.getItem(EDGER_STORAGE_KEY);
+            if (!raw) return false;
+            var d = JSON.parse(raw);
+            if (!d || typeof d !== 'object' || !Array.isArray(d.p) || typeof d.ep !== 'number') return false;
             document.getElementById('headRow').innerHTML = '<th class="edger-sticky-player">PLAYER</th>';
             document.getElementById('bodyRow').innerHTML = '';
             document.getElementById('colGroup').innerHTML = '<col class="edger-col-player">';
             ep = 0;
             if (d.season) seasonNameInput.value = d.season;
-            for (let i = 0; i < d.ep; i++) addEp();
-            d.p.forEach(p => {
-                let tr = document.createElement('tr');
+            for (var i = 0; i < d.ep; i++) addEp();
+            d.p.forEach(function(p) {
+                var tr = document.createElement('tr');
                 tr.appendChild(createPlayerHeader(p.n));
-                p.c.forEach((c, idx) => mkCell(tr, idx + 1, c.r ? c : null));
+                (p.c || []).forEach(function(c, idx) { mkCell(tr, idx + 1, c && c.r ? c : null); });
                 document.getElementById('bodyRow').appendChild(tr);
             });
-        };
-        r.readAsText(file);
+            return true;
+        } catch (e) { return false; }
     }
 
     function makeHD() {

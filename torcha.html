@@ -2,9 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <script>
-    (function(){var t=localStorage.getItem('survivalist_theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})();
-  </script>
+  <script src="theme-flash.js"></script>
   <title>Torcha | The Survivalist</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="logo.png" type="image/png">
@@ -110,8 +108,9 @@
                   </div>
                   <div id="torcha-carousel-dots" class="torcha-carousel-dots" role="tablist" aria-label="Expansion position"></div>
                   <select id="torcha-pack-expansion" class="hidden" aria-hidden="true"></select>
-                  <div class="torcha-pack-row" style="display: flex; justify-content: center;">
-                    <button type="button" class="btn-primary torcha-pack-open-trigger" id="torcha-open-pack-btn" aria-label="Open pack">Open pack (5 cards)</button>
+                  <div class="torcha-pack-row torcha-pack-buttons">
+                    <button type="button" class="btn-primary torcha-pack-open-trigger" id="torcha-open-pack-btn" aria-label="Open selected expansion">Open selected</button>
+                    <button type="button" class="btn-secondary torcha-pack-open-secondary torcha-pack-open-trigger" id="torcha-open-random-pack-btn" aria-label="Open random pack">Open random pack</button>
                   </div>
                 </section>
               </div>
@@ -336,6 +335,26 @@
       <div class="torcha-modal-actions">
         <button type="button" id="torcha-modal-primary" class="btn-primary torcha-modal-btn"></button>
         <button type="button" id="torcha-modal-secondary" class="btn-secondary torcha-modal-btn hidden">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="torcha-card-detail-overlay" class="torcha-card-detail-overlay hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Card details">
+    <div class="torcha-card-detail-backdrop" id="torcha-card-detail-backdrop"></div>
+    <div class="torcha-card-detail-dialog" id="torcha-card-detail-dialog">
+      <button type="button" class="torcha-card-detail-close" id="torcha-card-detail-close" aria-label="Close">×</button>
+      <div class="torcha-card-detail-inner">
+        <div class="torcha-card-detail-image-wrap" id="torcha-card-detail-image"></div>
+        <div class="torcha-card-detail-info">
+          <h2 class="torcha-card-detail-name" id="torcha-card-detail-name"></h2>
+          <p class="torcha-card-detail-meta" id="torcha-card-detail-meta"></p>
+          <dl class="torcha-card-detail-fields" id="torcha-card-detail-fields"></dl>
+          <div class="torcha-card-detail-other-seasons-wrap hidden" id="torcha-card-detail-other-seasons-wrap">
+            <span class="torcha-card-detail-other-seasons-label">Also played in</span>
+            <div class="torcha-card-detail-other-seasons-links" id="torcha-card-detail-other-seasons" role="list"></div>
+          </div>
+          <div class="torcha-card-detail-stats" id="torcha-card-detail-stats"></div>
+        </div>
       </div>
     </div>
   </div>

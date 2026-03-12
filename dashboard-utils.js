@@ -12,7 +12,7 @@
   };
 
   const STORAGE_KEY = 'survivalist_recent_tools';
-  const MAX_ITEMS = 3;
+  const MAX_ITEMS = 5;
 
   const TOOL_LABELS = {
     sutral: 'Sutral',
@@ -30,19 +30,24 @@
       let list = [];
       try {
         list = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-      } catch (_) {}
+      } catch (e) {
+        if (typeof console !== 'undefined' && console.warn) console.warn('getRecentTools parse:', e);
+      }
       const entry = { page, label, ts: Date.now() };
       list = list.filter(e => e.page !== page);
       list.unshift(entry);
       list = list.slice(0, MAX_ITEMS);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-    } catch (_) {}
+    } catch (e) {
+      if (typeof console !== 'undefined' && console.warn) console.warn('recordToolUsed:', e);
+    }
   };
 
   window.getRecentTools = function () {
     try {
       return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    } catch (_) {
+    } catch (e) {
+      if (typeof console !== 'undefined' && console.warn) console.warn('getRecentTools:', e);
       return [];
     }
   };
@@ -93,7 +98,9 @@
   }
 
   function initInteractionTracking() {
-    if (!getCurrentToolPage()) return;
+    const page = getCurrentToolPage();
+    if (!page) return;
+    if (window.recordToolUsed) window.recordToolUsed(page);
     ['click', 'input', 'change', 'keydown', 'drop', 'dragend'].forEach(function (type) {
       document.addEventListener(type, onInteraction, true);
     });
