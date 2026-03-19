@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script src="theme-flash.js"></script>
+  <title>SIMOA | The Survivalist</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="logo.png" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Meera+Inimai&family=Roboto+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="global.css">
+  <link rel="stylesheet" href="mobile.css">
+  <script src="theme.js" defer></script>
+</head>
+<body class="page-simoa">
+  <script src="mobile-detection.js"></script>
+  <div class="mobile-menu-backdrop" id="mobileMenuBackdrop"></div>
+  <aside class="sidebar">
+    <div class="sidebar-logo"><img src="logo.png" alt="The Survivalist"></div>
+    <nav class="sidebar-nav">
+      <a href="index.html" class="nav-item"><span class="nav-icon-home"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></span><span>Homepage</span></a>
+      <a href="edger.html" class="nav-item"><span>Edger</span></a>
+      <a href="outlist.html" class="nav-item"><span>Outlist</span></a>
+      <a href="simoa.html" class="nav-item active"><span>Simoa</span></a>
+      <a href="smuffer.html" class="nav-item"><span>Smuffer</span><span class="nav-beta nav-beta-smuffer">BETA</span></a>
+      <a href="sutral.html" class="nav-item"><span>Sutral</span></a>
+      <a href="tally.html" class="nav-item"><span>Tally</span></a>
+      <a href="torcha.html" class="nav-item"><span>Torcha</span></a>
+    </nav>
+    <div class="sidebar-theme-wrap">
+      <button type="button" id="themeToggleBtn" class="theme-toggle-btn sidebar-theme-btn" aria-label="Toggle dark mode">🌙</button>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-social">
+        <a href="https://www.youtube.com/@TorchlightTalesYT" target="_blank" rel="noopener" class="social-yt" aria-label="YouTube">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+        </a>
+        <a href="https://www.instagram.com/thesurvivalis7" target="_blank" rel="noopener" class="social-ig" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+        </a>
+      </div>
+      <p class="sidebar-credit">tools by u/ylan93</p>
+      <a href="https://ko-fi.com/ylan93" target="_blank" rel="noopener" class="sidebar-kofi">Buy me a coffee!</a>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="main-header">
+      <div class="header-left">
+        <h2 class="header-title">SIMOA</h2>
+        <p class="header-subtitle">Season simulator</p>
+      </div>
+      <div class="header-right">
+        <button type="button" class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">☰</button>
+        <div id="simoa-header-game-btns" class="simoa-flex-row simoa-gap-10 hidden">
+          <input type="file" id="import-file" class="hidden">
+          <button class="btn-secondary btn-sm" id="importSeasonBtn">Load Session</button>
+          <button class="btn-secondary btn-sm" id="exportSeasonBtn">Save Session</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="dashboard-container">
+      <section class="dashboard">
+        <div id="setup-phase">
+          <div class="card section">
+            <div class="simoa-toolbar">
+              <div class="simoa-input-group simoa-input-group-season">
+                <span class="simoa-input-label">Season Name</span>
+                <input type="text" id="season-name" placeholder="e.g. Survivor: Sim Island">
+              </div>
+              <div class="simoa-input-group">
+                <span class="simoa-input-label">Players</span>
+                <input type="number" id="num-players" min="12" max="24" value="18" placeholder="e.g. 18">
+              </div>
+              <div class="simoa-input-group">
+                <span class="simoa-input-label">Tribes</span>
+                <select id="num-tribes">
+                  <option value="2">2 Tribes</option>
+                  <option value="3" selected>3 Tribes</option>
+                  <option value="4">4 Tribes</option>
+                </select>
+              </div>
+              <div class="simoa-input-group">
+                <span class="simoa-input-label">Merge At</span>
+                <input type="number" id="merge-at" value="12" placeholder="e.g. 12">
+              </div>
+              <div class="simoa-input-group">
+                <span class="simoa-input-label">Pre-Merge Swaps</span>
+                <input type="number" id="num-swaps" min="0" max="3" placeholder="e.g. 1">
+              </div>
+            </div>
+            <div class="simoa-toolbar simoa-toolbar-secondary">
+              <div class="simoa-input-group simoa-input-group-season">
+                <span class="simoa-input-label">Merge Tribe Name</span>
+                <input type="text" id="merge-name" placeholder="e.g. Forged">
+              </div>
+              <div class="simoa-input-group simoa-input-group-color">
+                <span class="simoa-input-label">Merge Color</span>
+                <input type="color" id="merge-color" value="#ab47bc">
+              </div>
+            </div>
+            <h3 class="section-title" style="margin-top:1.5rem;">Tribe Customization</h3>
+            <div id="tribe-config-area" class="simoa-tribe-config-wrap"></div>
+            <div class="simoa-flex-row" style="margin-top:1.5rem;gap:1rem;">
+              <button class="btn-primary btn-block simoa-flex-2" id="generateCastBtn">Generate Cast</button>
+              <button class="btn-secondary btn-block simoa-flex-1 hidden" id="btn-resume-game">Resume Previous</button>
+            </div>
+          </div>
+
+          <div id="cast-editor" class="card section hidden">
+            <div class="simoa-flex-row simoa-space-between section-header" style="margin-bottom:1rem;">
+              <h3 class="section-title">Cast Editor</h3>
+              <div class="simoa-flex-row simoa-gap-5 simoa-cast-editor-btns" style="flex-wrap:wrap; align-items:center;">
+                <input type="file" id="cast-import-file" class="hidden" accept=".json,application/json">
+                <button class="btn-secondary btn-sm" id="importCastBtn">Import Cast</button>
+                <button class="btn-secondary btn-sm" id="exportCastBtn">Export Cast</button>
+                <span class="simoa-btn-divider"></span>
+                <button class="btn-secondary btn-sm" id="toggleStatLegendBtn">Stats Info</button>
+                <button class="btn-secondary btn-sm" id="fillRandomNamesBtn">Random Names</button>
+                <button class="btn-secondary btn-sm" id="balanceTribesBtn">Balance</button>
+                <button class="btn-primary btn-sm" id="randomizeAllBtn">Randomize All</button>
+              </div>
+            </div>
+            <div id="stat-legend" class="simoa-stat-legend hidden">
+              <span class="simoa-stat-term">PHY:</span> Challenges. <span class="simoa-stat-term">STR:</span> Idols/Strategy.
+              <span class="simoa-stat-term">SOC:</span> Jury/Alliances. <span class="simoa-stat-term">LOY:</span> Loyalty.
+              <span class="simoa-stat-term">INT:</span> Idol Play. <span class="simoa-stat-term">TMP:</span> Stability.
+            </div>
+            <div id="cast-container" class="simoa-cast-list"></div>
+            <button class="btn-danger-filled btn-block btn-lg" id="startGameBtn" style="margin-top:1.5rem;">START SEASON</button>
+          </div>
+        </div>
+
+        <div id="game-phase" class="hidden">
+          <div class="card simoa-game-header">
+            <div class="simoa-game-header-row simoa-game-header-top">
+              <div class="simoa-game-header-title">
+                <h2 class="simoa-season-title" id="header-season-name">Season in Progress</h2>
+                <small id="game-stage-text">Pre-Merge</small>
+              </div>
+              <div class="simoa-remaining-box">
+                <span id="remaining-count" class="simoa-remaining-number">18</span>
+                <span class="simoa-remaining-label">Left</span>
+              </div>
+            </div>
+            <div class="simoa-game-header-row simoa-game-header-nav">
+              <button class="btn-secondary simoa-nav-btn" id="navEpisodePrev">‹</button>
+              <span id="ep-display" class="simoa-ep-display">Ep 1</span>
+              <button class="btn-secondary simoa-nav-btn" id="navEpisodeNext">›</button>
+              <button class="btn-secondary simoa-nav-btn simoa-nav-btn-sim" id="btn-sim-ep">Quick Sim Ep</button>
+            </div>
+          </div>
+          <div class="simoa-tabs">
+            <div class="simoa-tab tab active" data-tab="narrative">Events</div>
+            <div class="simoa-tab tab" data-tab="stats">Stats & Alliances</div>
+            <div class="simoa-tab tab" data-tab="relationships">Relationships</div>
+            <div class="simoa-tab tab" data-tab="voting">Voting History</div>
+          </div>
+          <div id="tab-narrative" class="simoa-tab-content tab-content">
+            <div class="card simoa-log-card">
+              <div id="narrative-log" class="section"></div>
+            </div>
+            <button class="btn-primary btn-block btn-lg" id="btn-main-action">Next Event</button>
+            <div id="tribal-section" class="simoa-tribal-overlay hidden">
+              <div class="card simoa-tribal-box">
+                <div class="simoa-tribal-header"><h3>Tribal Council</h3></div>
+                <div id="tribal-body">
+                  <div id="tribal-log" class="simoa-tribal-log"></div>
+                  <div id="vote-reveal-area" class="simoa-vote-area"></div>
+                </div>
+                <div id="tribal-controls" class="simoa-tribal-controls">
+                  <button class="btn-primary" id="btn-read-vote">Show Next Vote</button>
+                  <button class="btn-secondary hidden" id="btn-end-tribal">Leave Tribal</button>
+                  <button class="btn-secondary hidden" id="btn-close-tribal-view" type="button">Close tribal view</button>
+                </div>
+              </div>
+            </div>
+            <div id="finale-section" class="card hidden">
+              <div class="simoa-finale-container">
+                <h1 class="simoa-finale-title">FINAL TRIBAL COUNCIL</h1>
+                <div id="finalists-display" class="simoa-finalists-grid"></div>
+                <div id="jury-read-area" class="simoa-jury-read"></div>
+                <button class="btn-primary" id="btn-read-winner">Read Jury Vote</button>
+                <div id="winner-reveal" class="simoa-winner-reveal hidden">
+                  <div>The Winner of Survivor is...</div>
+                  <div id="winner-name" class="simoa-winner-text">NAME</div>
+                </div>
+              </div>
+              <div id="finale-recap" class="simoa-finale-recap hidden"><h3>Jury Votes Recap</h3><ul id="jury-list-recap"></ul></div>
+            </div>
+          </div>
+          <div id="tab-stats" class="simoa-tab-content tab-content hidden">
+            <div class="simoa-flex-row section" style="align-items:flex-start;flex-wrap:wrap;">
+              <div class="card simoa-flex-1" style="min-width:100%;">
+                <h3 class="section-title">Advantages in Play</h3>
+                <div id="advantage-list" class="simoa-flex-row"></div>
+              </div>
+              <div class="card simoa-flex-1" style="min-width:280px;">
+                <div class="simoa-flex-row simoa-space-between">
+                  <h3 class="section-title">Active Alliances</h3>
+                  <span id="sortAlliances" style="cursor:pointer;">sort</span>
+                </div>
+                <div id="alliance-list"></div>
+                <h4 class="simoa-alliance-subtitle">Inactive Alliances</h4>
+                <div id="inactive-alliance-list"></div>
+                <h4 class="simoa-alliance-subtitle" style="color:#888;">Past/Broken Alliances</h4>
+                <div id="past-alliance-list"></div>
+              </div>
+              <div class="card simoa-flex-1" style="min-width:280px;">
+                <h3 class="section-title">Player Status <small style="font-size:0.8em;color:#4a5f73">(click headers to sort)</small></h3>
+                <div style="overflow-y:auto;max-height:380px;">
+                  <table class="simoa-data-table data-table">
+                    <thead><tr>
+                      <th data-sort="name">Name</th>
+                      <th data-sort="tribe">Tribe</th>
+                      <th data-sort="socialScore">Social</th>
+                      <th data-sort="items">Items</th>
+                    </tr></thead>
+                    <tbody id="player-stats-table-body"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="tab-relationships" class="simoa-tab-content tab-content hidden">
+            <div id="heatmap-container"></div>
+          </div>
+          <div id="tab-voting" class="simoa-tab-content tab-content hidden">
+            <div class="card simoa-voting-table-container">
+              <table class="simoa-heatmap simoa-voting-table" id="voting-table">
+                <thead id="voting-head"></thead>
+                <tbody id="voting-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="dashboard-utils.js"></script>
+  <script src="mobile-menu.js"></script>
+  <script src="cast-shared.js"></script>
+  <script src="simoa.js"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "name": "surv2",
+  "private": true,
+  "description": "Survivor tools and Torcha card game",
+  "scripts": {
+    "fetch-fandom-45-49": "node scripts/fetch-fandom-images-45-49.js",
+    "apply-brantsteele-44-49": "node scripts/apply-brantsteele-images-44-49.js",
+    "download-card-images": "node scripts/download-all-card-images.js",
+    "crop-wiki-faces": "node scripts/crop-wiki-faces-to-face.js",
+    "ensure-weights": "node scripts/ensure-face-weights.js",
+    "deploy": "node scripts/deploy-ftp.js"
+  },
+  "dependencies": {
+    "@tensorflow/tfjs-node": "^4.11.0",
+    "basic-ftp": "^5.2.0",
+    "canvas": "^2.11.2",
+    "face-api.js": "^0.22.2",
+    "sharp": "^0.33.0"
+  }
+}

@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Environment and secrets (never commit)
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+secrets/
+*.secret
+
+# OS and editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Build / output
+dist/
+build/
+*.log
+npm-debug.log*
+
+# Optional: local data that might contain PII (uncomment if used)
+# castaways.json
+# *-session-backup.json

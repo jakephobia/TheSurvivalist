@@ -1,0 +1,932 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script src="theme-flash.js"></script>
+  <title>Admin Dashboard | The Survivalist</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="logo.png" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Meera+Inimai&family=Roboto+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="global.css">
+  <link rel="stylesheet" href="mobile.css">
+  <script src="theme.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    body.page-admin { --accent-color: #546E7A; }
+    body.page-admin .btn-primary { background: var(--accent-color); }
+    body.page-admin .btn-primary:hover { filter: brightness(1.1); }
+    .admin-gate { margin-top: 0; }
+    .admin-gate input { margin-right: 0.5rem; padding: 0.5rem; }
+    .admin-tabs { display: flex; gap: 0.25rem; margin-bottom: 1.5rem; flex-wrap: wrap; border-bottom: 1px solid rgba(0,0,0,0.12); }
+    html[data-theme="dark"] .admin-tabs { border-bottom-color: rgba(255,255,255,0.12); }
+    .admin-tab { padding: 0.5rem 1rem; border: none; background: none; cursor: pointer; font: inherit; color: inherit; border-radius: var(--radius-md); }
+    .admin-tab:hover { background: rgba(0,0,0,0.06); }
+    html[data-theme="dark"] .admin-tab:hover { background: rgba(255,255,255,0.08); }
+    .admin-tab.active { background: color-mix(in srgb, var(--accent-color) 15%, transparent); font-weight: 600; }
+    .admin-tab-panel { display: none; }
+    .admin-tab-panel.active { display: block; }
+    .admin-list { list-style: none; padding: 0; margin: 0; }
+    .admin-item { display: flex; align-items: flex-start; gap: 0.5rem; margin-bottom: 1rem; padding: 0.75rem; background: rgba(0,0,0,0.04); border-radius: var(--radius-md); }
+    html[data-theme="dark"] .admin-item { background: rgba(255,255,255,0.06); }
+    .admin-item-content { flex: 1; min-width: 0; }
+    .admin-item-date { font-size: 0.8rem; font-weight: 600; color: var(--accent-color); margin-bottom: 0.25rem; }
+    .admin-item-text { font-size: 0.9rem; margin: 0; white-space: pre-wrap; word-break: break-word; }
+    .admin-item-actions { display: flex; gap: 0.25rem; flex-shrink: 0; }
+    .admin-item-actions button { padding: 0.35rem 0.5rem; font-size: 0.8rem; }
+    .admin-item-actions .btn-danger-filled { min-width: 1.75rem; padding: 0.35rem 0.5rem; font-size: 1.1rem; line-height: 1; }
+    .admin-add { margin-top: 1.5rem; padding: 1rem; border: 1px dashed rgba(0,0,0,0.2); border-radius: var(--radius-md); }
+    html[data-theme="dark"] .admin-add { border-color: rgba(255,255,255,0.2); }
+    .admin-error { color: #c62828; font-size: 0.9rem; margin-top: 0.5rem; }
+    .admin-add-voice { margin-bottom: 1.5rem; }
+  </style>
+</head>
+<body class="page-admin">
+  <script src="mobile-detection.js"></script>
+  <div class="mobile-menu-backdrop" id="mobileMenuBackdrop"></div>
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <img src="logo.png" alt="The Survivalist">
+    </div>
+    <nav class="sidebar-nav">
+      <a href="index.html" class="nav-item">
+        <span class="nav-icon-home"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></span>
+        <span>Homepage</span>
+      </a>
+      <a href="edger.html" class="nav-item"><span>Edger</span></a>
+      <a href="outlist.html" class="nav-item"><span>Outlist</span></a>
+      <a href="simoa.html" class="nav-item"><span>Simoa</span></a>
+      <a href="smuffer.html" class="nav-item"><span>Smuffer</span><span class="nav-beta nav-beta-smuffer">BETA</span></a>
+      <a href="sutral.html" class="nav-item"><span>Sutral</span></a>
+      <a href="tally.html" class="nav-item"><span>Tally</span></a>
+      <a href="torcha.html" class="nav-item"><span>Torcha</span></a>
+    </nav>
+    <div class="sidebar-theme-wrap">
+      <button type="button" id="themeToggleBtn" class="theme-toggle-btn sidebar-theme-btn" aria-label="Toggle dark mode">ðŸŒ™</button>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-social">
+        <a href="https://www.youtube.com/@TorchlightTalesYT" target="_blank" rel="noopener" class="social-yt" aria-label="YouTube">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+        </a>
+        <a href="https://www.instagram.com/thesurvivalis7" target="_blank" rel="noopener" class="social-ig" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+        </a>
+      </div>
+      <p class="sidebar-credit">tools by u/ylan93</p>
+      <a href="https://ko-fi.com/ylan93" target="_blank" rel="noopener" class="sidebar-kofi">Buy me a coffee!</a>
+    </div>
+  </aside>
+
+  <div class="main-content">
+  <script>
+(function () {
+  'use strict';
+  var ADMIN_PASSWORD_DEFAULT = 'Gigli123!';
+  var ADMIN_PASSWORD_KEY = 'admin_dashboard_pwd';
+  var SESSION_KEY = 'admin_dashboard_ok';
+  var LIST_KEY = 'changelog_admin_list';
+
+  var currentCaptcha = null;
+
+  function getCurrentPassword() {
+    try {
+      var stored = localStorage.getItem(ADMIN_PASSWORD_KEY);
+      if (stored && typeof stored === 'string') return stored;
+    } catch (e) {}
+    return ADMIN_PASSWORD_DEFAULT;
+  }
+
+  function setCurrentPassword(pwd) {
+    try {
+      if (pwd && typeof pwd === 'string') {
+        localStorage.setItem(ADMIN_PASSWORD_KEY, pwd);
+      } else {
+        localStorage.removeItem(ADMIN_PASSWORD_KEY);
+      }
+    } catch (e) {}
+  }
+
+  function isAuthenticated() {
+    return sessionStorage.getItem(SESSION_KEY) === '1';
+  }
+
+  function setAuthenticated(ok) {
+    if (ok) sessionStorage.setItem(SESSION_KEY, '1'); else sessionStorage.removeItem(SESSION_KEY);
+  }
+
+  function loadFromStorage() {
+    try {
+      var raw = sessionStorage.getItem(LIST_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch (e) {}
+    return null;
+  }
+
+  function saveToStorage(list) {
+    sessionStorage.setItem(LIST_KEY, JSON.stringify(list));
+  }
+
+  function fetchChangelog(cb) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'changelog.json?v=' + Date.now(), true);
+    xhr.onload = function () {
+      if (xhr.status === 200) {
+        try {
+          var list = JSON.parse(xhr.responseText);
+          if (Array.isArray(list)) cb(null, list); else cb(new Error('Invalid format'));
+        } catch (e) { cb(e); }
+      } else { cb(new Error('HTTP ' + xhr.status)); }
+    };
+    xhr.onerror = function () { cb(new Error('Network error')); };
+    xhr.send();
+  }
+
+  function escapeHtml(s) {
+    if (s == null) return '';
+    var div = document.createElement('div');
+    div.textContent = s;
+    return div.innerHTML;
+  }
+
+  function render(list) {
+    var container = document.getElementById('changelogList');
+    if (!container) return;
+    container.innerHTML = '';
+    list.forEach(function (entry, i) {
+      var li = document.createElement('li');
+      li.className = 'admin-item';
+      li.dataset.index = i;
+      var content = document.createElement('div');
+      content.className = 'admin-item-content';
+      content.innerHTML = '<span class="admin-item-date">' + escapeHtml(entry.date) + '</span><p class="admin-item-text">' + escapeHtml(entry.text) + '</p>';
+      var actions = document.createElement('div');
+      actions.className = 'admin-item-actions';
+      var up = document.createElement('button');
+      up.type = 'button';
+      up.className = 'btn-secondary';
+      up.textContent = 'â†‘';
+      up.title = 'Sposta su';
+      up.disabled = i === 0;
+      up.onclick = function () { move(list, i, -1); };
+      var down = document.createElement('button');
+      down.type = 'button';
+      down.className = 'btn-secondary';
+      down.textContent = 'â†“';
+      down.title = 'Sposta giÃ¹';
+      down.disabled = i === list.length - 1;
+      down.onclick = function () { move(list, i, 1); };
+      var editBtn = document.createElement('button');
+      editBtn.type = 'button';
+      editBtn.className = 'btn-secondary';
+      editBtn.textContent = 'Modifica';
+      editBtn.onclick = function () { showEdit(i, entry, list); };
+      var delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'btn-secondary btn-danger-filled';
+      delBtn.textContent = 'Ã—';
+      delBtn.title = 'Rimuovi';
+      delBtn.onclick = function () { remove(list, i); };
+      actions.appendChild(up);
+      actions.appendChild(down);
+      actions.appendChild(editBtn);
+      actions.appendChild(delBtn);
+      li.appendChild(content);
+      li.appendChild(actions);
+      container.appendChild(li);
+    });
+  }
+
+  function move(list, i, delta) {
+    var j = i + delta;
+    if (j < 0 || j >= list.length) return;
+    var t = list[i]; list[i] = list[j]; list[j] = t;
+    saveToStorage(list);
+    render(list);
+  }
+
+  function remove(list, i) {
+    if (!confirm('Rimuovere questa voce?')) return;
+    list.splice(i, 1);
+    saveToStorage(list);
+    render(list);
+  }
+
+  function showEdit(i, entry, list) {
+    var dateEl = document.getElementById('editDate');
+    var textEl = document.getElementById('editText');
+    var idxEl = document.getElementById('editIndex');
+    var form = document.getElementById('editForm');
+    if (!dateEl || !textEl || !form) return;
+    dateEl.value = entry.date || '';
+    textEl.value = entry.text || '';
+    if (idxEl) idxEl.value = i;
+    form.classList.remove('hidden');
+  }
+
+  function hideEdit() {
+    var form = document.getElementById('editForm');
+    if (form) form.classList.add('hidden');
+  }
+
+  function saveEdit(list) {
+    var idxEl = document.getElementById('editIndex');
+    var dateEl = document.getElementById('editDate');
+    var textEl = document.getElementById('editText');
+    var i = idxEl ? parseInt(idxEl.value, 10) : -1;
+    if (i < 0 || i >= list.length) return;
+    var d = (dateEl && dateEl.value) ? dateEl.value.trim() : '';
+    var t = (textEl && textEl.value) ? textEl.value.trim() : '';
+    if (!d || !t) { alert('Data e testo obbligatori.'); return; }
+    list[i] = { date: d, text: t };
+    saveToStorage(list);
+    render(list);
+    hideEdit();
+  }
+
+  function addNew(list) {
+    var dateEl = document.getElementById('newDate');
+    var textEl = document.getElementById('newText');
+    var d = (dateEl && dateEl.value) ? dateEl.value.trim() : '';
+    var t = (textEl && textEl.value) ? textEl.value.trim() : '';
+    if (!d || !t) { alert('Data e testo obbligatori.'); return; }
+    list.unshift({ date: d, text: t });
+    saveToStorage(list);
+    render(list);
+    if (dateEl) dateEl.value = '';
+    if (textEl) textEl.value = '';
+  }
+
+  function downloadJson(list) {
+    var blob = new Blob([JSON.stringify(list, null, 2)], { type: 'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'changelog.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  function loadFromFile(file, list, cb) {
+    var r = new FileReader();
+    r.onload = function () {
+      try {
+        var parsed = JSON.parse(r.result);
+        if (!Array.isArray(parsed)) { cb('Il file deve contenere un array JSON.'); return; }
+        list.length = 0;
+        parsed.forEach(function (e) {
+          list.push({ date: e.date || '', text: e.text || '' });
+        });
+        saveToStorage(list);
+        render(list);
+        cb(null);
+      } catch (e) { cb(e.message || 'File non valido.'); }
+    };
+    r.onerror = function () { cb('Impossibile leggere il file.'); };
+    r.readAsText(file);
+  }
+
+  function showApp(list) {
+    document.getElementById('adminGate').classList.add('hidden');
+    document.getElementById('adminApp').classList.remove('hidden');
+    switchTab('tab-changelog');
+    render(list);
+  }
+
+  function showGate() {
+    setAuthenticated(false);
+    document.getElementById('adminGate').classList.remove('hidden');
+    document.getElementById('adminApp').classList.add('hidden');
+  }
+
+  function switchTab(tabId) {
+    var tabs = document.querySelectorAll('.admin-tab');
+    var panels = document.querySelectorAll('.admin-tab-panel');
+    tabs.forEach(function (t) {
+      var isActive = t.getAttribute('data-tab') === tabId;
+      t.classList.toggle('active', isActive);
+      t.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    });
+    panels.forEach(function (p) {
+      p.classList.toggle('active', p.id === tabId);
+    });
+  }
+
+  function generateCaptchaQuestion() {
+    var a = 1 + Math.floor(Math.random() * 9);
+    var b = 1 + Math.floor(Math.random() * 9);
+    currentCaptcha = a + b;
+    var q = document.getElementById('pwdCaptchaQuestion');
+    if (q) q.textContent = a + ' + ' + b + ' = ?';
+  }
+
+  function showPasswordForm() {
+    var form = document.getElementById('pwdForm');
+    if (!form) return;
+    var err = document.getElementById('pwdError');
+    if (err) err.textContent = '';
+    var oldEl = document.getElementById('pwdOld');
+    var n1 = document.getElementById('pwdNew');
+    var n2 = document.getElementById('pwdNew2');
+    var cap = document.getElementById('pwdCaptcha');
+    if (oldEl) oldEl.value = '';
+    if (n1) n1.value = '';
+    if (n2) n2.value = '';
+    if (cap) cap.value = '';
+    generateCaptchaQuestion();
+    form.classList.remove('hidden');
+  }
+
+  function hidePasswordForm() {
+    var form = document.getElementById('pwdForm');
+    if (form) form.classList.add('hidden');
+  }
+
+  function handlePasswordChangeSubmit() {
+    var oldEl = document.getElementById('pwdOld');
+    var n1 = document.getElementById('pwdNew');
+    var n2 = document.getElementById('pwdNew2');
+    var cap = document.getElementById('pwdCaptcha');
+    var err = document.getElementById('pwdError');
+
+    var oldPwd = oldEl && oldEl.value ? oldEl.value.trim() : '';
+    var newPwd = n1 && n1.value ? n1.value.trim() : '';
+    var newPwd2 = n2 && n2.value ? n2.value.trim() : '';
+    var captchaAns = cap && cap.value ? cap.value.trim() : '';
+
+    if (err) err.textContent = '';
+
+    if (!oldPwd || !newPwd || !newPwd2 || !captchaAns) {
+      if (err) err.textContent = 'Compila tutti i campi.';
+      return;
+    }
+
+    if (oldPwd !== getCurrentPassword()) {
+      if (err) err.textContent = 'La password attuale non Ã¨ corretta.';
+      return;
+    }
+
+    if (newPwd.length < 6) {
+      if (err) err.textContent = 'La nuova password deve avere almeno 6 caratteri.';
+      return;
+    }
+
+    if (newPwd !== newPwd2) {
+      if (err) err.textContent = 'Le due password nuove non coincidono.';
+      return;
+    }
+
+    var parsed = parseInt(captchaAns, 10);
+    if (!currentCaptcha || isNaN(parsed) || parsed !== currentCaptcha) {
+      if (err) err.textContent = 'Captcha non corretto. Riprova.';
+      generateCaptchaQuestion();
+      return;
+    }
+
+    setCurrentPassword(newPwd);
+    hidePasswordForm();
+    alert('Password aggiornata. Puoi accedere con la nuova password.');
+    showGate();
+  }
+
+  function init() {
+    var gate = document.getElementById('adminGate');
+    var app = document.getElementById('adminApp');
+    var pwdInput = document.getElementById('adminPwd');
+    var loginBtn = document.getElementById('adminLogin');
+    var list = loadFromStorage();
+
+    if (isAuthenticated()) {
+      if (list && list.length > 0) {
+        showApp(list);
+      } else {
+        fetchChangelog(function (err, data) {
+          if (!err && data && data.length > 0) {
+            saveToStorage(data);
+            showApp(data);
+          } else {
+            list = [];
+            saveToStorage(list);
+            showApp(list);
+          }
+        });
+      }
+    } else {
+      gate.classList.remove('hidden');
+      app.classList.add('hidden');
+    }
+
+    if (loginBtn && pwdInput) {
+      loginBtn.onclick = function () {
+        if (pwdInput.value === getCurrentPassword()) {
+          setAuthenticated(true);
+          pwdInput.value = '';
+          if (!list || list.length === 0) {
+            fetchChangelog(function (err, data) {
+              if (!err && data) { list = data; saveToStorage(list); } else { list = []; saveToStorage(list); }
+              showApp(list);
+            });
+          } else { showApp(list); }
+        } else {
+          alert('Password non corretta.');
+        }
+      };
+    }
+
+    document.querySelectorAll('.admin-tab').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var tabId = btn.getAttribute('data-tab');
+        if (tabId) switchTab(tabId);
+      });
+    });
+
+    var changePwdBtn = document.getElementById('changePwdBtn');
+    if (changePwdBtn) changePwdBtn.addEventListener('click', showPasswordForm);
+
+    var pwdSave = document.getElementById('pwdSave');
+    if (pwdSave) pwdSave.addEventListener('click', handlePasswordChangeSubmit);
+
+    var pwdCancel = document.getElementById('pwdCancel');
+    if (pwdCancel) pwdCancel.addEventListener('click', hidePasswordForm);
+
+    document.getElementById('editSave') && document.getElementById('editSave').addEventListener('click', function () { saveEdit(list); });
+    document.getElementById('editCancel') && document.getElementById('editCancel').addEventListener('click', hideEdit);
+    document.getElementById('addBtn') && document.getElementById('addBtn').addEventListener('click', function () { addNew(list); });
+    document.getElementById('downloadBtn') && document.getElementById('downloadBtn').addEventListener('click', function () { downloadJson(list); });
+    document.getElementById('loadFile') && document.getElementById('loadFile').addEventListener('change', function (e) {
+      var f = e.target.files[0];
+      if (!f) return;
+      loadFromFile(f, list, function (err) {
+        if (err) alert(err);
+        e.target.value = '';
+      });
+    });
+
+    var today = new Date().toISOString().slice(0, 10);
+    var newDate = document.getElementById('newDate');
+    if (newDate && !newDate.value) newDate.value = today;
+
+    var SUTRAL_ADAPTIVE_KEY = 'sutral_chart_adaptive_strength';
+    var sutralSlider = document.getElementById('sutralAdaptiveSlider');
+    var sutralOutput = document.getElementById('sutralAdaptiveValue');
+    if (sutralSlider && sutralOutput) {
+      var saved = localStorage.getItem(SUTRAL_ADAPTIVE_KEY);
+      var initial = saved != null ? parseFloat(saved) : 0.35;
+      initial = Math.max(0, Math.min(1, isNaN(initial) ? 0.35 : initial));
+      sutralSlider.value = Math.round(initial * 100);
+      sutralOutput.textContent = initial.toFixed(2);
+      sutralSlider.addEventListener('input', function () {
+        var v = parseInt(sutralSlider.value, 10) / 100;
+        sutralOutput.textContent = v.toFixed(2);
+        localStorage.setItem(SUTRAL_ADAPTIVE_KEY, String(v));
+      });
+    }
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+  </script>
+
+  <header class="main-header">
+    <div class="header-left">
+      <h2 class="header-title">Admin Dashboard</h2>
+      <p class="header-subtitle">Pannello di amministrazione</p>
+    </div>
+    <div class="header-right">
+      <button type="button" class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">â˜°</button>
+    </div>
+  </header>
+
+  <main class="dashboard-container">
+    <section class="dashboard">
+      <div id="adminGate" class="card section index-card admin-gate">
+        <h3 class="section-title">Admin Dashboard</h3>
+        <p>Inserisci la password.</p>
+        <div>
+          <input type="password" id="adminPwd" placeholder="Password" autocomplete="current-password" class="input-base">
+          <button type="button" id="adminLogin" class="btn-primary">Accedi</button>
+        </div>
+      </div>
+
+      <div id="adminApp" class="hidden">
+        <nav class="admin-tabs" role="tablist">
+          <button type="button" class="admin-tab active" data-tab="tab-changelog" role="tab" aria-selected="true">Homepage</button>
+          <button type="button" class="admin-tab" data-tab="tab-sutral" role="tab" aria-selected="false">Sutral</button>
+        </nav>
+
+        <div id="tab-sutral" class="admin-tab-panel" role="tabpanel">
+          <div class="card section index-card">
+            <h3 class="section-title">Sutral â€“ Grafico Win Equity</h3>
+            <p style="margin-bottom: 1rem;">Regola quanto la scala Y del grafico si adatta alla densitÃ  dei dati (0 = lineare, 1 = totalmente guidata dai dati). Da questo momento in poi Sutral userÃ  il valore scelto.</p>
+            <div style="max-width: 320px;">
+              <label for="sutralAdaptiveSlider" style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                <span>AdattivitÃ  scala</span>
+                <output id="sutralAdaptiveValue" for="sutralAdaptiveSlider">0.35</output>
+              </label>
+              <input type="range" id="sutralAdaptiveSlider" min="0" max="100" value="35" step="1" style="width: 100%;">
+            </div>
+          </div>
+
+          <div class="card section index-card" style="margin-top: 1.5rem;">
+            <h3 class="section-title">Export PNG Sutral</h3>
+            <p style="margin-bottom: 1rem; font-size: 0.9rem;">Esporta tabelle e grafici Sutral come immagini PNG. I dati provengono dalla sessione corrente (localStorage) o da un file JSON caricato.</p>
+
+            <div style="margin-bottom: 1rem;">
+              <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Fonte dati</label>
+              <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;">
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                  <input type="radio" name="sutralExportSource" value="localStorage" checked> Sessione corrente (localStorage)
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                  <input type="radio" name="sutralExportSource" value="file"> Carica JSON sessione
+                </label>
+                <input type="file" id="sutralExportJsonFile" accept=".json" class="hidden">
+                <button type="button" class="btn-secondary btn-sm" id="sutralExportLoadJson">Scegli fileâ€¦</button>
+              </div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+              <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Cosa esportare (con episodio per ciascuno)</label>
+              <div id="sutralExportItems" style="display: flex; flex-direction: column; gap: 0.75rem;"></div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+              <label for="sutralExportMinWinRate" style="display: block; margin-bottom: 0.25rem; font-weight: 600;">Min. Win Equity (%)</label>
+              <input type="number" id="sutralExportMinWinRate" class="input-base" min="0" max="100" step="0.1" value="0" placeholder="0 = tutti" style="width: 100%; max-width: 120px;">
+              <small style="color: #666;">Solo giocatori con almeno X% nel grafico Win Equity</small>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+              <button type="button" class="btn-secondary" id="sutralExportPreviewBtn">Anteprima grafico</button>
+              <button type="button" class="btn-primary" id="sutralExportBtn" style="margin-left: 0.5rem;">Esporta PNG selezionati</button>
+            </div>
+
+            <div id="sutralExportPreview" class="hidden" style="margin-top: 1rem; padding: 1rem; border: 1px dashed rgba(0,0,0,0.2); border-radius: var(--radius-md); background: #fafafa;">
+              <h4 style="margin-top: 0;">Anteprima grafico Win Equity</h4>
+              <div id="sutralExportChartPreview" style="width: 100%; height: 280px; background: #fff; border-radius: 8px;"></div>
+            </div>
+
+            <div id="sutralExportStatus" class="hidden" style="margin-top: 1rem; padding: 0.5rem; font-size: 0.9rem;"></div>
+          </div>
+        </div>
+
+        <div id="tab-changelog" class="admin-tab-panel active" role="tabpanel">
+          <div class="card section index-card">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+              <h3 class="section-title" style="margin: 0;">Homepage</h3>
+              <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;">
+                <button type="button" id="downloadBtn" class="btn-primary">Esporta JSON</button>
+                <label class="btn-secondary" style="margin: 0; cursor: pointer;">
+                  Importa JSON
+                  <input type="file" id="loadFile" accept=".json" class="hidden">
+                </label>
+                <button type="button" id="changePwdBtn" class="btn-secondary">Cambia password</button>
+              </div>
+            </div>
+
+            <div class="admin-add admin-add-voice">
+              <h3 class="section-title">Aggiungi voce</h3>
+              <div style="margin-bottom: 0.75rem;">
+                <label for="newDate">Data (YYYY-MM-DD)</label>
+                <input type="date" id="newDate" class="input-base" style="display: block; width: 100%; max-width: 200px;">
+              </div>
+              <div style="margin-bottom: 0.75rem;">
+                <label for="newText">Testo</label>
+                <textarea id="newText" class="input-base" rows="3" style="width: 100%;" placeholder="Testo della voce changelog..."></textarea>
+              </div>
+              <button type="button" id="addBtn" class="btn-primary">Aggiungi</button>
+            </div>
+
+            <h3 class="section-title">Voci esistenti</h3>
+            <ul id="changelogList" class="admin-list"></ul>
+
+            <div id="editForm" class="admin-add hidden">
+              <h3 class="section-title">Modifica voce</h3>
+              <input type="hidden" id="editIndex">
+              <div style="margin-bottom: 0.75rem;">
+                <label for="editDate">Data (YYYY-MM-DD)</label>
+                <input type="date" id="editDate" class="input-base" style="display: block; width: 100%; max-width: 200px;">
+              </div>
+              <div style="margin-bottom: 0.75rem;">
+                <label for="editText">Testo</label>
+                <textarea id="editText" class="input-base" rows="3" style="width: 100%;"></textarea>
+              </div>
+              <button type="button" id="editSave" class="btn-primary">Salva</button>
+              <button type="button" id="editCancel" class="btn-secondary">Annulla</button>
+            </div>
+
+            <div id="pwdForm" class="admin-add hidden">
+              <h3 class="section-title">Cambia password</h3>
+              <div style="margin-bottom: 0.75rem;">
+                <label for="pwdOld">Password attuale</label>
+                <input type="password" id="pwdOld" class="input-base" style="display: block; width: 100%; max-width: 260px;" autocomplete="current-password">
+              </div>
+              <div style="margin-bottom: 0.75rem;">
+                <label for="pwdNew">Nuova password</label>
+                <input type="password" id="pwdNew" class="input-base" style="display: block; width: 100%; max-width: 260px;" autocomplete="new-password">
+              </div>
+              <div style="margin-bottom: 0.75rem;">
+                <label for="pwdNew2">Ripeti nuova password</label>
+                <input type="password" id="pwdNew2" class="input-base" style="display: block; width: 100%; max-width: 260px;" autocomplete="new-password">
+              </div>
+              <div style="margin-bottom: 0.75rem;">
+                <label for="pwdCaptcha">Antibot: <span id="pwdCaptchaQuestion"></span></label>
+                <input type="text" id="pwdCaptcha" class="input-base" style="display: block; width: 100%; max-width: 160px;" placeholder="Risultato">
+              </div>
+              <p id="pwdError" class="admin-error"></p>
+              <button type="button" id="pwdSave" class="btn-primary">Salva nuova password</button>
+              <button type="button" id="pwdCancel" class="btn-secondary">Annulla</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  </div>
+
+  <script src="sutral-export.js"></script>
+  <script src="mobile-menu.js"></script>
+  <script>
+(function() {
+  'use strict';
+  var SUTRAL_STORAGE_KEY = 'sutral_autosave_v3';
+  var exportJsonData = null;
+
+  function getSutralData() {
+    if (exportJsonData) return exportJsonData;
+    try {
+      var raw = localStorage.getItem(SUTRAL_STORAGE_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch (e) {}
+    return null;
+  }
+
+  var EXPORT_ITEMS = [
+    { id: 'epTable', label: 'Tabella episodio', needsEp: true },
+    { id: 'powerRank', label: 'Power rankings episodio', needsEp: true },
+    { id: 'winnerTable', label: 'Stats & Win Equity', needsEp: true },
+    { id: 'chart', label: 'Grafico Win Equity', needsEp: true }
+  ];
+
+  function populateExportItems(computed) {
+    var container = document.getElementById('sutralExportItems');
+    if (!container) return;
+    var eps = (computed && computed.episodeResults) ? computed.episodeResults : [];
+    container.innerHTML = '';
+    EXPORT_ITEMS.forEach(function(item) {
+      var row = document.createElement('label');
+      row.style.cssText = 'display: flex; align-items: center; gap: 0.75rem; cursor: pointer;';
+      var cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.id = 'sutralExport_' + item.id;
+      cb.dataset.exportId = item.id;
+      var sel = document.createElement('select');
+      sel.className = 'input-base';
+      sel.id = 'sutralExport_' + item.id + '_ep';
+      sel.dataset.exportId = item.id;
+      sel.style.minWidth = '100px';
+      eps.forEach(function(ep) {
+        var opt = document.createElement('option');
+        opt.value = ep.epNum;
+        opt.textContent = 'Ep ' + ep.epNum;
+        sel.appendChild(opt);
+      });
+      row.appendChild(cb);
+      row.appendChild(document.createTextNode(item.label));
+      row.appendChild(sel);
+      container.appendChild(row);
+    });
+  }
+
+  function runExport() {
+    var data = getSutralData();
+    if (!data || !data.episodes || data.episodes.length === 0) {
+      alert('Nessun dato Sutral. Apri Sutral, inserisci dati e calcola, oppure carica un file JSON di sessione.');
+      return null;
+    }
+    var computed = window.SutralExport.computeSutralData(data);
+    if (!computed) {
+      alert('Errore nel calcolo dei dati Sutral.');
+      return null;
+    }
+    return computed;
+  }
+
+  document.getElementById('sutralExportLoadJson') && document.getElementById('sutralExportLoadJson').addEventListener('click', function() {
+    document.getElementById('sutralExportJsonFile').click();
+  });
+  document.getElementById('sutralExportJsonFile') && document.getElementById('sutralExportJsonFile').addEventListener('change', function(e) {
+    var f = e.target.files[0];
+    if (!f) return;
+    var r = new FileReader();
+    r.onload = function() {
+      try {
+        var parsed = JSON.parse(r.result);
+        if (parsed && parsed.episodes && parsed.episodes.length > 0) {
+          exportJsonData = parsed;
+          document.querySelector('input[name="sutralExportSource"][value="file"]').checked = true;
+          var comp = window.SutralExport.computeSutralData(parsed);
+          if (comp) populateExportItems(comp);
+          alert('File caricato. ' + parsed.episodes.length + ' episodi.');
+        } else {
+          alert('File non valido: deve contenere episodes.');
+        }
+      } catch (err) {
+        alert('Errore lettura file: ' + (err.message || 'JSON non valido'));
+      }
+      e.target.value = '';
+    };
+    r.readAsText(f);
+  });
+  document.querySelectorAll('input[name="sutralExportSource"]').forEach(function(radio) {
+    radio.addEventListener('change', function() {
+      if (this.value === 'localStorage') exportJsonData = null;
+    });
+  });
+
+  document.getElementById('sutralExportPreviewBtn') && document.getElementById('sutralExportPreviewBtn').addEventListener('click', function() {
+    var data = getSutralData();
+    if (!data || !data.episodes || data.episodes.length === 0) {
+      alert('Nessun dato Sutral. Carica una sessione o usa i dati correnti.');
+      return;
+    }
+    var chartEpSel = document.getElementById('sutralExport_chart_ep');
+    var maxEp = chartEpSel ? (parseInt(chartEpSel.value, 10) || null) : null;
+    var computed = window.SutralExport.computeSutralData(data, maxEp ? { maxEpisodeNum: maxEp } : undefined);
+    if (!computed || !computed.chartSeries || !computed.chartPlayers) {
+      alert('Dati insufficienti per il grafico.');
+      return;
+    }
+    var minWin = parseFloat(document.getElementById('sutralExportMinWinRate').value) || 0;
+    var playersToShow = minWin > 0
+      ? computed.chartPlayers.filter(function(p) { return (computed.winnerTable && computed.winnerTable.finalProbs[p] || 0) >= minWin; })
+      : computed.chartPlayers;
+    if (playersToShow.length === 0) {
+      alert('Nessun giocatore sopra la soglia minima. Abbassa il valore Min. Win Equity.');
+      return;
+    }
+    var svg = window.SutralExport.buildChartSVG(computed.chartSeries, playersToShow, computed.playerColorMap, 800, 280);
+    var preview = document.getElementById('sutralExportChartPreview');
+    var container = document.getElementById('sutralExportPreview');
+    if (preview && container) {
+      preview.innerHTML = svg;
+      container.classList.remove('hidden');
+    }
+  });
+
+  document.getElementById('sutralExportBtn') && document.getElementById('sutralExportBtn').addEventListener('click', function() {
+    var data = getSutralData();
+    if (!data || !data.episodes || data.episodes.length === 0) {
+      alert('Nessun dato Sutral. Apri Sutral, inserisci dati e calcola, oppure carica un file JSON di sessione.');
+      return;
+    }
+    var computed = window.SutralExport.computeSutralData(data);
+    if (computed && !document.getElementById('sutralExport_epTable')) populateExportItems(computed);
+
+    var minWinRate = parseFloat(document.getElementById('sutralExportMinWinRate').value) || 0;
+    if (isNaN(minWinRate)) minWinRate = 0;
+
+    var toCapture = [];
+    var container = document.createElement('div');
+    container.id = 'sutral-export-container';
+    container.style.cssText = 'position:absolute;left:-9999px;top:0;width:1200px;background:#fff;padding:1.5rem;font-family:inherit;';
+    document.body.appendChild(container);
+
+    EXPORT_ITEMS.forEach(function(item) {
+      var cb = document.getElementById('sutralExport_' + item.id);
+      var sel = document.getElementById('sutralExport_' + item.id + '_ep');
+      if (!cb || !cb.checked || !sel) return;
+      var epNum = parseInt(sel.value, 10) || 1;
+
+      try {
+      if (item.id === 'epTable' || item.id === 'powerRank') {
+        var baseComputed = window.SutralExport.computeSutralData(data);
+        if (!baseComputed) return;
+        var epResult = baseComputed.episodeResults.find(function(e) { return e.epNum === epNum; });
+        if (!epResult) epResult = baseComputed.episodeResults[0];
+        if (!epResult) return;
+        if (item.id === 'epTable') {
+          var epHtml = window.SutralExport.buildEpisodeTableHTML(epResult, baseComputed.playerColorMap);
+          var epDiv = document.createElement('div');
+          epDiv.className = 'sutral-export-item';
+          epDiv.innerHTML = epHtml;
+          epDiv.style.marginBottom = '1.5rem';
+          container.appendChild(epDiv);
+          toCapture.push({ el: epDiv, name: 'Sutral_Ep' + epResult.epNum + '_Table.png' });
+        } else {
+          var prHtml = window.SutralExport.buildPowerRankingsHTML(epResult, baseComputed.playerColorMap);
+          var prDiv = document.createElement('div');
+          prDiv.className = 'sutral-export-item';
+          prDiv.innerHTML = prHtml;
+          prDiv.style.marginBottom = '1.5rem';
+          container.appendChild(prDiv);
+          toCapture.push({ el: prDiv, name: 'Sutral_Ep' + epResult.epNum + '_PowerRankings.png' });
+        }
+      } else if (item.id === 'winnerTable' || item.id === 'chart') {
+        var computed = window.SutralExport.computeSutralData(data, { maxEpisodeNum: epNum });
+        if (!computed) return;
+        if (item.id === 'winnerTable' && computed.winnerTable) {
+          var wtHtml = window.SutralExport.buildWinnerTableHTML(computed.winnerTable, computed.playerColorMap, null);
+          var wtDiv = document.createElement('div');
+          wtDiv.className = 'sutral-export-item';
+          wtDiv.innerHTML = '<div style="font-weight:600; margin-bottom:0.5rem;">Stats and Win Equity</div>' + wtHtml;
+          wtDiv.style.marginBottom = '1.5rem';
+          container.appendChild(wtDiv);
+          toCapture.push({ el: wtDiv, name: 'Sutral_Ep' + epNum + '_StatsWinEquity.png' });
+        } else if (item.id === 'chart' && computed.chartSeries && computed.chartPlayers) {
+          var playersToShow = minWinRate > 0 && computed.winnerTable
+            ? computed.chartPlayers.filter(function(p) { return (computed.winnerTable.finalProbs[p] || 0) >= minWinRate; })
+            : computed.chartPlayers;
+          if (playersToShow.length === 0) playersToShow = computed.chartPlayers;
+          var chartSvg = window.SutralExport.buildChartSVG(computed.chartSeries, playersToShow, computed.playerColorMap, 800, 300);
+          var chartDiv = document.createElement('div');
+          chartDiv.className = 'sutral-export-item sutral-chart-container';
+          chartDiv.style.width = '800px';
+          chartDiv.style.height = '320px';
+          chartDiv.style.marginBottom = '1.5rem';
+          chartDiv.innerHTML = chartSvg;
+          container.appendChild(chartDiv);
+          toCapture.push({ el: chartDiv, name: 'Sutral_Ep' + epNum + '_WinEquityChart.png' });
+        }
+      }
+      } catch (buildErr) {
+      }
+    });
+
+
+    if (toCapture.length === 0) {
+      alert('Seleziona almeno un elemento da esportare.');
+      container.remove();
+      return;
+    }
+
+    if (typeof html2canvas === 'undefined') {
+      alert('html2canvas non caricato. Ricarica la pagina.');
+      container.remove();
+      return;
+    }
+
+    var statusEl = document.getElementById('sutralExportStatus');
+    if (statusEl) {
+      statusEl.classList.remove('hidden');
+      statusEl.textContent = 'Export in corsoâ€¦';
+    }
+
+    var idx = 0;
+    function captureNext() {
+      if (idx >= toCapture.length) {
+        container.remove();
+        if (statusEl) statusEl.textContent = 'Export completato.';
+        return;
+      }
+      var item = toCapture[idx];
+      html2canvas(item.el, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        onclone: function(clonedDoc) {
+          try {
+            var sheets = clonedDoc.styleSheets;
+            for (var si = 0; si < sheets.length; si++) {
+              try {
+                var rules = sheets[si].cssRules;
+                if (!rules) continue;
+                for (var ri = rules.length - 1; ri >= 0; ri--) {
+                  if (rules[ri].cssText && rules[ri].cssText.indexOf('color-mix') !== -1) {
+                    sheets[si].deleteRule(ri);
+                  }
+                }
+              } catch (e) {}
+            }
+          } catch (e) {}
+        }
+      }).then(function(canvas) {
+        var a = document.createElement('a');
+        a.href = canvas.toDataURL('image/png');
+        a.download = item.name;
+        a.click();
+        idx++;
+        setTimeout(captureNext, 100);
+      }).catch(function(err) {
+        if (statusEl) statusEl.textContent = 'Errore: ' + (err.message || 'Export fallito');
+        container.remove();
+      });
+    }
+    captureNext();
+  });
+
+  document.querySelector('.admin-tab[data-tab="tab-sutral"]') && document.querySelector('.admin-tab[data-tab="tab-sutral"]').addEventListener('click', function() {
+    var computed = null;
+    try {
+      var data = getSutralData();
+      if (data && data.episodes && data.episodes.length > 0) {
+        computed = window.SutralExport && window.SutralExport.computeSutralData(data);
+      }
+    } catch (err) {
+    }
+    populateExportItems(computed);
+  });
+})();
+  </script>
+</body>
+</html>
